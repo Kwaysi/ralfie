@@ -483,7 +483,7 @@
         "Start Run button calls triggerRun API with board name and iteration count",
         "After starting, shows success message and Close button (replacing the form)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "BUILD-1",
