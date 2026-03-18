@@ -193,7 +193,7 @@
         "Running 'ralf plan' without prior 'ralf init' exits with error about missing skills",
         "Command spawns Claude Code in interactive mode (stdio inherited) with initial prompt referencing /ralfie-plan skill"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CMD-4",

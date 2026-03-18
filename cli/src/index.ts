@@ -5,6 +5,7 @@ import { listCommand } from './commands/list.js';
 import { statusCommand } from './commands/status.js';
 import { verifyCommand } from './commands/verify.js';
 import { unlockCommand } from './commands/unlock.js';
+import { planCommand } from './commands/plan.js';
 
 const program = new Command();
 
@@ -18,6 +19,13 @@ program
   .description('Initialize a ralfie project in the current directory')
   .action(async () => {
     await initCommand();
+  });
+
+program
+  .command('plan')
+  .description('Start an interactive planning session to create a new board')
+  .action(async () => {
+    await planCommand();
   });
 
 program
