@@ -1,0 +1,537 @@
+{
+  "project": "ralfie",
+  "description": "CLI tool that manages agentic coding loops with planning, execution, tracking, and a real-time React dashboard",
+  "created": "2026-03-18",
+  "items": [
+    {
+      "id": "SCAFFOLD-1",
+      "category": "Project Scaffolding",
+      "description": "Create monorepo root with package.json (workspaces: cli, ui, shared), tsconfig.base.json, and .gitignore",
+      "steps_to_verify": [
+        "package.json exists at project root with 'workspaces' field containing ['cli', 'ui', 'shared']",
+        "tsconfig.base.json exists with target ES2022, module Node16, strict true",
+        ".gitignore includes node_modules/, dist/, and .ralfie/"
+      ],
+      "passes": true
+    },
+    {
+      "id": "SCAFFOLD-2",
+      "category": "Project Scaffolding",
+      "description": "Create shared package with package.json and tsconfig.json",
+      "steps_to_verify": [
+        "shared/package.json exists with name '@ralfie/shared', type 'module'",
+        "shared/tsconfig.json extends ../tsconfig.base.json",
+        "shared/package.json has build and typecheck scripts"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SCAFFOLD-3",
+      "category": "Project Scaffolding",
+      "description": "Create CLI package with package.json (commander, ws deps) and tsconfig.json, bin entry 'ralf'",
+      "steps_to_verify": [
+        "cli/package.json exists with name '@ralfie/cli', type 'module', bin.ralf pointing to dist/index.js",
+        "cli/package.json has commander and ws as dependencies, vitest as devDependency",
+        "cli/tsconfig.json extends ../tsconfig.base.json"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SCAFFOLD-4",
+      "category": "Project Scaffolding",
+      "description": "Create UI package with package.json (React, Vite, Tailwind deps), tsconfig.json, and vite.config.ts with proxy settings",
+      "steps_to_verify": [
+        "ui/package.json exists with react, react-dom, react-router-dom, recharts, react-markdown as dependencies",
+        "ui/vite.config.ts configures React and Tailwind plugins, proxies /api and /ws to localhost:3333",
+        "ui/tsconfig.json has jsx: 'react-jsx' and module: 'ESNext'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SCAFFOLD-5",
+      "category": "Project Scaffolding",
+      "description": "Install all dependencies and verify workspace typecheck passes",
+      "steps_to_verify": [
+        "Running 'npm install' succeeds without errors",
+        "Running 'npm run typecheck' passes for all workspaces"
+      ],
+      "passes": false
+    },
+    {
+      "id": "TYPES-1",
+      "category": "Shared Types",
+      "description": "Define shared TypeScript types: ItemStatus, PrdItem, PrdItemComment, Prd, BoardMeta, Board, RalfieConfig, WsEvent, WsEventType",
+      "steps_to_verify": [
+        "shared/src/types.ts exports ItemStatus as union type: 'pending' | 'in_progress' | 'done' | 'failed' | 'verified'",
+        "PrdItem interface includes id, category, description, steps_to_verify (string[]), status, assigned_to (string|null), comments",
+        "RalfieConfig interface includes agent_command, default_iterations, feedback_loops (string[]), serve_port",
+        "WsEventType includes board:updated, prd:updated, progress:updated, lock:acquired, lock:released, run:started, run:iteration, run:completed",
+        "Running 'npm run build --workspace=shared' produces shared/dist/types.js and shared/dist/types.d.ts"
+      ],
+      "passes": false
+    },
+    {
+      "id": "LIB-1",
+      "category": "CLI Libraries",
+      "description": "Implement paths.ts module with helper functions for all .ralfie/ directory paths (ralfieDir, configPath, boardsDir, boardDir, planPath, prdPath, progressPath, locksDir, lockPath)",
+      "steps_to_verify": [
+        "cli/src/lib/paths.ts exports ralfieDir, configPath, boardsDir, boardDir, planPath, prdPath, progressPath, locksDir, lockPath",
+        "ralfieDir returns '<cwd>/.ralfie'",
+        "boardDir returns '<cwd>/.ralfie/boards/<boardName>'",
+        "lockPath returns '<cwd>/.ralfie/boards/<boardName>/locks/<itemId>.lock'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "LIB-2",
+      "category": "CLI Libraries",
+      "description": "Implement config.ts module with readConfig, writeConfig, and defaultConfig for .ralfie/config.json",
+      "steps_to_verify": [
+        "readConfig returns defaultConfig when no config file exists",
+        "writeConfig creates .ralfie directory if needed and writes config.json",
+        "readConfig merges partial saved config with defaults (missing fields get default values)",
+        "defaultConfig has agent_command='claude', default_iterations=10, feedback_loops=[], serve_port=3333",
+        "All 3 config tests pass: 'npm test --workspace=cli -- --run config'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "LIB-3",
+      "category": "CLI Libraries",
+      "description": "Implement prd.ts module with readPrd, writePrd, claimItem, completeItem, failItem, verifyItem, addComment — all mutations use O_EXCL file locking for concurrent safety",
+      "steps_to_verify": [
+        "claimItem sets status to 'in_progress' and assigned_to to the session ID",
+        "claimItem throws when item is already in_progress",
+        "completeItem sets status to 'done' and clears assigned_to",
+        "failItem sets status to 'failed', clears assigned_to, and appends a comment with the failure reason",
+        "verifyItem sets status to 'verified' only when current status is 'done', throws otherwise",
+        "addComment appends a PrdItemComment with timestamp, session_id, and message",
+        "All PRD mutations use file locking via O_EXCL to prevent concurrent clobber",
+        "All 8 PRD tests pass: 'npm test --workspace=cli -- --run prd'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "LIB-4",
+      "category": "CLI Libraries",
+      "description": "Implement board.ts module with createBoard, listBoards, getBoard, boardExists, appendProgress for board CRUD operations",
+      "steps_to_verify": [
+        "createBoard creates board directory with plan.md, prd.json, progress.md (empty), meta.json, and locks/ subdirectory",
+        "boardExists returns true when board directory exists, false otherwise",
+        "getBoard reads and returns meta, plan, prd, and progress data",
+        "listBoards returns array of BoardMeta for all boards with meta.json files",
+        "appendProgress appends text to progress.md",
+        "All 3 board tests pass: 'npm test --workspace=cli -- --run board'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "LIB-5",
+      "category": "CLI Libraries",
+      "description": "Implement lock.ts module with acquireLock (O_EXCL atomic create), releaseLock, isLocked, getLockInfo, clearStaleLocks for per-item lockfile management",
+      "steps_to_verify": [
+        "acquireLock creates a .lock file atomically using O_EXCL, returns true on success",
+        "acquireLock returns false (not throws) when lock already exists",
+        "releaseLock deletes the lock file",
+        "getLockInfo returns session_id and acquired_at from lock file content",
+        "clearStaleLocks removes all .lock files in the board's locks directory and returns count",
+        "All 5 lock tests pass: 'npm test --workspace=cli -- --run lock'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "LIB-6",
+      "category": "CLI Libraries",
+      "description": "Implement agent.ts module with spawnInteractive (stdio inherited), spawnPrintMode (captures stdout, detects <ralfie>COMPLETE</ralfie>), and generateSessionId",
+      "steps_to_verify": [
+        "spawnInteractive spawns the configured agent_command with inherited stdio and returns exit code",
+        "spawnPrintMode spawns agent with '-p' flag, captures stdout, and sets result.complete=true when output contains '<ralfie>COMPLETE</ralfie>'",
+        "generateSessionId returns a string matching pattern 'ralfie-<timestamp>-<random>'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "LIB-7",
+      "category": "CLI Libraries",
+      "description": "Implement skills.ts module and create three bundled skill markdown files: ralfie-plan.md, ralfie-edit.md, ralfie-run.md with installSkills function",
+      "steps_to_verify": [
+        "cli/src/skills/ralfie-plan.md exists with frontmatter (name, description) and phases: Grilling, Plan Generation, PRD Generation",
+        "cli/src/skills/ralfie-edit.md exists with phases: Setup (reads board state), Grilling, Update, Drift Log",
+        "cli/src/skills/ralfie-run.md exists with workflow: Pick Task, Claim Item, Implement, Run Feedback Loops, Update Progress, Update PRD, Commit, Check Completion, Failure Protocol",
+        "installSkills copies all 3 skill files from bundled source to .claude/skills/ directory"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-1",
+      "category": "CLI Commands",
+      "description": "Implement 'ralf init' command that creates .ralfie/ directory structure, writes default config, and installs Claude Code skills",
+      "steps_to_verify": [
+        "Running 'ralf init' creates .ralfie/ directory, .ralfie/config.json, and .ralfie/boards/",
+        "Running 'ralf init' installs skills to .claude/skills/ralfie-plan.md, ralfie-edit.md, ralfie-run.md",
+        "Running 'ralf init' twice does not overwrite modified config.json",
+        "Both init tests pass: 'npm test --workspace=cli -- --run init'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-2",
+      "category": "CLI Commands",
+      "description": "Implement CLI entry point (cli/src/index.ts) with Commander program definition, 'ralf' name, version 0.0.1, and init command wired",
+      "steps_to_verify": [
+        "cli/src/index.ts imports Commander and defines program with name 'ralf'",
+        "Running 'node cli/dist/index.js --help' shows available commands",
+        "Running 'node cli/dist/index.js init' executes the init command"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-3",
+      "category": "CLI Commands",
+      "description": "Implement 'ralf plan' command that verifies skill installation and spawns interactive Claude Code session with --prompt to invoke /ralfie-plan skill",
+      "steps_to_verify": [
+        "Running 'ralf plan' without prior 'ralf init' exits with error about missing skills",
+        "Command spawns Claude Code in interactive mode (stdio inherited) with initial prompt referencing /ralfie-plan skill"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-4",
+      "category": "CLI Commands",
+      "description": "Implement 'ralf edit <board>' command that verifies board exists and skill installed, then spawns interactive Claude Code session with /ralfie-edit skill for the specified board",
+      "steps_to_verify": [
+        "Running 'ralf edit nonexistent-board' exits with error about board not found",
+        "Command spawns Claude Code in interactive mode with prompt referencing the board path and /ralfie-edit skill"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-5",
+      "category": "CLI Commands",
+      "description": "Implement 'ralf run <board> [iterations]' command that runs serial agent loop: spawns Claude Code in print mode per iteration, detects COMPLETE signal, respects max iterations from config or CLI arg",
+      "steps_to_verify": [
+        "Running 'ralf run nonexistent-board' exits with error",
+        "Command uses default_iterations from config when no iterations argument provided",
+        "Each iteration sends prompt with @prd.json, @progress.md, @plan.md references and session ID",
+        "Loop exits early when agent output contains '<ralfie>COMPLETE</ralfie>'",
+        "Loop prints iteration counter (e.g., 'Iteration 3/10') for each iteration"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-6",
+      "category": "CLI Commands",
+      "description": "Implement 'ralf list' command that displays all boards with progress bars showing done/total counts, active count, and failed count",
+      "steps_to_verify": [
+        "Output includes board name, visual progress bar, done/total count, active count, and failed count",
+        "Empty state shows 'No boards found' message",
+        "List test passes: 'npm test --workspace=cli -- --run list'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-7",
+      "category": "CLI Commands",
+      "description": "Implement 'ralf status <board> <status>' command that filters and displays PRD items by status (pending, in_progress, done, failed, verified)",
+      "steps_to_verify": [
+        "Filters items correctly — only items matching the specified status are shown",
+        "Each item displays id, category, description, assigned agent (if any), and comment count",
+        "Invalid status value shows error with valid options listed",
+        "Status test passes: 'npm test --workspace=cli -- --run status'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-8",
+      "category": "CLI Commands",
+      "description": "Implement 'ralf verify <board> <item-id>' command that marks a done item as verified in the PRD",
+      "steps_to_verify": [
+        "Verifying a 'done' item changes its status to 'verified'",
+        "Verifying a non-'done' item (e.g., pending) exits with error",
+        "Verifying on a nonexistent board exits with error",
+        "Verify test passes: 'npm test --workspace=cli -- --run verify'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CMD-9",
+      "category": "CLI Commands",
+      "description": "Implement 'ralf unlock <board>' command that clears all lockfiles for a board",
+      "steps_to_verify": [
+        "All .lock files in the board's locks/ directory are deleted",
+        "Output shows count of cleared locks",
+        "Unlock test passes: 'npm test --workspace=cli -- --run unlock'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SERVER-1",
+      "category": "Server",
+      "description": "Implement file watcher (cli/src/server/watcher.ts) that watches .ralfie/boards/ for file changes and invokes callback with event type, board name, and filename",
+      "steps_to_verify": [
+        "Watches boards directory for new board creation events",
+        "Watches each existing board directory for prd.json, progress.md, plan.md changes",
+        "Watches locks/ subdirectory for lock file creation/deletion",
+        "Returns array of FSWatcher instances for cleanup"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SERVER-2",
+      "category": "Server",
+      "description": "Implement WebSocket server (cli/src/server/ws.ts) with createWsServer and broadcast function that sends WsEvent JSON to all connected clients",
+      "steps_to_verify": [
+        "createWsServer attaches WebSocketServer to the HTTP server instance",
+        "broadcast sends JSON-serialized WsEvent to all clients with readyState OPEN",
+        "WsEvent includes type, board, data, and timestamp fields"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SERVER-3",
+      "category": "Server",
+      "description": "Implement REST API (cli/src/server/api.ts) with endpoints: GET /api/boards, GET /api/boards/:name, POST /api/boards/:name/verify/:itemId, POST /api/boards/:name/run, GET /api/config, PUT /api/config",
+      "steps_to_verify": [
+        "GET /api/boards returns array of all boards with PRD and progress data",
+        "GET /api/boards/:name returns full board data (meta, plan, prd, progress)",
+        "GET /api/boards/:name returns 404 for nonexistent board",
+        "POST /api/boards/:name/verify/:itemId verifies the item and returns {ok: true}",
+        "POST /api/boards/:name/run accepts {iterations} body and starts a background run",
+        "GET /api/config returns current RalfieConfig",
+        "PUT /api/config accepts new config JSON and persists it"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SERVER-4",
+      "category": "Server",
+      "description": "Implement HTTP static file server (cli/src/server/http.ts) that serves React UI build from cli/dist/ui/ with SPA fallback to index.html",
+      "steps_to_verify": [
+        "Serves static files from cli/dist/ui/ with correct MIME types",
+        "Routes API requests to the API handler before static file serving",
+        "Non-file routes fall back to index.html for SPA client-side routing",
+        "Returns 404 with helpful message if UI build is missing"
+      ],
+      "passes": false
+    },
+    {
+      "id": "SERVER-5",
+      "category": "Server",
+      "description": "Implement 'ralf serve' command that starts HTTP+WebSocket server, wires file watcher to broadcast WebSocket events, listens on configured port",
+      "steps_to_verify": [
+        "Server starts on the port from config (default 3333)",
+        "File changes in .ralfie/ trigger appropriate WebSocket event types (prd:updated, progress:updated, board:updated, lock:acquired/released)",
+        "Console output shows URLs for HTTP and WebSocket endpoints"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-1",
+      "category": "UI Shell",
+      "description": "Create React app entry point with index.html, main.tsx (StrictMode + BrowserRouter), index.css (Tailwind import + dark theme CSS variables), and App.tsx with route definitions",
+      "steps_to_verify": [
+        "ui/index.html has root div and script tag for main.tsx",
+        "ui/src/main.tsx renders App inside StrictMode and BrowserRouter",
+        "ui/src/index.css imports Tailwind and defines CSS variables: --bg, --bg-card, --border, --text, --text-muted, --accent, --success, --warning, --danger",
+        "App.tsx defines routes: / (Dashboard), /boards (BoardList), /boards/:name (BoardDetail), /settings (Settings)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-2",
+      "category": "UI Shell",
+      "description": "Create API client (ui/src/lib/api.ts) with fetch wrappers: fetchBoards, fetchBoard, verifyItem, triggerRun, fetchConfig, updateConfig",
+      "steps_to_verify": [
+        "fetchBoards calls GET /api/boards and returns parsed JSON",
+        "fetchBoard(name) calls GET /api/boards/:name",
+        "verifyItem(board, itemId) calls POST /api/boards/:board/verify/:itemId",
+        "triggerRun(board, iterations) calls POST /api/boards/:board/run with JSON body",
+        "fetchConfig and updateConfig call GET/PUT /api/config respectively"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-3",
+      "category": "UI Shell",
+      "description": "Create WebSocket hook (ui/src/lib/ws.ts) with useWs that auto-connects, parses WsEvent JSON messages, auto-reconnects after 2s on disconnect, and exposes connected state",
+      "steps_to_verify": [
+        "useWs accepts an onEvent callback and calls it with parsed WsEvent on each message",
+        "WebSocket auto-reconnects after 2-second delay on close",
+        "Hook returns { connected: boolean } state",
+        "Uses ref for callback to avoid reconnection on callback changes"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-4",
+      "category": "UI Shell",
+      "description": "Create Layout component with sidebar navigation (Dashboard, Boards, Settings) and main content area, using monospace font and dark theme",
+      "steps_to_verify": [
+        "Sidebar is 56px (w-56) wide with border-right",
+        "Nav items highlight with accent color when active (matching current route)",
+        "Main content area is scrollable and has padding",
+        "'ralfie' title appears at top of sidebar"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-5",
+      "category": "UI Pages",
+      "description": "Implement DashboardPage with aggregated stats across all boards, items-per-day bar chart (last 7 days), and board overview cards with progress bars — auto-refreshes via WebSocket",
+      "steps_to_verify": [
+        "Displays StatsCards showing total, completed, in-progress, failed, and verified item counts",
+        "Displays ItemsPerDayChart bar chart using recharts with last 7 days of activity",
+        "Lists all boards as cards with name, done/total count, percentage, and visual progress bar",
+        "Board cards link to /boards/:name detail page",
+        "Data refreshes automatically when WebSocket events are received"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-6",
+      "category": "UI Pages",
+      "description": "Implement BoardListPage showing all boards with status breakdown (pending/active/done/failed/verified counts) — auto-refreshes via WebSocket",
+      "steps_to_verify": [
+        "Each board displays name, description, total item count, and per-status counts",
+        "Board cards link to /boards/:name detail page",
+        "Empty state shows message directing user to run 'ralf plan'",
+        "Data refreshes on WebSocket events"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-7",
+      "category": "UI Pages",
+      "description": "Implement BoardDetailPage with tabbed view (PRD Items kanban, Plan markdown viewer, Progress timeline), Run button with dialog, and verify button on done items — auto-refreshes via WebSocket on matching board events",
+      "steps_to_verify": [
+        "Three tabs: 'PRD Items' (kanban), 'Plan' (markdown), 'Progress' (markdown timeline)",
+        "Kanban view shows 5 columns: Pending, In Progress, Done, Failed, Verified",
+        "Each kanban card shows item ID, category, description, assigned agent, and comment count",
+        "Done items have a 'Verify' button that calls the verify API and refreshes",
+        "Run button opens RunDialog with iteration count input",
+        "Plan tab renders plan.md as formatted markdown",
+        "Progress tab renders progress.md as formatted markdown",
+        "Only refreshes when WebSocket events match the current board name"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-8",
+      "category": "UI Pages",
+      "description": "Implement SettingsPage with form for editing RalfieConfig: agent_command (text), default_iterations (number), serve_port (number), feedback_loops (textarea, one per line) with save button and confirmation",
+      "steps_to_verify": [
+        "Loads current config on mount via fetchConfig",
+        "Displays input fields for agent_command, default_iterations, serve_port",
+        "Feedback loops shown as textarea with one command per line",
+        "Save button calls PUT /api/config and shows 'Saved!' confirmation for 2 seconds"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-9",
+      "category": "UI Components",
+      "description": "Implement StatsCards component displaying 5 KPI cards (Total Items, Completed, In Progress, Failed, Verified) with color-coded values",
+      "steps_to_verify": [
+        "Renders 5 cards in a grid layout",
+        "Each card shows label and value with appropriate color (success for completed/verified, accent for in-progress, danger for failed)",
+        "Cards have dark bg-card background with border styling"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-10",
+      "category": "UI Components",
+      "description": "Implement ItemsPerDayChart component using recharts BarChart showing items with activity per day for last 7 days",
+      "steps_to_verify": [
+        "Renders a bar chart using recharts ResponsiveContainer",
+        "X-axis shows MM-DD date labels",
+        "Y-axis shows integer counts (no decimals)",
+        "Bars use accent color (#6366f1) with rounded top corners"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-11",
+      "category": "UI Components",
+      "description": "Implement PrdKanban component with 5 status columns, item cards showing ID/category/description/agent/comments, and verify button on done items",
+      "steps_to_verify": [
+        "5 columns rendered: Pending, In Progress, Done, Failed, Verified with color-coded headers",
+        "Each column header shows item count",
+        "Item cards display ID (monospace bold), category, description, assigned agent (if any), and comment count",
+        "Done items have a verify button that calls onVerify callback with item ID"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-12",
+      "category": "UI Components",
+      "description": "Implement PlanViewer and ProgressTimeline components that render markdown content using react-markdown with dark prose styling",
+      "steps_to_verify": [
+        "PlanViewer renders markdown string as formatted HTML with prose-invert styling",
+        "ProgressTimeline renders markdown or shows 'No progress logged yet' when empty",
+        "Both components wrap content in bg-card styled container"
+      ],
+      "passes": false
+    },
+    {
+      "id": "UI-13",
+      "category": "UI Components",
+      "description": "Implement RunDialog modal component with iteration count input, Start Run button that calls triggerRun API, and success confirmation state",
+      "steps_to_verify": [
+        "Modal overlay appears when open=true, dismisses on backdrop click or Cancel",
+        "Input field for max iterations with default value 10",
+        "Start Run button calls triggerRun API with board name and iteration count",
+        "After starting, shows success message and Close button (replacing the form)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "BUILD-1",
+      "category": "Build Pipeline",
+      "description": "Configure CLI build pipeline: tsc compilation, copy skill .md files to dist/skills/, copy UI build to dist/ui/, prepend #!/usr/bin/env node shebang to dist/index.js",
+      "steps_to_verify": [
+        "cli/package.json has postbuild script that copies skills, UI dist, and adds shebang",
+        "After build, cli/dist/skills/ contains ralfie-plan.md, ralfie-edit.md, ralfie-run.md",
+        "After build, cli/dist/ui/ contains the Vite React build output",
+        "cli/dist/index.js starts with '#!/usr/bin/env node'",
+        "cli/dist/index.js is executable (chmod +x)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "BUILD-2",
+      "category": "Build Pipeline",
+      "description": "Configure root build order: shared builds first, then UI, then CLI (so CLI can copy UI dist)",
+      "steps_to_verify": [
+        "Root package.json build script runs workspaces in order: shared → ui → cli",
+        "Root test script builds shared first before running CLI tests",
+        "Running 'npm run build' from root produces dist/ in all three workspaces"
+      ],
+      "passes": false
+    },
+    {
+      "id": "E2E-1",
+      "category": "Integration",
+      "description": "End-to-end smoke test: clean build, ralf init creates expected files, ralf list shows empty state, ralf serve responds with HTML, all tests pass",
+      "steps_to_verify": [
+        "After clean build, 'ralf init' creates .ralfie/config.json with defaults, .ralfie/boards/ directory, and .claude/skills/ with 3 skill files",
+        "'ralf list' shows 'No boards found' message",
+        "'ralf serve' starts and responds to HTTP requests with React app HTML",
+        "'npm test' passes all test suites (config, prd, board, lock, init, list, status, verify, unlock)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DOCS-1",
+      "category": "Documentation",
+      "description": "Update CLAUDE.md with project description, architecture overview, build/run commands, test commands, and coding conventions",
+      "steps_to_verify": [
+        "CLAUDE.md includes project description for Ralfie",
+        "CLAUDE.md documents build commands: npm run build, npm test, npm run typecheck",
+        "CLAUDE.md describes monorepo structure: cli/, ui/, shared/ workspaces",
+        "CLAUDE.md lists available CLI commands: init, plan, edit, run, list, status, verify, unlock, serve"
+      ],
+      "passes": false
+    }
+  ]
+}

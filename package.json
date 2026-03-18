@@ -1,0 +1,16 @@
+{
+  "name": "ralfie",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "cli",
+    "ui",
+    "shared"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=shared && npm run build --workspace=ui && npm run build --workspace=cli",
+    "test": "npm run build --workspace=shared && npm test --workspace=cli",
+    "typecheck": "npm run typecheck --workspace=shared && npm run typecheck --workspace=ui && npm run typecheck --workspace=cli",
+    "lint": "npm run lint --workspace=shared && npm run lint --workspace=ui && npm run lint --workspace=cli"
+  }
+}
