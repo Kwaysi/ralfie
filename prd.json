@@ -425,7 +425,7 @@
         "Feedback loops shown as textarea with one command per line",
         "Save button calls PUT /api/config and shows 'Saved!' confirmation for 2 seconds"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-9",

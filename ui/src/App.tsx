@@ -3,10 +3,7 @@ import Layout from "./components/Layout";
 import DashboardPage from "./pages/DashboardPage";
 import BoardListPage from "./pages/BoardListPage";
 import BoardDetailPage from "./pages/BoardDetailPage";
-
-function Placeholder({ name }: { name: string }) {
-  return <div className="text-[var(--text-muted)]">{name} — coming soon</div>;
-}
+import SettingsPage from "./pages/SettingsPage";
 
 export default function App() {
   return (
@@ -15,7 +12,7 @@ export default function App() {
         <Route path="/" element={<DashboardPage />} />
         <Route path="/boards" element={<BoardListPage />} />
         <Route path="/boards/:name" element={<BoardDetailPage />} />
-        <Route path="/settings" element={<Placeholder name="Settings" />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
     </Routes>
   );
