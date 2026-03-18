@@ -531,7 +531,7 @@
         "CLAUDE.md describes monorepo structure: cli/, ui/, shared/ workspaces",
         "CLAUDE.md lists available CLI commands: init, plan, edit, run, list, status, verify, unlock, serve"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }
