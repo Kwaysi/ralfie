@@ -8,6 +8,7 @@ import { unlockCommand } from './commands/unlock.js';
 import { planCommand } from './commands/plan.js';
 import { editCommand } from './commands/edit.js';
 import { runCommand } from './commands/run.js';
+import { serveCommand } from './commands/serve.js';
 
 const program = new Command();
 
@@ -70,6 +71,13 @@ program
   .description('Clear all lockfiles for a board')
   .action(async (board: string) => {
     await unlockCommand(board);
+  });
+
+program
+  .command('serve')
+  .description('Start the ralfie dashboard server')
+  .action(async () => {
+    await serveCommand();
   });
 
 program.parse();

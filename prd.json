@@ -323,7 +323,7 @@
         "File changes in .ralfie/ trigger appropriate WebSocket event types (prd:updated, progress:updated, board:updated, lock:acquired/released)",
         "Console output shows URLs for HTTP and WebSocket endpoints"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-1",
