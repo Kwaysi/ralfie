@@ -251,7 +251,7 @@
         "Verifying on a nonexistent board exits with error",
         "Verify test passes: 'npm test --workspace=cli -- --run verify'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CMD-9",
@@ -262,7 +262,7 @@
         "Output shows count of cleared locks",
         "Unlock test passes: 'npm test --workspace=cli -- --run unlock'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SERVER-1",

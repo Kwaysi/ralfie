@@ -3,6 +3,8 @@ import { Command } from 'commander';
 import { initCommand } from './commands/init.js';
 import { listCommand } from './commands/list.js';
 import { statusCommand } from './commands/status.js';
+import { verifyCommand } from './commands/verify.js';
+import { unlockCommand } from './commands/unlock.js';
 
 const program = new Command();
 
@@ -30,6 +32,20 @@ program
   .description('Show PRD items filtered by status')
   .action(async (board: string, status: string) => {
     await statusCommand(board, status);
+  });
+
+program
+  .command('verify <board> <item-id>')
+  .description('Mark a done item as verified')
+  .action(async (board: string, itemId: string) => {
+    await verifyCommand(board, itemId);
+  });
+
+program
+  .command('unlock <board>')
+  .description('Clear all lockfiles for a board')
+  .action(async (board: string) => {
+    await unlockCommand(board);
   });
 
 program.parse();
