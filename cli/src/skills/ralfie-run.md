@@ -56,7 +56,6 @@ Append to `progress.md`:
 Mark the item as `done` in `prd.json`:
 - Set `status` to `done`
 - Set `passes` to `true`
-- Clear `assigned_to`
 
 ## Step 7: Commit
 

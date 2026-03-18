@@ -300,7 +300,7 @@
         "GET /api/config returns current RalfieConfig",
         "PUT /api/config accepts new config JSON and persists it"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SERVER-4",
