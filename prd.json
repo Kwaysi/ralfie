@@ -172,7 +172,7 @@
         "Running 'ralf init' twice does not overwrite modified config.json",
         "Both init tests pass: 'npm test --workspace=cli -- --run init'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CMD-2",
