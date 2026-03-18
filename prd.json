@@ -496,7 +496,7 @@
         "cli/dist/index.js starts with '#!/usr/bin/env node'",
         "cli/dist/index.js is executable (chmod +x)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "BUILD-2",
@@ -507,7 +507,7 @@
         "Root test script builds shared first before running CLI tests",
         "Running 'npm run build' from root produces dist/ in all three workspaces"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "E2E-1",
