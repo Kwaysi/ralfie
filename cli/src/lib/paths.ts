@@ -23,3 +23,9 @@ export const locksDir = (boardName: string, cwd = process.cwd()) =>
 
 export const lockPath = (boardName: string, itemId: string, cwd = process.cwd()) =>
   join(locksDir(boardName, cwd), `${itemId}.lock`);
+
+export const runsDir = (boardName: string, cwd = process.cwd()) =>
+  join(boardDir(boardName, cwd), 'runs');
+
+export const runPidPath = (boardName: string, sessionId: string, cwd = process.cwd()) =>
+  join(runsDir(boardName, cwd), `${sessionId}.pid`);

@@ -597,7 +597,7 @@
         "countActiveRuns returns the count from getActiveRuns",
         "run-tracker tests pass: 'npm test --workspace=cli -- --run run-tracker'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "STOP-2",
