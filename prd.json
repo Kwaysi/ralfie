@@ -532,6 +532,192 @@
         "CLAUDE.md lists available CLI commands: init, plan, edit, run, list, status, verify, unlock, serve"
       ],
       "passes": true
+    },
+    {
+      "id": "CONFIG-1",
+      "category": "Config Options",
+      "description": "Add 'effort' (low/medium/high) and 'model' (opus/sonnet/haiku) fields to RalfieConfig in shared types, with exported union types EffortLevel and AgentModel. Update defaultConfig to effort='medium', model='opus'.",
+      "steps_to_verify": [
+        "shared/src/types.ts exports EffortLevel type as 'low' | 'medium' | 'high'",
+        "shared/src/types.ts exports AgentModel type as 'opus' | 'sonnet' | 'haiku'",
+        "RalfieConfig interface includes effort: EffortLevel and model: AgentModel fields",
+        "defaultConfig in cli/src/lib/config.ts has effort='medium' and model='opus'",
+        "'npm run build' succeeds with no type errors",
+        "Existing tests pass: 'npm test'"
+      ],
+      "passes": true
+    },
+    {
+      "id": "CONFIG-2",
+      "category": "Config Options",
+      "description": "Create cli/src/lib/claude-settings.ts with syncClaudeSettings function that reads .ralfie/config.json effort and model values, maps them to Claude Code settings (effortLevel and model identifier), and merges into .claude/settings.json without clobbering existing settings.",
+      "steps_to_verify": [
+        "syncClaudeSettings reads effort from ralfie config and writes effortLevel to .claude/settings.json",
+        "syncClaudeSettings maps model names: opus -> claude-opus-4-6, sonnet -> claude-sonnet-4-6, haiku -> claude-haiku-4-5-20251001",
+        "Existing .claude/settings.json fields are preserved when merging",
+        "If .claude/settings.json does not exist, it is created",
+        "syncClaudeSettings test passes: 'npm test --workspace=cli -- --run claude-settings'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CONFIG-3",
+      "category": "Config Options",
+      "description": "Call syncClaudeSettings before the agent loop in both ralf run (cli command) and runInBackground (server API) so that effort and model are applied before each run.",
+      "steps_to_verify": [
+        "cli/src/commands/run.ts calls syncClaudeSettings() before entering the iteration loop",
+        "cli/src/server/api.ts runInBackground calls syncClaudeSettings() before spawning agents",
+        ".claude/settings.json is updated with current effort and model before the first agent is spawned"
+      ],
+      "passes": false
+    },
+    {
+      "id": "CONFIG-4",
+      "category": "Config Options",
+      "description": "Add effort and model select dropdowns to the Settings page in the UI. Effort options: Low, Medium, High. Model options: Opus, Sonnet, Haiku. Saving writes to .ralfie/config.json via PUT /api/config.",
+      "steps_to_verify": [
+        "SettingsPage renders an Effort Level select dropdown with options Low, Medium, High",
+        "SettingsPage renders a Model select dropdown with options Opus, Sonnet, Haiku",
+        "Dropdowns reflect the current config values on page load",
+        "Saving triggers PUT /api/config with the updated effort and model values",
+        "PUT /api/config handler calls syncClaudeSettings() after writing config"
+      ],
+      "passes": false
+    },
+    {
+      "id": "STOP-1",
+      "category": "Stop Command",
+      "description": "Add path helpers runsDir and runPidPath to paths.ts. Create cli/src/lib/run-tracker.ts with saveRunPid, removeRunPid, getActiveRuns, and countActiveRuns. PID files stored at .ralfie/boards/{board}/runs/{sessionId}.pid containing JSON with pid and sessionId.",
+      "steps_to_verify": [
+        "runsDir returns '.ralfie/boards/{boardName}/runs'",
+        "runPidPath returns '.ralfie/boards/{boardName}/runs/{sessionId}.pid'",
+        "saveRunPid creates the runs directory and writes a PID file with {pid, sessionId} JSON",
+        "removeRunPid deletes the PID file, silently ignores if missing",
+        "getActiveRuns reads all .pid files, checks if PIDs are alive via process.kill(pid, 0), returns array of {sessionId, pid}, and cleans up stale PID files for dead processes",
+        "countActiveRuns returns the count from getActiveRuns",
+        "run-tracker tests pass: 'npm test --workspace=cli -- --run run-tracker'"
+      ],
+      "passes": false
+    },
+    {
+      "id": "STOP-2",
+      "category": "Stop Command",
+      "description": "Integrate PID tracking into ralf run and runInBackground. Save process.pid at run start, remove on exit (including error paths). The ralf run process is the tracked PID; child claude processes share the process group.",
+      "steps_to_verify": [
+        "ralf run creates a .pid file in .ralfie/boards/{board}/runs/ at start",
+        "PID file is removed when run completes normally",
+        "PID file is removed when run exits due to error",
+        "runInBackground in the server also creates and cleans up PID files",
+        "Multiple concurrent runs on the same board each create their own PID file keyed by sessionId"
+      ],
+      "passes": false
+    },
+    {
+      "id": "STOP-3",
+      "category": "Stop Command",
+      "description": "Add releaseSessionLocks to lock.ts that finds and deletes all lock files held by a given sessionId. Add resetSessionItems to prd.ts that resets in_progress items assigned to a sessionId back to pending status with assigned_to set to null.",
+      "steps_to_verify": [
+        "releaseSessionLocks reads all .lock files, parses each, deletes those matching the given sessionId, returns count released",
+        "resetSessionItems reads the PRD, finds items with status in_progress and assigned_to matching sessionId, sets them to pending with assigned_to=null, writes PRD back",
+        "resetSessionItems does direct read-modify-write without per-item locking (safe because owning processes are already dead)",
+        "Tests pass for both functions"
+      ],
+      "passes": false
+    },
+    {
+      "id": "STOP-4",
+      "category": "Stop Command",
+      "description": "Implement ralf stop <board> CLI command. Reads all PID files for the board, sends SIGTERM to the process group (-pid), waits up to 5 seconds, sends SIGKILL if still alive, releases locks held by those sessions, resets their in_progress items to pending, deletes PID files, prints summary.",
+      "steps_to_verify": [
+        "ralf stop <board> kills all running agents for the specified board",
+        "SIGTERM is sent to the process group (negative PID) so child claude processes also die",
+        "After 5 second timeout, SIGKILL is sent if process is still alive",
+        "Locks held by stopped sessions are released",
+        "PRD items assigned to stopped sessions and in in_progress status are reset to pending",
+        "PID files for stopped sessions are deleted",
+        "Output shows summary: N processes stopped, N locks released, N items reset",
+        "If no runs are active, prints 'No active runs for board {name}'",
+        "ralf stop registered in cli/src/index.ts"
+      ],
+      "passes": false
+    },
+    {
+      "id": "STOP-5",
+      "category": "Stop Command",
+      "description": "Add POST /api/boards/:name/stop endpoint that performs the same stop logic as the CLI command. Returns {ok: true, stopped: number}. Broadcasts run:stopped WebSocket event. Add run:stopped to WsEventType.",
+      "steps_to_verify": [
+        "POST /api/boards/:name/stop returns {ok: true, stopped: N} with count of processes killed",
+        "Returns 404 if board does not exist",
+        "Broadcasts run:stopped WebSocket event with board name after stopping",
+        "run:stopped added to WsEventType union in shared/src/types.ts",
+        "Reuses the same stop logic as the CLI command (shared function, not duplicated)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "STOP-6",
+      "category": "Stop Command",
+      "description": "Add BoardWithStatus type extending Board with activeRuns: number. Update GET /api/boards and GET /api/boards/:name to return BoardWithStatus using countActiveRuns from run-tracker.",
+      "steps_to_verify": [
+        "BoardWithStatus interface in shared/src/types.ts extends Board with activeRuns: number",
+        "GET /api/boards returns array of BoardWithStatus with activeRuns count per board",
+        "GET /api/boards/:name returns BoardWithStatus with activeRuns count",
+        "activeRuns reflects actual live process count (stale PIDs for dead processes are not counted)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "STOP-7",
+      "category": "Stop Command",
+      "description": "Add stop button to BoardDetailPage that appears when activeRuns > 0. Button shows 'Stop (N)' with agent count, styled with danger color. Clicking calls POST /api/boards/:name/stop. Add stopBoard function to ui/src/lib/api.ts.",
+      "steps_to_verify": [
+        "Stop button appears next to Run button only when activeRuns > 0",
+        "Button text shows 'Stop (N)' where N is the number of active runs",
+        "Button is styled with danger/red color (var(--danger)) to distinguish from Run",
+        "Clicking the button calls stopBoard API and the page refreshes via WebSocket run:stopped event",
+        "stopBoard function in api.ts calls POST /api/boards/:name/stop and returns response"
+      ],
+      "passes": false
+    },
+    {
+      "id": "STOP-8",
+      "category": "Stop Command",
+      "description": "Add active run indicator to BoardListPage. Show 'N agents running' badge next to boards with activeRuns > 0 using the BoardWithStatus API response.",
+      "steps_to_verify": [
+        "Boards with activeRuns > 0 display an 'N agents running' badge",
+        "Badge uses accent color styling to indicate activity",
+        "Boards with no active runs do not show the badge",
+        "Badge updates in real-time via WebSocket events"
+      ],
+      "passes": false
+    },
+    {
+      "id": "INIT-1",
+      "category": "Init Permissions",
+      "description": "Update ralf init to merge Claude Code permissions into .claude/settings.json. Ensures permissions.allow includes ['Bash', 'Edit', 'Write', 'Read']. Also writes default effort and model settings via syncClaudeSettings. If .claude/settings.json already exists, merges without clobbering existing permissions or settings.",
+      "steps_to_verify": [
+        "ralf init creates .claude/settings.json with permissions.allow containing ['Bash', 'Edit', 'Write', 'Read']",
+        "ralf init sets effortLevel and model in .claude/settings.json based on ralfie config defaults",
+        "If .claude/settings.json exists with additional permissions (e.g. 'WebSearch'), they are preserved after init",
+        "If .claude/settings.json exists with other settings (e.g. theme), they are preserved after init",
+        "Init output lists .claude/settings.json in the created/updated files",
+        "Running ralf init twice produces the same result (idempotent)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "E2E-2",
+      "category": "Integration",
+      "description": "End-to-end verification: full build passes, all tests pass, typecheck passes, lint passes. ralf init creates .claude/settings.json with permissions and default effort/model. Config file has effort and model fields.",
+      "steps_to_verify": [
+        "'npm run build' succeeds across all workspaces",
+        "'npm test' passes all test suites including new tests for claude-settings, run-tracker, stop",
+        "'npm run typecheck' passes with no errors",
+        "'npm run lint' passes with no errors",
+        "After ralf init, .claude/settings.json contains permissions.allow with Bash, Edit, Write, Read",
+        "After ralf init, .ralfie/config.json contains effort='medium' and model='opus'"
+      ],
+      "passes": false
     }
   ]
 }

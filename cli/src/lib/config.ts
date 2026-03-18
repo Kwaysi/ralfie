@@ -8,6 +8,8 @@ export const defaultConfig: RalfieConfig = {
   default_iterations: 10,
   feedback_loops: [],
   serve_port: 3333,
+  effort: 'medium',
+  model: 'opus',
 };
 
 export async function readConfig(cwd?: string): Promise<RalfieConfig> {

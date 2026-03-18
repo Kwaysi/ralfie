@@ -35,6 +35,8 @@ describe('config', () => {
       default_iterations: 10,
       feedback_loops: [],
       serve_port: 4444,
+      effort: 'medium',
+      model: 'opus',
     });
   });
 });

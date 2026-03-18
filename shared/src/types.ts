@@ -41,11 +41,16 @@ export interface Board {
 
 // -- Config --
 
+export type EffortLevel = 'low' | 'medium' | 'high';
+export type AgentModel = 'opus' | 'sonnet' | 'haiku';
+
 export interface RalfieConfig {
   agent_command: string;
   default_iterations: number;
   feedback_loops: string[];
   serve_port: number;
+  effort: EffortLevel;
+  model: AgentModel;
 }
 
 // -- WebSocket events --
