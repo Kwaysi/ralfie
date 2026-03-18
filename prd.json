@@ -385,7 +385,7 @@
         "Board cards link to /boards/:name detail page",
         "Data refreshes automatically when WebSocket events are received"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-6",
