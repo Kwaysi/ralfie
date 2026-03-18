@@ -397,7 +397,7 @@
         "Empty state shows message directing user to run 'ralf plan'",
         "Data refreshes on WebSocket events"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-7",

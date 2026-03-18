@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import DashboardPage from "./pages/DashboardPage";
+import BoardListPage from "./pages/BoardListPage";
 import BoardDetailPage from "./pages/BoardDetailPage";
 
 function Placeholder({ name }: { name: string }) {
@@ -12,7 +13,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<DashboardPage />} />
-        <Route path="/boards" element={<Placeholder name="Boards" />} />
+        <Route path="/boards" element={<BoardListPage />} />
         <Route path="/boards/:name" element={<BoardDetailPage />} />
         <Route path="/settings" element={<Placeholder name="Settings" />} />
       </Route>
