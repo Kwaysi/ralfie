@@ -75,3 +75,34 @@ export async function clearStaleLocks(
   await Promise.all(lockFiles.map((f) => unlink(`${dir}/${f}`)));
   return lockFiles.length;
 }
+
+export async function releaseSessionLocks(
+  boardName: string,
+  sessionId: string,
+  cwd?: string,
+): Promise<number> {
+  const dir = locksDir(boardName, cwd);
+  let files: string[];
+  try {
+    files = await readdir(dir);
+  } catch {
+    return 0;
+  }
+  const lockFiles = files.filter((f) => f.endsWith('.lock'));
+  let count = 0;
+  await Promise.all(
+    lockFiles.map(async (f) => {
+      try {
+        const raw = await readFile(`${dir}/${f}`, 'utf-8');
+        const info = JSON.parse(raw) as LockInfo;
+        if (info.session_id === sessionId) {
+          await unlink(`${dir}/${f}`);
+          count++;
+        }
+      } catch {
+        // lock file gone or unreadable, skip
+      }
+    }),
+  );
+  return count;
+}

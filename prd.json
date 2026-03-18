@@ -622,7 +622,7 @@
         "resetSessionItems does direct read-modify-write without per-item locking (safe because owning processes are already dead)",
         "Tests pass for both functions"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "STOP-4",

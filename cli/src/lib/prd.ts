@@ -97,6 +97,26 @@ export async function verifyItem(
   });
 }
 
+export async function resetSessionItems(
+  boardName: string,
+  sessionId: string,
+  cwd?: string,
+): Promise<number> {
+  const prd = await readPrd(boardName, cwd);
+  let count = 0;
+  for (const item of prd.items) {
+    if (item.status === 'in_progress' && item.assigned_to === sessionId) {
+      item.status = 'pending';
+      item.assigned_to = null;
+      count++;
+    }
+  }
+  if (count > 0) {
+    await writePrd(boardName, prd, cwd);
+  }
+  return count;
+}
+
 export async function addComment(
   boardName: string,
   itemId: string,
