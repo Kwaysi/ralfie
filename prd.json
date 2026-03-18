@@ -68,7 +68,7 @@
         "WsEventType includes board:updated, prd:updated, progress:updated, lock:acquired, lock:released, run:started, run:iteration, run:completed",
         "Running 'npm run build --workspace=shared' produces shared/dist/types.js and shared/dist/types.d.ts"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "LIB-1",
