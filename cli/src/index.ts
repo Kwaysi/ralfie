@@ -7,6 +7,7 @@ import { verifyCommand } from './commands/verify.js';
 import { unlockCommand } from './commands/unlock.js';
 import { planCommand } from './commands/plan.js';
 import { editCommand } from './commands/edit.js';
+import { runCommand } from './commands/run.js';
 
 const program = new Command();
 
@@ -55,6 +56,13 @@ program
   .description('Mark a done item as verified')
   .action(async (board: string, itemId: string) => {
     await verifyCommand(board, itemId);
+  });
+
+program
+  .command('run <board> [iterations]')
+  .description('Run agent loop for a board')
+  .action(async (board: string, iterations?: string) => {
+    await runCommand(board, iterations ? parseInt(iterations, 10) : undefined);
   });
 
 program

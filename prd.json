@@ -216,7 +216,7 @@
         "Loop exits early when agent output contains '<ralfie>COMPLETE</ralfie>'",
         "Loop prints iteration counter (e.g., 'Iteration 3/10') for each iteration"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CMD-6",
