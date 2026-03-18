@@ -312,7 +312,7 @@
         "Non-file routes fall back to index.html for SPA client-side routing",
         "Returns 404 with helpful message if UI build is missing"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SERVER-5",
