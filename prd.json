@@ -160,7 +160,7 @@
         "cli/src/skills/ralfie-run.md exists with workflow: Pick Task, Claim Item, Implement, Run Feedback Loops, Update Progress, Update PRD, Commit, Check Completion, Failure Protocol",
         "installSkills copies all 3 skill files from bundled source to .claude/skills/ directory"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CMD-1",
