@@ -6,6 +6,7 @@ import { statusCommand } from './commands/status.js';
 import { verifyCommand } from './commands/verify.js';
 import { unlockCommand } from './commands/unlock.js';
 import { planCommand } from './commands/plan.js';
+import { editCommand } from './commands/edit.js';
 
 const program = new Command();
 
@@ -26,6 +27,13 @@ program
   .description('Start an interactive planning session to create a new board')
   .action(async () => {
     await planCommand();
+  });
+
+program
+  .command('edit <board>')
+  .description('Edit an existing board interactively')
+  .action(async (board: string) => {
+    await editCommand(board);
   });
 
 program

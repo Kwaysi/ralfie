@@ -203,7 +203,7 @@
         "Running 'ralf edit nonexistent-board' exits with error about board not found",
         "Command spawns Claude Code in interactive mode with prompt referencing the board path and /ralfie-edit skill"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CMD-5",
