@@ -109,7 +109,7 @@
         "All PRD mutations use file locking via O_EXCL to prevent concurrent clobber",
         "All 8 PRD tests pass: 'npm test --workspace=cli -- --run prd'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "LIB-4",
