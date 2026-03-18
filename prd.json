@@ -45,7 +45,7 @@
         "ui/vite.config.ts configures React and Tailwind plugins, proxies /api and /ws to localhost:3333",
         "ui/tsconfig.json has jsx: 'react-jsx' and module: 'ESNext'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SCAFFOLD-5",
@@ -55,7 +55,7 @@
         "Running 'npm install' succeeds without errors",
         "Running 'npm run typecheck' passes for all workspaces"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "TYPES-1",
