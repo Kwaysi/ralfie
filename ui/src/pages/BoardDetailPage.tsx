@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { Board } from "@ralfie/shared";
-import { fetchBoard, verifyItem } from "../lib/api";
+import type { BoardWithStatus } from "@ralfie/shared";
+import { fetchBoard, verifyItem, stopBoard } from "../lib/api";
 import { useWs } from "../lib/ws";
 import PrdKanban from "../components/PrdKanban";
 import PlanViewer from "../components/PlanViewer";
@@ -12,7 +12,7 @@ type Tab = "prd" | "plan" | "progress";
 
 export default function BoardDetailPage() {
   const { name } = useParams<{ name: string }>();
-  const [board, setBoard] = useState<Board | null>(null);
+  const [board, setBoard] = useState<BoardWithStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>("prd");
   const [runOpen, setRunOpen] = useState(false);
@@ -59,12 +59,25 @@ export default function BoardDetailPage() {
             </p>
           )}
         </div>
-        <button
-          onClick={() => setRunOpen(true)}
-          className="px-4 py-2 rounded text-sm bg-[var(--accent)] text-white font-bold hover:opacity-80 cursor-pointer"
-        >
-          Run
-        </button>
+        <div className="flex gap-2">
+          {board.activeRuns > 0 && (
+            <button
+              onClick={async () => {
+                await stopBoard(board.meta.name);
+                load();
+              }}
+              className="px-4 py-2 rounded text-sm bg-[var(--danger)] text-white font-bold hover:opacity-80 cursor-pointer"
+            >
+              Stop ({board.activeRuns})
+            </button>
+          )}
+          <button
+            onClick={() => setRunOpen(true)}
+            className="px-4 py-2 rounded text-sm bg-[var(--accent)] text-white font-bold hover:opacity-80 cursor-pointer"
+          >
+            Run
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-1 mb-4 border-b border-[var(--border)]">

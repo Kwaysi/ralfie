@@ -677,7 +677,7 @@
         "Clicking the button calls stopBoard API and the page refreshes via WebSocket run:stopped event",
         "stopBoard function in api.ts calls POST /api/boards/:name/stop and returns response"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "STOP-8",
