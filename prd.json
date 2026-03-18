@@ -436,7 +436,7 @@
         "Each card shows label and value with appropriate color (success for completed/verified, accent for in-progress, danger for failed)",
         "Cards have dark bg-card background with border styling"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-10",
