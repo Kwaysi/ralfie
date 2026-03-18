@@ -80,7 +80,7 @@
         "boardDir returns '<cwd>/.ralfie/boards/<boardName>'",
         "lockPath returns '<cwd>/.ralfie/boards/<boardName>/locks/<itemId>.lock'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "LIB-2",
