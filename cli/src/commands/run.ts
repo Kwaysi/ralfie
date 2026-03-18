@@ -1,5 +1,6 @@
 import { boardExists } from '../lib/board.js';
 import { readConfig } from '../lib/config.js';
+import { syncClaudeSettings } from '../lib/claude-settings.js';
 import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
 import { prdPath, progressPath, planPath } from '../lib/paths.js';
 
@@ -18,6 +19,8 @@ export async function runCommand(
   const config = await readConfig(cwd);
   const maxIterations = iterations ?? config.default_iterations;
   const sessionId = generateSessionId();
+
+  await syncClaudeSettings(cwd);
 
   console.log(`Starting run for board "${boardName}" (session: ${sessionId})`);
   console.log(`Max iterations: ${maxIterations}`);

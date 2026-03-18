@@ -3,6 +3,7 @@ import { listBoards, getBoard, boardExists } from '../lib/board.js';
 import { verifyItem } from '../lib/prd.js';
 import { readConfig, writeConfig } from '../lib/config.js';
 import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
+import { syncClaudeSettings } from '../lib/claude-settings.js';
 import { broadcast } from './ws.js';
 import type { RalfieConfig } from '@ralfie/shared';
 
@@ -149,6 +150,8 @@ async function runInBackground(
   maxIterations: number,
   sessionId: string,
 ): Promise<void> {
+  await syncClaudeSettings();
+
   broadcast({
     type: 'run:started',
     board: boardName,

@@ -569,7 +569,7 @@
         "cli/src/server/api.ts runInBackground calls syncClaudeSettings() before spawning agents",
         ".claude/settings.json is updated with current effort and model before the first agent is spawned"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CONFIG-4",
