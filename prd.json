@@ -274,7 +274,7 @@
         "Watches locks/ subdirectory for lock file creation/deletion",
         "Returns array of FSWatcher instances for cleanup"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SERVER-2",
