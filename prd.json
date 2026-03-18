@@ -23,7 +23,7 @@
         "shared/tsconfig.json extends ../tsconfig.base.json",
         "shared/package.json has build and typecheck scripts"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SCAFFOLD-3",

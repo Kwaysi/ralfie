@@ -1,1 +1,2 @@
 SCAFFOLD-1 done. Created root package.json (workspaces: cli, ui, shared), tsconfig.base.json (ES2022, Node16, strict), .gitignore (node_modules/, dist/, .ralfie/). No deps installed yet - workspace dirs don't exist. Next: SCAFFOLD-2 (shared package).
+SCAFFOLD-2 done. Created shared/package.json (@ralfie/shared, type module, build+typecheck scripts), shared/tsconfig.json (extends base), shared/src/index.ts (placeholder). Build verified: produces dist/index.js + dist/index.d.ts. Next: SCAFFOLD-3 (CLI package).
