@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { RalfieConfig } from "@ralfie/shared";
+import type { RalfieConfig, EffortLevel, AgentModel } from "@ralfie/shared";
 import { fetchConfig, updateConfig } from "../lib/api";
 
 export default function SettingsPage() {
@@ -75,6 +75,36 @@ export default function SettingsPage() {
             max={65535}
             className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm text-[var(--text-muted)] mb-1">
+            Effort Level
+          </label>
+          <select
+            value={config.effort}
+            onChange={(e) => setConfig({ ...config, effort: e.target.value as EffortLevel })}
+            className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm text-[var(--text-muted)] mb-1">
+            Model
+          </label>
+          <select
+            value={config.model}
+            onChange={(e) => setConfig({ ...config, model: e.target.value as AgentModel })}
+            className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+          >
+            <option value="opus">Opus</option>
+            <option value="sonnet">Sonnet</option>
+            <option value="haiku">Haiku</option>
+          </select>
         </div>
 
         <div>

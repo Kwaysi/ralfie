@@ -582,7 +582,7 @@
         "Saving triggers PUT /api/config with the updated effort and model values",
         "PUT /api/config handler calls syncClaudeSettings() after writing config"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "STOP-1",

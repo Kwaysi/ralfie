@@ -89,6 +89,7 @@ export async function handleApi(
       const body = await readBody(req);
       const config = JSON.parse(body) as RalfieConfig;
       await writeConfig(config);
+      await syncClaudeSettings();
       json(res, { ok: true });
       return true;
     }
