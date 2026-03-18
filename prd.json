@@ -148,7 +148,7 @@
         "spawnPrintMode spawns agent with '-p' flag, captures stdout, and sets result.complete=true when output contains '<ralfie>COMPLETE</ralfie>'",
         "generateSessionId returns a string matching pattern 'ralfie-<timestamp>-<random>'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "LIB-7",
