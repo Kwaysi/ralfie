@@ -137,7 +137,7 @@
         "clearStaleLocks removes all .lock files in the board's locks directory and returns count",
         "All 5 lock tests pass: 'npm test --workspace=cli -- --run lock'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "LIB-6",
