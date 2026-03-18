@@ -460,7 +460,7 @@
         "Item cards display ID (monospace bold), category, description, assigned agent (if any), and comment count",
         "Done items have a verify button that calls onVerify callback with item ID"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-12",
