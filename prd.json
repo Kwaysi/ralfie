@@ -285,7 +285,7 @@
         "broadcast sends JSON-serialized WsEvent to all clients with readyState OPEN",
         "WsEvent includes type, board, data, and timestamp fields"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SERVER-3",
