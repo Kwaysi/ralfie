@@ -3,6 +3,7 @@ import { readConfig } from '../lib/config.js';
 import { syncClaudeSettings } from '../lib/claude-settings.js';
 import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
 import { prdPath, progressPath, planPath } from '../lib/paths.js';
+import { saveRunPid, removeRunPid } from '../lib/run-tracker.js';
 
 export async function runCommand(
   boardName: string,
@@ -21,6 +22,7 @@ export async function runCommand(
   const sessionId = generateSessionId();
 
   await syncClaudeSettings(cwd);
+  await saveRunPid(boardName, sessionId, process.pid, cwd);
 
   console.log(`Starting run for board "${boardName}" (session: ${sessionId})`);
   console.log(`Max iterations: ${maxIterations}`);
@@ -29,28 +31,32 @@ export async function runCommand(
   const progress = progressPath(boardName, cwd);
   const plan = planPath(boardName, cwd);
 
-  for (let i = 1; i <= maxIterations; i++) {
-    console.log(`\nIteration ${i}/${maxIterations}`);
+  try {
+    for (let i = 1; i <= maxIterations; i++) {
+      console.log(`\nIteration ${i}/${maxIterations}`);
 
-    const prompt = [
-      `You are session ${sessionId}.`,
-      `Use the /ralfie-run skill to execute one iteration.`,
-      `Board files: @${prd} @${progress} @${plan}`,
-    ].join(' ');
+      const prompt = [
+        `You are session ${sessionId}.`,
+        `Use the /ralfie-run skill to execute one iteration.`,
+        `Board files: @${prd} @${progress} @${plan}`,
+      ].join(' ');
 
-    const result = await spawnPrintMode(prompt, cwd);
+      const result = await spawnPrintMode(prompt, cwd);
 
-    if (result.complete) {
-      console.log('\nAll items complete. Stopping run.');
-      return;
+      if (result.complete) {
+        console.log('\nAll items complete. Stopping run.');
+        return;
+      }
+
+      if (result.exitCode !== 0) {
+        console.error(`\nAgent exited with code ${result.exitCode}. Stopping run.`);
+        process.exitCode = 1;
+        return;
+      }
     }
 
-    if (result.exitCode !== 0) {
-      console.error(`\nAgent exited with code ${result.exitCode}. Stopping run.`);
-      process.exitCode = 1;
-      return;
-    }
+    console.log(`\nReached max iterations (${maxIterations}).`);
+  } finally {
+    await removeRunPid(boardName, sessionId, cwd);
   }
-
-  console.log(`\nReached max iterations (${maxIterations}).`);
 }

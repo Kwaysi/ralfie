@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { runCommand } from '../run.js';
 import { initCommand } from '../init.js';
 import { createBoard } from '../../lib/board.js';
+import { runsDir } from '../../lib/paths.js';
 import type { Prd } from '@ralfie/shared';
 
 vi.mock('../../lib/agent.js', async (importOriginal) => {
@@ -126,6 +127,55 @@ describe('run', () => {
     expect(allOutput).toContain('Iteration 1/3');
     expect(allOutput).toContain('Iteration 2/3');
     expect(allOutput).toContain('Iteration 3/3');
+    log.mockRestore();
+  });
+
+  it('creates PID file at start and removes on completion', async () => {
+    await initCommand(tmp);
+    await createBoard('my-board', '# Plan', makePrd(), 'test board', tmp);
+
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await runCommand('my-board', 1, tmp);
+
+    // PID file should be cleaned up after run completes
+    const dir = runsDir('my-board', tmp);
+    let files: string[];
+    try {
+      files = await readdir(dir);
+    } catch {
+      files = [];
+    }
+    const pidFiles = files.filter((f) => f.endsWith('.pid'));
+    expect(pidFiles).toHaveLength(0);
+    log.mockRestore();
+  });
+
+  it('removes PID file when agent exits with error', async () => {
+    await initCommand(tmp);
+    await createBoard('my-board', '# Plan', makePrd(), 'test board', tmp);
+
+    const { spawnPrintMode } = await import('../../lib/agent.js');
+    (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({
+      exitCode: 1,
+      stdout: '',
+      complete: false,
+    });
+
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await runCommand('my-board', 5, tmp);
+
+    // PID file should be cleaned up even on error
+    const dir = runsDir('my-board', tmp);
+    let files: string[];
+    try {
+      files = await readdir(dir);
+    } catch {
+      files = [];
+    }
+    const pidFiles = files.filter((f) => f.endsWith('.pid'));
+    expect(pidFiles).toHaveLength(0);
+    err.mockRestore();
     log.mockRestore();
   });
 });

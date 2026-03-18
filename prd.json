@@ -610,7 +610,7 @@
         "runInBackground in the server also creates and cleans up PID files",
         "Multiple concurrent runs on the same board each create their own PID file keyed by sessionId"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "STOP-3",

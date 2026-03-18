@@ -5,6 +5,7 @@ import { readConfig, writeConfig } from '../lib/config.js';
 import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
 import { syncClaudeSettings } from '../lib/claude-settings.js';
 import { broadcast } from './ws.js';
+import { saveRunPid, removeRunPid } from '../lib/run-tracker.js';
 import type { RalfieConfig } from '@ralfie/shared';
 
 function json(res: ServerResponse, data: unknown, status = 200): void {
@@ -151,6 +152,7 @@ async function runInBackground(
   sessionId: string,
 ): Promise<void> {
   await syncClaudeSettings();
+  await saveRunPid(boardName, sessionId, process.pid);
 
   broadcast({
     type: 'run:started',
@@ -159,31 +161,35 @@ async function runInBackground(
     timestamp: new Date().toISOString(),
   });
 
-  for (let i = 1; i <= maxIterations; i++) {
-    const prompt = [
-      `You are ralfie session ${sessionId}, iteration ${i}/${maxIterations}.`,
-      `Board: ${boardName}`,
-      `Read @.ralfie/boards/${boardName}/prd.json @.ralfie/boards/${boardName}/progress.md @.ralfie/boards/${boardName}/plan.md`,
-      'Pick the next pending item, implement it, run feedback loops, update progress and PRD.',
-      'If all items are done, output <ralfie>COMPLETE</ralfie>.',
-    ].join('\n');
+  try {
+    for (let i = 1; i <= maxIterations; i++) {
+      const prompt = [
+        `You are ralfie session ${sessionId}, iteration ${i}/${maxIterations}.`,
+        `Board: ${boardName}`,
+        `Read @.ralfie/boards/${boardName}/prd.json @.ralfie/boards/${boardName}/progress.md @.ralfie/boards/${boardName}/plan.md`,
+        'Pick the next pending item, implement it, run feedback loops, update progress and PRD.',
+        'If all items are done, output <ralfie>COMPLETE</ralfie>.',
+      ].join('\n');
+
+      broadcast({
+        type: 'run:iteration',
+        board: boardName,
+        data: { iteration: i, maxIterations, sessionId },
+        timestamp: new Date().toISOString(),
+      });
+
+      const result = await spawnPrintMode(prompt);
+
+      if (result.complete || result.exitCode !== 0) break;
+    }
+  } finally {
+    await removeRunPid(boardName, sessionId);
 
     broadcast({
-      type: 'run:iteration',
+      type: 'run:completed',
       board: boardName,
-      data: { iteration: i, maxIterations, sessionId },
+      data: { sessionId },
       timestamp: new Date().toISOString(),
     });
-
-    const result = await spawnPrintMode(prompt);
-
-    if (result.complete || result.exitCode !== 0) break;
   }
-
-  broadcast({
-    type: 'run:completed',
-    board: boardName,
-    data: { sessionId },
-    timestamp: new Date().toISOString(),
-  });
 }
