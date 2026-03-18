@@ -348,7 +348,7 @@
         "triggerRun(board, iterations) calls POST /api/boards/:board/run with JSON body",
         "fetchConfig and updateConfig call GET/PUT /api/config respectively"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-3",
