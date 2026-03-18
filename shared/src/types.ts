@@ -63,7 +63,8 @@ export type WsEventType =
   | 'lock:released'
   | 'run:started'
   | 'run:iteration'
-  | 'run:completed';
+  | 'run:completed'
+  | 'run:stopped';
 
 export interface WsEvent {
   type: WsEventType;

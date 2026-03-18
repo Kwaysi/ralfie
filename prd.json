@@ -652,7 +652,7 @@
         "run:stopped added to WsEventType union in shared/src/types.ts",
         "Reuses the same stop logic as the CLI command (shared function, not duplicated)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "STOP-6",

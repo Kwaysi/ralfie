@@ -6,6 +6,7 @@ import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
 import { syncClaudeSettings } from '../lib/claude-settings.js';
 import { broadcast } from './ws.js';
 import { saveRunPid, removeRunPid } from '../lib/run-tracker.js';
+import { stopBoard } from '../lib/stop-board.js';
 import type { RalfieConfig } from '@ralfie/shared';
 
 function json(res: ServerResponse, data: unknown, status = 200): void {
@@ -123,6 +124,24 @@ export async function handleApi(
       runInBackground(name, maxIterations, sessionId);
 
       json(res, { ok: true, sessionId, iterations: maxIterations });
+      return true;
+    }
+
+    // POST /api/boards/:name/stop
+    const stopParams = matchRoute(url, '/api/boards/:name/stop');
+    if (method === 'POST' && stopParams) {
+      const { name } = stopParams;
+      if (!(await boardExists(name))) {
+        return notFound(res, `Board '${name}' not found`), true;
+      }
+      const result = await stopBoard(name);
+      broadcast({
+        type: 'run:stopped',
+        board: name,
+        data: { stopped: result.stopped, locksReleased: result.locksReleased, itemsReset: result.itemsReset },
+        timestamp: new Date().toISOString(),
+      });
+      json(res, { ok: true, stopped: result.stopped });
       return true;
     }
 
