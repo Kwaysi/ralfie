@@ -239,7 +239,7 @@
         "Invalid status value shows error with valid options listed",
         "Status test passes: 'npm test --workspace=cli -- --run status'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CMD-8",

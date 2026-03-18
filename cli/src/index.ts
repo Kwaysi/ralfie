@@ -2,6 +2,7 @@
 import { Command } from 'commander';
 import { initCommand } from './commands/init.js';
 import { listCommand } from './commands/list.js';
+import { statusCommand } from './commands/status.js';
 
 const program = new Command();
 
@@ -22,6 +23,13 @@ program
   .description('List all boards with progress')
   .action(async () => {
     await listCommand();
+  });
+
+program
+  .command('status <board> <status>')
+  .description('Show PRD items filtered by status')
+  .action(async (board: string, status: string) => {
+    await statusCommand(board, status);
   });
 
 program.parse();
