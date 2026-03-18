@@ -519,7 +519,7 @@
         "'ralf serve' starts and responds to HTTP requests with React app HTML",
         "'npm test' passes all test suites (config, prd, board, lock, init, list, status, verify, unlock)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DOCS-1",
