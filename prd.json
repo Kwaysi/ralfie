@@ -93,7 +93,7 @@
         "defaultConfig has agent_command='claude', default_iterations=10, feedback_loops=[], serve_port=3333",
         "All 3 config tests pass: 'npm test --workspace=cli -- --run config'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "LIB-3",
