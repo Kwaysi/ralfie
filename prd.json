@@ -183,7 +183,7 @@
         "Running 'node cli/dist/index.js --help' shows available commands",
         "Running 'node cli/dist/index.js init' executes the init command"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CMD-3",
