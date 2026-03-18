@@ -5,6 +5,8 @@ export type {
   Prd,
   BoardMeta,
   Board,
+  EffortLevel,
+  AgentModel,
   RalfieConfig,
   WsEventType,
   WsEvent,

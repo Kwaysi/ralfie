@@ -558,7 +558,7 @@
         "If .claude/settings.json does not exist, it is created",
         "syncClaudeSettings test passes: 'npm test --workspace=cli -- --run claude-settings'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CONFIG-3",
