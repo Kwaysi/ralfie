@@ -360,7 +360,7 @@
         "Hook returns { connected: boolean } state",
         "Uses ref for callback to avoid reconnection on callback changes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-4",
