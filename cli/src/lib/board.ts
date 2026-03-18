@@ -1,6 +1,14 @@
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
 import { boardsDir, boardDir, planPath, prdPath, progressPath, locksDir } from './paths.js';
 import type { Board, BoardMeta, Prd } from '@ralfie/shared';
+
+async function readFileSafe(path: string, fallback: string): Promise<string> {
+  try {
+    return await readFile(path, 'utf-8');
+  } catch {
+    return fallback;
+  }
+}
 
 export async function createBoard(
   name: string,
@@ -29,8 +37,8 @@ export async function createBoard(
 
 export async function boardExists(name: string, cwd?: string): Promise<boolean> {
   try {
-    await readFile(`${boardDir(name, cwd)}/meta.json`);
-    return true;
+    const s = await stat(boardDir(name, cwd));
+    return s.isDirectory();
   } catch {
     return false;
   }
@@ -39,14 +47,18 @@ export async function boardExists(name: string, cwd?: string): Promise<boolean> 
 export async function getBoard(name: string, cwd?: string): Promise<Board> {
   const dir = boardDir(name, cwd);
   const [metaRaw, plan, prdRaw, progress] = await Promise.all([
-    readFile(`${dir}/meta.json`, 'utf-8'),
-    readFile(planPath(name, cwd), 'utf-8'),
+    readFileSafe(`${dir}/meta.json`, ''),
+    readFileSafe(planPath(name, cwd), ''),
     readFile(prdPath(name, cwd), 'utf-8'),
-    readFile(progressPath(name, cwd), 'utf-8'),
+    readFileSafe(progressPath(name, cwd), ''),
   ]);
 
+  const meta: BoardMeta = metaRaw
+    ? (JSON.parse(metaRaw) as BoardMeta)
+    : { name, created_at: '', description: '' };
+
   return {
-    meta: JSON.parse(metaRaw) as BoardMeta,
+    meta,
     plan,
     prd: JSON.parse(prdRaw) as Prd,
     progress,
@@ -65,10 +77,17 @@ export async function listBoards(cwd?: string): Promise<BoardMeta[]> {
   const metas: BoardMeta[] = [];
   for (const entry of entries) {
     try {
+      const s = await stat(`${dir}/${entry}`);
+      if (!s.isDirectory()) continue;
+    } catch {
+      continue;
+    }
+    try {
       const raw = await readFile(`${dir}/${entry}/meta.json`, 'utf-8');
       metas.push(JSON.parse(raw) as BoardMeta);
     } catch {
-      // skip entries without valid meta.json
+      // Board directory exists but no meta.json — infer minimal meta
+      metas.push({ name: entry, created_at: '', description: '' });
     }
   }
   return metas;

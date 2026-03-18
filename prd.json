@@ -718,6 +718,44 @@
         "After ralf init, .ralfie/config.json contains effort='medium' and model='opus'"
       ],
       "passes": true
+    },
+    {
+      "id": "BUG-1",
+      "category": "Bug Fix",
+      "description": "ralfie-plan skill does not instruct the agent to create meta.json or progress.md when creating a board. The skill's Phase 4 only mentions plan.md and prd.json, causing the agent to write files directly instead of creating all 4 required board files. Update the skill to explicitly list all required files: meta.json (with name, created_at, description), plan.md, prd.json, and progress.md (empty).",
+      "steps_to_verify": [
+        "cli/src/skills/ralfie-plan.md Phase 4 explicitly lists all 4 files: meta.json, plan.md, prd.json, progress.md",
+        "Phase 4 specifies the meta.json structure: {name, created_at (ISO timestamp), description}",
+        "Phase 4 specifies that progress.md should be created as an empty file",
+        "After running ralf plan and completing board creation, all 4 files exist in .ralfie/boards/<board-name>/"
+      ],
+      "passes": false
+    },
+    {
+      "id": "BUG-2",
+      "category": "Bug Fix",
+      "description": "boardExists, getBoard, and listBoards in board.ts are brittle — they hard-fail if any of the 4 expected files (meta.json, plan.md, prd.json, progress.md) is missing. getBoard should gracefully handle missing optional files (return empty string for missing plan/progress, infer meta from prd.json if meta.json is absent). boardExists should check for the board directory existing rather than requiring meta.json specifically.",
+      "steps_to_verify": [
+        "boardExists returns true if the board directory exists (not just if meta.json exists)",
+        "getBoard returns empty string for plan if plan.md is missing",
+        "getBoard returns empty string for progress if progress.md is missing",
+        "getBoard infers a minimal BoardMeta (name from directory name, empty description) if meta.json is missing",
+        "listBoards lists boards that have a directory even if meta.json is missing",
+        "All existing board tests still pass: 'npm test --workspace=cli -- --run board'"
+      ],
+      "passes": true
+    },
+    {
+      "id": "BUG-3",
+      "category": "Bug Fix",
+      "description": "ralfie-plan skill does not specify the exact PRD JSON schema, causing agents to produce prd.json files that drift from the Prd type. Observed drift: agent wrote 'board' instead of 'project', 'title' instead of 'description' on items, and omitted the root 'description' field. The skill must include the exact schema with field names matching shared/src/types.ts (Prd: {project, description, items}, PrdItem: {id, category, description, steps_to_verify, status, assigned_to, comments}).",
+      "steps_to_verify": [
+        "cli/src/skills/ralfie-plan.md Phase 3 includes the exact JSON structure with all required field names",
+        "Phase 3 specifies root-level fields: project (string), description (string), items (array)",
+        "Phase 3 specifies item fields: id, category, description (not 'title'), steps_to_verify, status, assigned_to, comments",
+        "Phase 3 includes a concrete example JSON snippet showing the correct structure"
+      ],
+      "passes": false
     }
   ]
 }

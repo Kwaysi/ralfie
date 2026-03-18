@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtemp, rm, mkdir } from 'node:fs/promises';
+import { mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createBoard, boardExists, getBoard, listBoards, appendProgress } from '../board.js';
-import { boardsDir } from '../paths.js';
+import { boardsDir, boardDir, prdPath } from '../paths.js';
 import type { Prd } from '@ralfie/shared';
 
 let tmp: string;
@@ -74,5 +74,41 @@ describe('board', () => {
 
     const board = await getBoard('my-board', tmp);
     expect(board.progress).toBe('Step 1 done\nStep 2 done\n');
+  });
+
+  it('boardExists returns true when directory exists without meta.json', async () => {
+    const dir = boardDir('no-meta', tmp);
+    await mkdir(dir, { recursive: true });
+    expect(await boardExists('no-meta', tmp)).toBe(true);
+  });
+
+  it('getBoard handles missing optional files gracefully', async () => {
+    // Create board dir with only prd.json (the one required file)
+    const dir = boardDir('partial', tmp);
+    await mkdir(dir, { recursive: true });
+    await writeFile(prdPath('partial', tmp), JSON.stringify(makePrd(), null, 2));
+
+    const board = await getBoard('partial', tmp);
+    expect(board.meta).toEqual({ name: 'partial', created_at: '', description: '' });
+    expect(board.plan).toBe('');
+    expect(board.progress).toBe('');
+    expect(board.prd.project).toBe('test');
+  });
+
+  it('listBoards includes boards without meta.json', async () => {
+    await createBoard('with-meta', '# Plan', makePrd(), 'Has meta', tmp);
+
+    // Create a board dir with only prd.json, no meta.json
+    const dir = boardDir('no-meta', tmp);
+    await mkdir(dir, { recursive: true });
+    await writeFile(prdPath('no-meta', tmp), JSON.stringify(makePrd(), null, 2));
+
+    const boards = await listBoards(tmp);
+    expect(boards).toHaveLength(2);
+    const names = boards.map((b) => b.name).sort();
+    expect(names).toEqual(['no-meta', 'with-meta']);
+
+    const noMeta = boards.find((b) => b.name === 'no-meta')!;
+    expect(noMeta.description).toBe('');
   });
 });
