@@ -372,7 +372,7 @@
         "Main content area is scrollable and has padding",
         "'ralfie' title appears at top of sidebar"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-5",
