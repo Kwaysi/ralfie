@@ -471,7 +471,7 @@
         "ProgressTimeline renders markdown or shows 'No progress logged yet' when empty",
         "Both components wrap content in bg-card styled container"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-13",
