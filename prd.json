@@ -34,7 +34,7 @@
         "cli/package.json has commander and ws as dependencies, vitest as devDependency",
         "cli/tsconfig.json extends ../tsconfig.base.json"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SCAFFOLD-4",
