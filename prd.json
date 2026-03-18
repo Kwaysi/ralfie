@@ -335,7 +335,7 @@
         "ui/src/index.css imports Tailwind and defines CSS variables: --bg, --bg-card, --border, --text, --text-muted, --accent, --success, --warning, --danger",
         "App.tsx defines routes: / (Dashboard), /boards (BoardList), /boards/:name (BoardDetail), /settings (Settings)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-2",
