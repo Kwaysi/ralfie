@@ -703,7 +703,7 @@
         "Init output lists .claude/settings.json in the created/updated files",
         "Running ralf init twice produces the same result (idempotent)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "E2E-2",
