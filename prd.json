@@ -664,7 +664,7 @@
         "GET /api/boards/:name returns BoardWithStatus with activeRuns count",
         "activeRuns reflects actual live process count (stale PIDs for dead processes are not counted)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "STOP-7",

@@ -39,6 +39,10 @@ export interface Board {
   progress: string;
 }
 
+export interface BoardWithStatus extends Board {
+  activeRuns: number;
+}
+
 // -- Config --
 
 export type EffortLevel = 'low' | 'medium' | 'high';

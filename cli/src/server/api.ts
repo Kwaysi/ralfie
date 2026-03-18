@@ -5,9 +5,9 @@ import { readConfig, writeConfig } from '../lib/config.js';
 import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
 import { syncClaudeSettings } from '../lib/claude-settings.js';
 import { broadcast } from './ws.js';
-import { saveRunPid, removeRunPid } from '../lib/run-tracker.js';
+import { saveRunPid, removeRunPid, countActiveRuns } from '../lib/run-tracker.js';
 import { stopBoard } from '../lib/stop-board.js';
-import type { RalfieConfig } from '@ralfie/shared';
+import type { RalfieConfig, BoardWithStatus } from '@ralfie/shared';
 
 function json(res: ServerResponse, data: unknown, status = 200): void {
   res.writeHead(status, { 'Content-Type': 'application/json' });
@@ -66,8 +66,12 @@ export async function handleApi(
     // GET /api/boards
     if (method === 'GET' && url === '/api/boards') {
       const metas = await listBoards();
-      const boards = await Promise.all(
-        metas.map((m) => getBoard(m.name)),
+      const boards: BoardWithStatus[] = await Promise.all(
+        metas.map(async (m) => {
+          const board = await getBoard(m.name);
+          const activeRuns = await countActiveRuns(m.name);
+          return { ...board, activeRuns };
+        }),
       );
       json(res, boards);
       return true;
@@ -153,7 +157,9 @@ export async function handleApi(
         return notFound(res, `Board '${name}' not found`), true;
       }
       const board = await getBoard(name);
-      json(res, board);
+      const activeRuns = await countActiveRuns(name);
+      const boardWithStatus: BoardWithStatus = { ...board, activeRuns };
+      json(res, boardWithStatus);
       return true;
     }
 

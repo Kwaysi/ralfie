@@ -5,6 +5,7 @@ export type {
   Prd,
   BoardMeta,
   Board,
+  BoardWithStatus,
   EffortLevel,
   AgentModel,
   RalfieConfig,
