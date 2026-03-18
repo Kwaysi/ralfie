@@ -689,7 +689,7 @@
         "Boards with no active runs do not show the badge",
         "Badge updates in real-time via WebSocket events"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "INIT-1",
@@ -717,7 +717,7 @@
         "After ralf init, .claude/settings.json contains permissions.allow with Bash, Edit, Write, Read",
         "After ralf init, .ralfie/config.json contains effort='medium' and model='opus'"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }

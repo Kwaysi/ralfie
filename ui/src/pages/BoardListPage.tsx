@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import type { Board, ItemStatus } from "@ralfie/shared";
+import type { BoardWithStatus, ItemStatus } from "@ralfie/shared";
 import { fetchBoards } from "../lib/api";
 import { useWs } from "../lib/ws";
 
@@ -21,7 +21,7 @@ function StatusCount({ label, count, color }: { label: string; count: number; co
 }
 
 export default function BoardListPage() {
-  const [boards, setBoards] = useState<Board[]>([]);
+  const [boards, setBoards] = useState<BoardWithStatus[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -70,8 +70,16 @@ export default function BoardListPage() {
                     {board.meta.description}
                   </div>
                 )}
-                <div className="text-xs text-[var(--text-muted)] mb-3">
-                  {total} items
+                <div className="text-xs text-[var(--text-muted)] mb-3 flex items-center gap-2">
+                  <span>{total} items</span>
+                  {board.activeRuns > 0 && (
+                    <span
+                      className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 20%, transparent)', color: 'var(--accent)' }}
+                    >
+                      {board.activeRuns} agent{board.activeRuns > 1 ? 's' : ''} running
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-x-3 gap-y-1">
                   <StatusCount label="pending" count={counts.pending} color={STATUS_COLORS.pending} />
