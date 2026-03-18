@@ -413,7 +413,7 @@
         "Progress tab renders progress.md as formatted markdown",
         "Only refreshes when WebSocket events match the current board name"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-8",
