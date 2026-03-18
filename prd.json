@@ -121,9 +121,9 @@
         "getBoard reads and returns meta, plan, prd, and progress data",
         "listBoards returns array of BoardMeta for all boards with meta.json files",
         "appendProgress appends text to progress.md",
-        "All 3 board tests pass: 'npm test --workspace=cli -- --run board'"
+        "All 4 board tests pass: 'npm test --workspace=cli -- --run board'"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "LIB-5",
