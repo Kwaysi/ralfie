@@ -448,7 +448,7 @@
         "Y-axis shows integer counts (no decimals)",
         "Bars use accent color (#6366f1) with rounded top corners"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "UI-11",
