@@ -9,6 +9,7 @@ import { planCommand } from './commands/plan.js';
 import { editCommand } from './commands/edit.js';
 import { runCommand } from './commands/run.js';
 import { serveCommand } from './commands/serve.js';
+import { stopCommand } from './commands/stop.js';
 
 const program = new Command();
 
@@ -71,6 +72,13 @@ program
   .description('Clear all lockfiles for a board')
   .action(async (board: string) => {
     await unlockCommand(board);
+  });
+
+program
+  .command('stop <board>')
+  .description('Stop all running agents for a board')
+  .action(async (board: string) => {
+    await stopCommand(board);
   });
 
 program

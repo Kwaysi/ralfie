@@ -639,7 +639,7 @@
         "If no runs are active, prints 'No active runs for board {name}'",
         "ralf stop registered in cli/src/index.ts"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "STOP-5",
