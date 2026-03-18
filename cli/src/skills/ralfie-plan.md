@@ -17,7 +17,9 @@ Before generating anything, interview the user about their project:
 4. What are the known unknowns? What are you most uncertain about?
 5. Who are the users? What are the core user flows?
 
-Push back on vague answers. Ask follow-up questions until you have a concrete understanding of scope, constraints, and priorities. Do not proceed until the user confirms you have enough context.
+Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
+
+If a question can be answered by exploring the codebase, explore the codebase instead.
 
 ## Phase 2: Plan Generation
 
@@ -34,15 +36,38 @@ Keep it concise. The plan is a living document — it will be edited later.
 
 ## Phase 3: PRD Generation
 
-Generate a `prd.json` with granular, testable items:
+Generate a `prd.json` matching this exact schema:
 
+```json
+{
+  "project": "<project-name>",
+  "description": "<one-line project description>",
+  "items": [
+    {
+      "id": "CATEGORY-1",
+      "category": "Category Name",
+      "description": "What this item implements",
+      "steps_to_verify": [
+        "Specific, observable verification step"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "comments": []
+    }
+  ]
+}
+```
+
+**Required fields — use these exact names:**
+- Root: `project` (string), `description` (string), `items` (array)
+- Item: `id` (string), `category` (string), `description` (string — NOT "title"), `steps_to_verify` (string[]), `status` (ItemStatus), `assigned_to` (string | null), `comments` (PrdItemComment[])
+
+Guidelines for good PRD items:
 - Each item must have a unique ID (e.g., `AUTH-1`, `DB-2`)
 - Each item must have concrete `steps_to_verify` — specific, observable checks
 - Group items by `category` (e.g., "Authentication", "Database", "API")
 - Order items by dependency — items that block others come first
 - All items start with `status: "pending"`, `assigned_to: null`, `comments: []`
-
-Guidelines for good PRD items:
 - Small enough to complete in one coding session
 - Verifiable without human judgment ("tests pass" not "code is clean")
 - Independent where possible — minimize cross-item dependencies
@@ -50,10 +75,22 @@ Guidelines for good PRD items:
 
 ## Phase 4: Board Creation
 
-Once the user approves the plan and PRD, create the board:
+Once the user approves the plan and PRD, create the board.
 
-```
-ralf init  (if not already done)
-```
+Run `ralf init` first if not already done.
 
-Then write the plan.md and prd.json files to `.ralfie/boards/<board-name>/`.
+Then write **all 4 required files** to `.ralfie/boards/<board-name>/`:
+
+1. **meta.json** — Board metadata:
+   ```json
+   {
+     "name": "<board-name>",
+     "created_at": "<ISO 8601 timestamp>",
+     "description": "<board description>"
+   }
+   ```
+2. **plan.md** — The plan from Phase 2
+3. **prd.json** — The PRD from Phase 3
+4. **progress.md** — Create as an empty file
+
+All 4 files must exist for the board to work correctly with `ralf` commands.

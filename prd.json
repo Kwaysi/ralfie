@@ -729,7 +729,7 @@
         "Phase 4 specifies that progress.md should be created as an empty file",
         "After running ralf plan and completing board creation, all 4 files exist in .ralfie/boards/<board-name>/"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "BUG-2",
@@ -755,7 +755,7 @@
         "Phase 3 specifies item fields: id, category, description (not 'title'), steps_to_verify, status, assigned_to, comments",
         "Phase 3 includes a concrete example JSON snippet showing the correct structure"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }
