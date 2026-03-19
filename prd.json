@@ -805,7 +805,7 @@
         "Short descriptions (under 3 lines) display normally without ellipsis",
         "Tailwind line-clamp-3 class or equivalent CSS is applied to the description div"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-5",

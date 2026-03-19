@@ -81,7 +81,7 @@ function ItemCard({
     >
       <div className="font-bold font-mono mb-1">{item.id}</div>
       <div className="text-[var(--text-muted)] mb-1">{item.category}</div>
-      <div className="mb-2 leading-relaxed">{item.description}</div>
+      <div className="mb-2 leading-relaxed line-clamp-3">{item.description}</div>
       {item.assigned_to && (
         <div className="text-[var(--accent)] mb-1 truncate">
           ⚡ {item.assigned_to}
