@@ -49,6 +49,31 @@ export async function stopBoard(
   return res.json();
 }
 
+export async function resetItemApi(
+  board: string,
+  itemId: string,
+): Promise<{ ok: boolean }> {
+  const res = await fetch(
+    `/api/boards/${encodeURIComponent(board)}/items/${encodeURIComponent(itemId)}/reset`,
+    { method: 'POST' },
+  );
+  if (!res.ok) throw new Error(`Failed to reset item: ${res.statusText}`);
+  return res.json();
+}
+
+export async function addCommentApi(
+  board: string,
+  itemId: string,
+  message: string,
+): Promise<{ ok: boolean }> {
+  const res = await fetch(
+    `/api/boards/${encodeURIComponent(board)}/items/${encodeURIComponent(itemId)}/comment`,
+    { method: 'POST', headers, body: JSON.stringify({ message }) },
+  );
+  if (!res.ok) throw new Error(`Failed to add comment: ${res.statusText}`);
+  return res.json();
+}
+
 export async function fetchConfig(): Promise<RalfieConfig> {
   const res = await fetch('/api/config');
   if (!res.ok) throw new Error(`Failed to fetch config: ${res.statusText}`);

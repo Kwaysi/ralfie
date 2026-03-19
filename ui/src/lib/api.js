@@ -29,6 +29,18 @@ export async function stopBoard(board) {
         throw new Error(`Failed to stop board: ${res.statusText}`);
     return res.json();
 }
+export async function resetItemApi(board, itemId) {
+    const res = await fetch(`/api/boards/${encodeURIComponent(board)}/items/${encodeURIComponent(itemId)}/reset`, { method: 'POST' });
+    if (!res.ok)
+        throw new Error(`Failed to reset item: ${res.statusText}`);
+    return res.json();
+}
+export async function addCommentApi(board, itemId, message) {
+    const res = await fetch(`/api/boards/${encodeURIComponent(board)}/items/${encodeURIComponent(itemId)}/comment`, { method: 'POST', headers, body: JSON.stringify({ message }) });
+    if (!res.ok)
+        throw new Error(`Failed to add comment: ${res.statusText}`);
+    return res.json();
+}
 export async function fetchConfig() {
     const res = await fetch('/api/config');
     if (!res.ok)

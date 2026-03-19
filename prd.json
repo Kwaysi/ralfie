@@ -837,7 +837,7 @@
         "Clicking Move to Pending calls the reset endpoint and refreshes the board data",
         "Clicking Verify calls the existing verify endpoint and refreshes the board data"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-7",
@@ -853,7 +853,7 @@
         "After submitting, the comment appears in the thread without full page refresh",
         "addCommentApi function exists in ui/src/lib/api.ts"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-8",

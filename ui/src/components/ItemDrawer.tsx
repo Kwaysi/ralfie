@@ -1,9 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { ItemStatus, PrdItem } from "@ralfie/shared";
+import { verifyItem, resetItemApi, addCommentApi } from "../lib/api";
 
 interface ItemDrawerProps {
   item: PrdItem | null;
   onClose: () => void;
+  boardName?: string;
+  activeRuns?: number;
+  onRefresh?: () => void;
 }
 
 const statusColors: Record<ItemStatus, string> = {
@@ -34,7 +38,10 @@ function formatTimestamp(ts: string): string {
   });
 }
 
-export default function ItemDrawer({ item, onClose }: ItemDrawerProps) {
+export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, onRefresh }: ItemDrawerProps) {
+  const [commentText, setCommentText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     if (!item) return;
     function handleKeyDown(e: KeyboardEvent) {
@@ -47,6 +54,34 @@ export default function ItemDrawer({ item, onClose }: ItemDrawerProps) {
   if (!item) return null;
 
   const color = statusColors[item.status];
+  const readOnly = activeRuns > 0;
+  const showVerify = item.status === "done" && !readOnly && boardName;
+  const showReset = ["done", "failed", "in_progress"].includes(item.status) && item.status !== "verified" && !readOnly && boardName;
+  const commentDisabled = readOnly || item.status === "verified" || !boardName;
+
+  async function handleVerify() {
+    if (!boardName) return;
+    await verifyItem(boardName, item!.id);
+    onRefresh?.();
+  }
+
+  async function handleReset() {
+    if (!boardName) return;
+    await resetItemApi(boardName, item!.id);
+    onRefresh?.();
+  }
+
+  async function handleComment() {
+    if (!boardName || !commentText.trim()) return;
+    setSubmitting(true);
+    try {
+      await addCommentApi(boardName, item!.id, commentText.trim());
+      setCommentText("");
+      onRefresh?.();
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div
@@ -75,6 +110,30 @@ export default function ItemDrawer({ item, onClose }: ItemDrawerProps) {
         </div>
 
         <div className="p-5 space-y-5">
+          {/* Action Buttons */}
+          {(showVerify || showReset) && (
+            <div className="flex gap-2">
+              {showVerify && (
+                <button
+                  onClick={handleVerify}
+                  className="px-3 py-1.5 rounded text-sm font-bold cursor-pointer"
+                  style={{ backgroundColor: "var(--success)", color: "#000" }}
+                >
+                  Verify
+                </button>
+              )}
+              {showReset && (
+                <button
+                  onClick={handleReset}
+                  className="px-3 py-1.5 rounded text-sm font-bold cursor-pointer"
+                  style={{ backgroundColor: "var(--text-muted)", color: "#000" }}
+                >
+                  Move to Pending
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Description */}
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2">
@@ -190,6 +249,28 @@ export default function ItemDrawer({ item, onClose }: ItemDrawerProps) {
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Comment Input */}
+            {!commentDisabled && (
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="text"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !submitting) handleComment(); }}
+                  placeholder="Add a comment..."
+                  className="flex-1 bg-[var(--bg)] border border-[var(--border)] rounded px-3 py-1.5 text-sm text-[var(--text)] placeholder:text-[var(--text-muted)] outline-none focus:border-[var(--accent)]"
+                />
+                <button
+                  onClick={handleComment}
+                  disabled={submitting || !commentText.trim()}
+                  className="px-3 py-1.5 rounded text-sm font-bold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: "var(--accent)", color: "#000" }}
+                >
+                  Send
+                </button>
               </div>
             )}
           </section>

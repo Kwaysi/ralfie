@@ -13,6 +13,12 @@ export declare function stopBoard(board: string): Promise<{
     ok: boolean;
     stopped: number;
 }>;
+export declare function resetItemApi(board: string, itemId: string): Promise<{
+    ok: boolean;
+}>;
+export declare function addCommentApi(board: string, itemId: string, message: string): Promise<{
+    ok: boolean;
+}>;
 export declare function fetchConfig(): Promise<RalfieConfig>;
 export declare function updateConfig(config: RalfieConfig): Promise<{
     ok: boolean;

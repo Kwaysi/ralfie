@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { listBoards, getBoard, boardExists } from '../lib/board.js';
-import { verifyItem } from '../lib/prd.js';
+import { verifyItem, resetItem, addComment } from '../lib/prd.js';
 import { readConfig, writeConfig } from '../lib/config.js';
 import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
 import { syncClaudeSettings } from '../lib/claude-settings.js';
@@ -147,6 +147,38 @@ export async function handleApi(
         timestamp: new Date().toISOString(),
       });
       json(res, { ok: true, stopped: result.stopped });
+      return true;
+    }
+
+    // POST /api/boards/:name/items/:itemId/reset
+    const resetParams = matchRoute(url, '/api/boards/:name/items/:itemId/reset');
+    if (method === 'POST' && resetParams) {
+      const { name, itemId } = resetParams;
+      if (!(await boardExists(name))) {
+        return notFound(res, `Board '${name}' not found`), true;
+      }
+      const sessionId = generateSessionId();
+      await resetItem(name, itemId, sessionId);
+      json(res, { ok: true });
+      return true;
+    }
+
+    // POST /api/boards/:name/items/:itemId/comment
+    const commentParams = matchRoute(url, '/api/boards/:name/items/:itemId/comment');
+    if (method === 'POST' && commentParams) {
+      const { name, itemId } = commentParams;
+      if (!(await boardExists(name))) {
+        return notFound(res, `Board '${name}' not found`), true;
+      }
+      const body = await readBody(req);
+      const { message } = JSON.parse(body || '{}') as { message?: string };
+      if (!message) {
+        return badRequest(res, 'message is required'), true;
+      }
+      const config = await readConfig();
+      const userName = config.user || 'user';
+      await addComment(name, itemId, userName, message);
+      json(res, { ok: true });
       return true;
     }
 
