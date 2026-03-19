@@ -895,7 +895,7 @@
         "ItemDrawer Verify and Move to Pending buttons are hidden during active runs",
         "All interactive elements reappear when the run completes (activeRuns returns to 0)"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-11",

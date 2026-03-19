@@ -45,7 +45,7 @@ export default function PrdKanban({ items, onVerify, onRefresh, boardName, activ
                     item={item}
                     onClick={() => setSelectedId(item.id)}
                     onVerify={
-                      item.status === "done" ? () => onVerify(item.id) : undefined
+                      item.status === "done" && activeRuns === 0 ? () => onVerify(item.id) : undefined
                     }
                   />
                 ))}

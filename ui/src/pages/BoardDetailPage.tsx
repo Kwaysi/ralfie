@@ -71,12 +71,14 @@ export default function BoardDetailPage() {
               Stop ({board.activeRuns})
             </button>
           )}
-          <button
-            onClick={() => setRunOpen(true)}
-            className="px-4 py-2 rounded text-sm bg-[var(--accent)] text-white font-bold hover:opacity-80 cursor-pointer"
-          >
-            Run
-          </button>
+          {board.activeRuns === 0 && (
+            <button
+              onClick={() => setRunOpen(true)}
+              className="px-4 py-2 rounded text-sm bg-[var(--accent)] text-white font-bold hover:opacity-80 cursor-pointer"
+            >
+              Run
+            </button>
+          )}
         </div>
       </div>
 
@@ -95,6 +97,12 @@ export default function BoardDetailPage() {
           </button>
         ))}
       </div>
+
+      {board.activeRuns > 0 && (
+        <div className="mt-3 px-3 py-2 rounded text-sm bg-[var(--warning)]/15 border border-[var(--warning)]/30 text-[var(--warning)] shrink-0">
+          Board is locked — agent run in progress
+        </div>
+      )}
 
       <div className="flex-1 min-h-0 pt-4">
         {tab === "prd" && (
