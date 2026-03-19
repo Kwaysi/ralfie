@@ -23,3 +23,68 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* Dark-theme prose overrides for GFM elements */
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.prose th,
+.prose td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.prose th {
+  background-color: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+.prose tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.prose pre {
+  background-color: #13151d;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+.prose code {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 0.25rem;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.875em;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+.prose input[type="checkbox"] {
+  accent-color: var(--accent);
+  margin-right: 0.5rem;
+}
+
+.prose del {
+  color: var(--text-muted);
+}

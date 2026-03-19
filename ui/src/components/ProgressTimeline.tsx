@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ProgressTimelineProps {
   content: string;
@@ -14,7 +15,7 @@ export default function ProgressTimeline({ content }: ProgressTimelineProps) {
       }}
     >
       {content.trim() ? (
-        <ReactMarkdown>{content}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
       ) : (
         <p style={{ color: "var(--text-muted)" }}>No progress logged yet.</p>
       )}

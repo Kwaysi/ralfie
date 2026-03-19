@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface PlanViewerProps {
   content: string;
@@ -13,7 +14,7 @@ export default function PlanViewer({ content }: PlanViewerProps) {
         borderColor: "var(--border)",
       }}
     >
-      <ReactMarkdown>{content}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
     </div>
   );
 }
