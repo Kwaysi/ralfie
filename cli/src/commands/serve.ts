@@ -1,4 +1,4 @@
-import { readConfig } from '../lib/config.js';
+import { readConfig, writeConfig } from '../lib/config.js';
 import { createHttpServer } from '../server/http.js';
 import { createWsServer, broadcast, closeAllConnections } from '../server/ws.js';
 import { startWatcher, type WatchEvent } from '../server/watcher.js';
@@ -30,15 +30,19 @@ export async function serveCommand(): Promise<void> {
     });
   });
 
-  server.listen(port, () => {
-    console.log(`ralfie server listening on http://localhost:${port}`);
+  server.listen(port, async () => {
+    // Write PID to config so other processes can find us
+    config.serve_pid = process.pid;
+    await writeConfig(config);
+
+    console.log(`ralfie server listening on http://localhost:${port} (pid: ${process.pid})`);
     console.log(`WebSocket available at ws://localhost:${port}`);
     console.log('Press Ctrl+C to stop');
   });
 
   let shutdownInProgress = false;
 
-  const cleanup = () => {
+  const cleanup = async () => {
     if (shutdownInProgress) {
       // Second ctrl+c — force kill immediately
       console.log('Force killing...');
@@ -46,6 +50,14 @@ export async function serveCommand(): Promise<void> {
     }
     shutdownInProgress = true;
     console.log('Shutting down...');
+
+    // Clear PID from config
+    try {
+      config.serve_pid = null;
+      await writeConfig(config);
+    } catch {
+      // Best effort — don't block shutdown if config write fails
+    }
 
     // Close file watchers
     for (const w of watchers) w.close();

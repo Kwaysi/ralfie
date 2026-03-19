@@ -30,10 +30,10 @@
         "Stop the server (ctrl+c), check `.ralfie/config.json` has `serve_pid: null`",
         "Run `npm run typecheck` — no type errors in shared, cli, or ui workspaces"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773963576125-608329a9",
+      "started_at": "2026-03-20T00:02:00.000Z",
+      "completed_at": "2026-03-20T00:05:00.000Z",
       "comments": []
     },
     {

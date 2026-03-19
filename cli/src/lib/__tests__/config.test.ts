@@ -38,6 +38,7 @@ describe('config', () => {
       effort: 'medium',
       model: 'opus',
       user: '',
+      serve_pid: null,
     });
   });
 });

@@ -60,6 +60,7 @@ export interface RalfieConfig {
   effort: EffortLevel;
   model: AgentModel;
   user: string;
+  serve_pid: number | null;
 }
 
 // -- WebSocket events --
