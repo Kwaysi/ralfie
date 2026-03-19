@@ -97,7 +97,7 @@ export default function BoardDetailPage() {
       </div>
 
       {tab === "prd" && (
-        <PrdKanban items={board.prd.items} onVerify={handleVerify} />
+        <PrdKanban items={board.prd.items} onVerify={handleVerify} onRefresh={load} boardName={board.meta.name} activeRuns={board.activeRuns} />
       )}
       {tab === "plan" && <PlanViewer content={board.plan} />}
       {tab === "progress" && <ProgressTimeline content={board.progress} />}

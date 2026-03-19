@@ -866,7 +866,7 @@
         "Only one drawer is open at a time — clicking a different item replaces the current drawer content",
         "Drawer can be closed and reopened for the same item"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-9",

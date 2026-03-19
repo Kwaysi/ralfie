@@ -1,8 +1,13 @@
+import { useState } from "react";
 import type { ItemStatus, PrdItem } from "@ralfie/shared";
+import ItemDrawer from "./ItemDrawer";
 
 interface PrdKanbanProps {
   items: PrdItem[];
   onVerify: (itemId: string) => void;
+  onRefresh: () => void;
+  boardName: string;
+  activeRuns: number;
 }
 
 const columns: { status: ItemStatus; label: string; color: string }[] = [
@@ -13,49 +18,67 @@ const columns: { status: ItemStatus; label: string; color: string }[] = [
   { status: "verified", label: "Verified", color: "var(--success)" },
 ];
 
-export default function PrdKanban({ items, onVerify }: PrdKanbanProps) {
+export default function PrdKanban({ items, onVerify, onRefresh, boardName, activeRuns }: PrdKanbanProps) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selectedItem = selectedId ? items.find((i) => i.id === selectedId) ?? null : null;
+
   return (
-    <div className="grid grid-cols-5 gap-3 items-start">
-      {columns.map((col) => {
-        const colItems = items.filter((i) => i.status === col.status);
-        return (
-          <div key={col.status} className="min-w-0">
-            <div
-              className="text-xs font-bold uppercase tracking-wide mb-3 flex items-center justify-between"
-              style={{ color: col.color }}
-            >
-              <span>{col.label}</span>
-              <span className="text-[var(--text-muted)] font-normal">
-                {colItems.length}
-              </span>
+    <>
+      <div className="grid grid-cols-5 gap-3 items-start">
+        {columns.map((col) => {
+          const colItems = items.filter((i) => i.status === col.status);
+          return (
+            <div key={col.status} className="min-w-0">
+              <div
+                className="text-xs font-bold uppercase tracking-wide mb-3 flex items-center justify-between"
+                style={{ color: col.color }}
+              >
+                <span>{col.label}</span>
+                <span className="text-[var(--text-muted)] font-normal">
+                  {colItems.length}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                {colItems.map((item) => (
+                  <ItemCard
+                    key={item.id}
+                    item={item}
+                    onClick={() => setSelectedId(item.id)}
+                    onVerify={
+                      item.status === "done" ? () => onVerify(item.id) : undefined
+                    }
+                  />
+                ))}
+              </div>
             </div>
-            <div className="flex flex-col gap-2">
-              {colItems.map((item) => (
-                <ItemCard
-                  key={item.id}
-                  item={item}
-                  onVerify={
-                    item.status === "done" ? () => onVerify(item.id) : undefined
-                  }
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+      <ItemDrawer
+        item={selectedItem}
+        onClose={() => setSelectedId(null)}
+        boardName={boardName}
+        activeRuns={activeRuns}
+        onRefresh={onRefresh}
+      />
+    </>
   );
 }
 
 function ItemCard({
   item,
+  onClick,
   onVerify,
 }: {
   item: PrdItem;
+  onClick: () => void;
   onVerify?: () => void;
 }) {
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 text-xs">
+    <div
+      className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 text-xs cursor-pointer hover:border-[var(--accent)] transition-colors"
+      onClick={onClick}
+    >
       <div className="font-bold font-mono mb-1">{item.id}</div>
       <div className="text-[var(--text-muted)] mb-1">{item.category}</div>
       <div className="mb-2 leading-relaxed">{item.description}</div>
@@ -72,7 +95,7 @@ function ItemCard({
         )}
         {onVerify && (
           <button
-            onClick={onVerify}
+            onClick={(e) => { e.stopPropagation(); onVerify(); }}
             className="ml-auto px-2 py-1 rounded text-xs bg-[var(--success)] text-black font-bold hover:opacity-80 cursor-pointer"
           >
             Verify
