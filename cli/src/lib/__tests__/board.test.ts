@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm, mkdir, writeFile, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createBoard, boardExists, getBoard, listBoards, appendProgress } from '../board.js';
-import { boardsDir, boardDir, prdPath } from '../paths.js';
+import { boardsDir, boardDir, prdPath, ralfMdPath } from '../paths.js';
 import type { Prd } from '@ralfie/shared';
 
 let tmp: string;
@@ -112,5 +112,26 @@ describe('board', () => {
 
     const noMeta = boards.find((b) => b.name === 'no-meta')!;
     expect(noMeta.description).toBe('');
+  });
+
+  it('createBoard adds a board entry to RALF.md', async () => {
+    await createBoard('my-board', '# Plan', makePrd(), 'A test board', tmp);
+
+    const content = await readFile(ralfMdPath(tmp), 'utf-8');
+    expect(content).toContain('**my-board**');
+    expect(content).toContain('A test board');
+    expect(content).toContain('.ralfie/boards/my-board/progress.md');
+  });
+
+  it('creating a board that already exists in RALF.md does not duplicate the entry', async () => {
+    await createBoard('dup-board', '# Plan', makePrd(), 'First', tmp);
+    // Manually create a second board with the same name in RALF.md
+    // (simulating re-creation scenario by calling appendBoardToRalfMd again indirectly)
+    const { appendBoardToRalfMd } = await import('../ralf-md.js');
+    await appendBoardToRalfMd('dup-board', 'First', tmp);
+
+    const content = await readFile(ralfMdPath(tmp), 'utf-8');
+    const matches = content.match(/\*\*dup-board\*\*/g);
+    expect(matches).toHaveLength(1);
   });
 });

@@ -71,10 +71,10 @@
         "Creating a board that already exists in RALF.md does not duplicate the entry",
         "ralf-plan SKILL.md Phase 4 mentions updating RALF.md"
       ],
-      "status": "in_progress",
-      "assigned_to": "ralfie-1773917945561-b92fa8b1",
+      "status": "done",
+      "assigned_to": null,
       "started_at": "2026-03-19T11:04:32.029Z",
-      "completed_at": null,
+      "completed_at": "2026-03-19T11:06:19.668Z",
       "comments": []
     }
   ]

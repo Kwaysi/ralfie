@@ -44,3 +44,24 @@
 - `cli/src/lib/paths.ts` — added `claudeMdPath` export
 - `cli/src/lib/claude-md.ts` — new module
 - `cli/src/lib/__tests__/claude-md.test.ts` — new test file
+
+## RALF-4: Board Creation Wiring
+
+**Status**: done
+**Session**: ralfie-1773917945561-b92fa8b1
+
+### What was done
+- Updated `createBoard()` in `cli/src/lib/board.ts` to call `appendBoardToRalfMd()` after writing board files
+- Updated `ralf-plan` SKILL.md Phase 4 to include a step for updating RALF.md when creating boards via the skill's direct-write path
+- Added 2 tests to `cli/src/lib/__tests__/board.test.ts`:
+  - `createBoard adds a board entry to RALF.md`
+  - `creating a board that already exists in RALF.md does not duplicate the entry`
+
+### Key decisions
+- `appendBoardToRalfMd` is called after the board file writes complete (not in parallel), since RALF.md may not exist yet
+- The skill Phase 4 instructions tell agents to manually append a board entry when using the direct file write path (since `createBoard()` isn't called in that flow)
+
+### Files changed
+- `cli/src/lib/board.ts` — import and call `appendBoardToRalfMd` in `createBoard`
+- `cli/src/lib/__tests__/board.test.ts` — 2 new tests for RALF.md integration
+- `cli/src/skills/ralf-plan/SKILL.md` — Phase 4 updated with RALF.md step

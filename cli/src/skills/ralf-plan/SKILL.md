@@ -59,6 +59,8 @@ Generate a `prd.json` matching this exact schema:
       ],
       "status": "pending",
       "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
       "comments": []
     }
   ]
@@ -67,7 +69,7 @@ Generate a `prd.json` matching this exact schema:
 
 **Required fields — use these exact names:**
 - Root: `project` (string), `description` (string), `items` (array)
-- Item: `id` (string), `category` (string), `user_story` (string — who benefits and why), `description` (string — NOT "title"), `end_state` (string — what "done" looks like), `steps_to_verify` (string[]), `status` (ItemStatus), `assigned_to` (string | null), `comments` (PrdItemComment[])
+- Item: `id` (string), `category` (string), `user_story` (string — who benefits and why), `description` (string — NOT "title"), `end_state` (string — what "done" looks like), `steps_to_verify` (string[]), `status` (ItemStatus), `assigned_to` (string | null), `started_at` (string | null), `completed_at` (string | null), `comments` (PrdItemComment[])
 
 Guidelines for good PRD items:
 - Each item must have a unique ID (e.g., `AUTH-1`, `DB-2`)
@@ -76,7 +78,7 @@ Guidelines for good PRD items:
 - Each item must have concrete `steps_to_verify` — specific, observable checks
 - Group items by `category` (e.g., "Authentication", "Database", "API")
 - Order items by dependency — items that block others come first
-- All items start with `status: "pending"`, `assigned_to: null`, `comments: []`
+- All items start with `status: "pending"`, `assigned_to: null`, `started_at: null`, `completed_at: null`, `comments: []`
 - Small enough to complete in one coding session
 - Verifiable without human judgment ("tests pass" not "code is clean")
 - Independent where possible — minimize cross-item dependencies
@@ -105,3 +107,9 @@ Then write **all 4 required files** to `.ralfie/boards/<board-name>/`:
 4. **progress.md** — Create as an empty file
 
 All 4 files must exist for the board to work correctly with `ralf` commands.
+
+5. **Update RALF.md** — Append the new board entry to `.ralfie/RALF.md` so agents can discover it:
+   ```
+   - **<board-name>** — <description> → [progress](.ralfie/boards/<board-name>/progress.md)
+   ```
+   If `.ralfie/RALF.md` doesn't exist, create it first with `ensureRalfMd()` or by writing the full template.

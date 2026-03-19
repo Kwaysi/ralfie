@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir, readdir, stat } from 'node:fs/promises';
 import { boardsDir, boardDir, planPath, prdPath, progressPath, locksDir } from './paths.js';
+import { appendBoardToRalfMd } from './ralf-md.js';
 import type { Board, BoardMeta, Prd } from '@ralfie/shared';
 
 async function readFileSafe(path: string, fallback: string): Promise<string> {
@@ -33,6 +34,8 @@ export async function createBoard(
     writeFile(progressPath(name, cwd), ''),
     writeFile(`${dir}/meta.json`, JSON.stringify(meta, null, 2) + '\n'),
   ]);
+
+  await appendBoardToRalfMd(name, description, cwd);
 }
 
 export async function boardExists(name: string, cwd?: string): Promise<boolean> {
