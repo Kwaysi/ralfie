@@ -793,7 +793,7 @@
         "Bar chart still uses recharts with accent color and dark theme styling",
         "npm run build succeeds for ui workspace"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-4",

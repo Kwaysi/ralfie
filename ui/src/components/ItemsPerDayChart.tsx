@@ -28,27 +28,29 @@ function getLast7Days(): { date: string; label: string }[] {
 export default function ItemsPerDayChart({ items }: ItemsPerDayChartProps) {
   const days = getLast7Days();
 
-  const activityByDay = new Map<string, Set<string>>();
+  const countByDay = new Map<string, number>();
   for (const day of days) {
-    activityByDay.set(day.date, new Set());
+    countByDay.set(day.date, 0);
   }
 
   for (const item of items) {
-    for (const comment of item.comments) {
-      const day = comment.timestamp.slice(0, 10);
-      activityByDay.get(day)?.add(item.id);
+    if (!item.completed_at) continue;
+    const day = item.completed_at.slice(0, 10);
+    const current = countByDay.get(day);
+    if (current !== undefined) {
+      countByDay.set(day, current + 1);
     }
   }
 
   const data = days.map((day) => ({
     name: day.label,
-    items: activityByDay.get(day.date)?.size ?? 0,
+    items: countByDay.get(day.date) ?? 0,
   }));
 
   return (
     <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-4">
       <div className="text-sm text-[var(--text-muted)] mb-3">
-        Items with activity (last 7 days)
+        Items completed per day (last 7 days)
       </div>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data}>
