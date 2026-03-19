@@ -31,11 +31,11 @@ describe('list', () => {
       project: 'test',
       description: 'test project',
       items: [
-        { id: 'T-1', category: 'A', description: 'd1', steps_to_verify: [], status: 'done', assigned_to: null, comments: [] },
-        { id: 'T-2', category: 'A', description: 'd2', steps_to_verify: [], status: 'in_progress', assigned_to: 'sess-1', comments: [] },
-        { id: 'T-3', category: 'A', description: 'd3', steps_to_verify: [], status: 'failed', assigned_to: null, comments: [] },
-        { id: 'T-4', category: 'A', description: 'd4', steps_to_verify: [], status: 'pending', assigned_to: null, comments: [] },
-        { id: 'T-5', category: 'A', description: 'd5', steps_to_verify: [], status: 'verified', assigned_to: null, comments: [] },
+        { id: 'T-1', category: 'A', description: 'd1', steps_to_verify: [], status: 'done', assigned_to: null, started_at: null, completed_at: null, comments: [] },
+        { id: 'T-2', category: 'A', description: 'd2', steps_to_verify: [], status: 'in_progress', assigned_to: 'sess-1', started_at: null, completed_at: null, comments: [] },
+        { id: 'T-3', category: 'A', description: 'd3', steps_to_verify: [], status: 'failed', assigned_to: null, started_at: null, completed_at: null, comments: [] },
+        { id: 'T-4', category: 'A', description: 'd4', steps_to_verify: [], status: 'pending', assigned_to: null, started_at: null, completed_at: null, comments: [] },
+        { id: 'T-5', category: 'A', description: 'd5', steps_to_verify: [], status: 'verified', assigned_to: null, started_at: null, completed_at: null, comments: [] },
       ],
     };
     await createBoard('my-board', '# Plan', prd, 'A test board', tmp);

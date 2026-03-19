@@ -14,8 +14,8 @@ const makePrd = (): Prd => ({
   project: 'test',
   description: 'test project',
   items: [
-    { id: 'T-1', category: 'A', description: 'task one', steps_to_verify: [], status: 'pending', assigned_to: null, comments: [] },
-    { id: 'T-2', category: 'A', description: 'task two', steps_to_verify: [], status: 'pending', assigned_to: null, comments: [] },
+    { id: 'T-1', category: 'A', description: 'task one', steps_to_verify: [], status: 'pending', assigned_to: null, started_at: null, completed_at: null, comments: [] },
+    { id: 'T-2', category: 'A', description: 'task two', steps_to_verify: [], status: 'pending', assigned_to: null, started_at: null, completed_at: null, comments: [] },
   ],
 });
 

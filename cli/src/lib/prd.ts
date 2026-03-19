@@ -50,6 +50,7 @@ export async function claimItem(
     }
     item.status = 'in_progress';
     item.assigned_to = sessionId;
+    item.started_at = new Date().toISOString();
   });
 }
 
@@ -62,6 +63,7 @@ export async function completeItem(
   await withLock(boardName, itemId, sessionId, cwd, (_prd, item) => {
     item.status = 'done';
     item.assigned_to = null;
+    item.completed_at = new Date().toISOString();
   });
 }
 
@@ -108,6 +110,8 @@ export async function resetSessionItems(
     if (item.status === 'in_progress' && item.assigned_to === sessionId) {
       item.status = 'pending';
       item.assigned_to = null;
+      item.started_at = null;
+      item.completed_at = null;
       count++;
     }
   }
@@ -115,6 +119,20 @@ export async function resetSessionItems(
     await writePrd(boardName, prd, cwd);
   }
   return count;
+}
+
+export async function resetItem(
+  boardName: string,
+  itemId: string,
+  sessionId: string,
+  cwd?: string,
+): Promise<void> {
+  await withLock(boardName, itemId, sessionId, cwd, (_prd, item) => {
+    item.status = 'pending';
+    item.assigned_to = null;
+    item.started_at = null;
+    item.completed_at = null;
+  });
 }
 
 export async function addComment(

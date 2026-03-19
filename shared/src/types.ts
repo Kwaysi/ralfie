@@ -17,6 +17,8 @@ export interface PrdItem {
   steps_to_verify: string[];
   status: ItemStatus;
   assigned_to: string | null;
+  started_at: string | null;
+  completed_at: string | null;
   comments: PrdItemComment[];
 }
 

@@ -13,11 +13,11 @@ const prd: Prd = {
   project: 'test',
   description: 'test project',
   items: [
-    { id: 'T-1', category: 'A', description: 'first task', steps_to_verify: [], status: 'done', assigned_to: null, comments: [{ timestamp: '2026-01-01T00:00:00Z', session_id: 's1', message: 'looks good' }] },
-    { id: 'T-2', category: 'B', description: 'second task', steps_to_verify: [], status: 'in_progress', assigned_to: 'agent-1', comments: [] },
-    { id: 'T-3', category: 'A', description: 'third task', steps_to_verify: [], status: 'pending', assigned_to: null, comments: [] },
-    { id: 'T-4', category: 'C', description: 'fourth task', steps_to_verify: [], status: 'failed', assigned_to: null, comments: [{ timestamp: '2026-01-01T00:00:00Z', session_id: 's1', message: 'broke' }, { timestamp: '2026-01-02T00:00:00Z', session_id: 's2', message: 'still broke' }] },
-    { id: 'T-5', category: 'A', description: 'fifth task', steps_to_verify: [], status: 'verified', assigned_to: null, comments: [] },
+    { id: 'T-1', category: 'A', description: 'first task', steps_to_verify: [], status: 'done', assigned_to: null, started_at: null, completed_at: null, comments: [{ timestamp: '2026-01-01T00:00:00Z', session_id: 's1', message: 'looks good' }] },
+    { id: 'T-2', category: 'B', description: 'second task', steps_to_verify: [], status: 'in_progress', assigned_to: 'agent-1', started_at: null, completed_at: null, comments: [] },
+    { id: 'T-3', category: 'A', description: 'third task', steps_to_verify: [], status: 'pending', assigned_to: null, started_at: null, completed_at: null, comments: [] },
+    { id: 'T-4', category: 'C', description: 'fourth task', steps_to_verify: [], status: 'failed', assigned_to: null, started_at: null, completed_at: null, comments: [{ timestamp: '2026-01-01T00:00:00Z', session_id: 's1', message: 'broke' }, { timestamp: '2026-01-02T00:00:00Z', session_id: 's2', message: 'still broke' }] },
+    { id: 'T-5', category: 'A', description: 'fifth task', steps_to_verify: [], status: 'verified', assigned_to: null, started_at: null, completed_at: null, comments: [] },
   ],
 };
 

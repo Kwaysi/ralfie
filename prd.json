@@ -756,6 +756,181 @@
         "Phase 3 includes a concrete example JSON snippet showing the correct structure"
       ],
       "passes": true
+    },
+    {
+      "id": "DASH-1",
+      "category": "Dashboard Enhancements",
+      "description": "Add started_at (string|null) and completed_at (string|null) fields to PrdItem in shared/src/types.ts. Update claimItem in cli/src/lib/prd.ts to set started_at to ISO timestamp when status moves to in_progress. Update completeItem to set completed_at to ISO timestamp when status moves to done. Resetting an item to pending (new resetItem function) must clear both fields back to null.",
+      "steps_to_verify": [
+        "PrdItem interface in shared/src/types.ts includes started_at: string | null and completed_at: string | null",
+        "claimItem sets started_at to new Date().toISOString() when claiming an item",
+        "completeItem sets completed_at to new Date().toISOString() when completing an item",
+        "A new resetItem function in prd.ts sets status to 'pending', assigned_to to null, started_at to null, completed_at to null",
+        "npm run build succeeds with no type errors",
+        "npm test passes"
+      ],
+      "passes": true
+    },
+    {
+      "id": "DASH-2",
+      "category": "Dashboard Enhancements",
+      "description": "Update the ralfie-run skill (cli/src/skills/ralfie-run.md) to set started_at when claiming an item and completed_at when marking an item done, so the agent populates these timestamps during its workflow.",
+      "steps_to_verify": [
+        "ralfie-run.md workflow references setting started_at via claimItem",
+        "ralfie-run.md workflow references setting completed_at via completeItem",
+        "The skill instructs the agent to use the updated prd.ts functions that handle timestamps automatically"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-3",
+      "category": "Dashboard Enhancements",
+      "description": "Rewrite ItemsPerDayChart to show items completed per day instead of items with comment activity. Use the new completed_at field on PrdItem. Group completed items by the date portion of completed_at, display as bar chart for the last 7 days. Update the chart title to 'Items completed per day (last 7 days)'.",
+      "steps_to_verify": [
+        "Chart groups items by completed_at date (YYYY-MM-DD portion), not by comment timestamps",
+        "Chart title reads 'Items completed per day (last 7 days)'",
+        "Items without completed_at are excluded from the chart",
+        "Bar chart still uses recharts with accent color and dark theme styling",
+        "npm run build succeeds for ui workspace"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-4",
+      "category": "Dashboard Enhancements",
+      "description": "Add 3-line CSS clamp to item description text on kanban cards in PrdKanban. The description div should use CSS line-clamp-3 (display: -webkit-box, -webkit-line-clamp: 3, overflow: hidden) so long descriptions are truncated with ellipsis after 3 lines.",
+      "steps_to_verify": [
+        "Item card description in PrdKanban is truncated after 3 lines",
+        "Truncated text shows ellipsis at the end",
+        "Short descriptions (under 3 lines) display normally without ellipsis",
+        "Tailwind line-clamp-3 class or equivalent CSS is applied to the description div"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-5",
+      "category": "Dashboard Enhancements",
+      "description": "Create an ItemDrawer component (ui/src/components/ItemDrawer.tsx) that slides in from the right side of the screen. The drawer displays full item details in an intuitive layout: header with item ID, status badge (color-coded), and category tag; body with description, user story, and end state as readable text blocks with subtle labels; steps_to_verify rendered as a visual checklist; chronological comment thread with agent vs user comments visually distinct (different icon or background tint); assigned agent info. Drawer is dismissable via backdrop click or Escape key.",
+      "steps_to_verify": [
+        "ItemDrawer renders as a right-side sliding panel overlaying the page with a semi-transparent backdrop",
+        "Header shows item ID (monospace bold), status badge with color matching the kanban column color, and category tag",
+        "Description, user_story, and end_state render as labeled text blocks (not raw key-value pairs)",
+        "steps_to_verify renders as a styled checklist (read-only, visual checkmarks or bullets)",
+        "Comments display chronologically with formatted timestamps (e.g., 'Mar 19, 2026 2:30 PM')",
+        "Agent comments and user comments have visually distinct styling (different background tint or icon)",
+        "Drawer closes on backdrop click",
+        "Drawer closes on Escape key press",
+        "Drawer width is approximately 40-50% of viewport on desktop"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-6",
+      "category": "Dashboard Enhancements",
+      "description": "Add a Verify button and a 'Move to Pending' button to ItemDrawer. Verify button appears only when item status is 'done'. 'Move to Pending' button appears for items in done, failed, or in_progress status (not verified). Both buttons are hidden when the board is in read-only mode (active agent run). Add a new POST /api/boards/:name/items/:itemId/reset endpoint that calls resetItem to move an item back to pending. Add resetItemApi to the UI api.ts client.",
+      "steps_to_verify": [
+        "Verify button shows in the drawer only for done items",
+        "Move to Pending button shows for done, failed, and in_progress items but NOT verified items",
+        "Both buttons are hidden when the board has activeRuns > 0",
+        "POST /api/boards/:name/items/:itemId/reset endpoint exists and resets item to pending via resetItem",
+        "resetItemApi function exists in ui/src/lib/api.ts",
+        "Clicking Move to Pending calls the reset endpoint and refreshes the board data",
+        "Clicking Verify calls the existing verify endpoint and refreshes the board data"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-7",
+      "category": "Dashboard Enhancements",
+      "description": "Add comment input to ItemDrawer. A text input with a Send button appears at the bottom of the comment thread. Add a new POST /api/boards/:name/items/:itemId/comment endpoint that accepts {message: string}, reads the user field from config (falling back to 'user' if not set), and calls addComment with session_id set to the configured user name. Add addCommentApi to ui/src/lib/api.ts. The comment input is disabled when the board has activeRuns > 0 (read-only mode) or when the item status is 'verified'.",
+      "steps_to_verify": [
+        "Text input and Send button appear at the bottom of the comment section in ItemDrawer",
+        "Submitting a comment calls POST /api/boards/:name/items/:itemId/comment with {message}",
+        "Server reads user from RalfieConfig, falls back to 'user' if not configured",
+        "Comment is saved with session_id set to the configured user name and timestamp set to current ISO time",
+        "Comment input is disabled when activeRuns > 0",
+        "Comment input is disabled when item status is 'verified'",
+        "After submitting, the comment appears in the thread without full page refresh",
+        "addCommentApi function exists in ui/src/lib/api.ts"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-8",
+      "category": "Dashboard Enhancements",
+      "description": "Wire ItemDrawer into PrdKanban. Clicking an item card opens the ItemDrawer for that item. PrdKanban needs to accept the board name and activeRuns count as props to pass to the drawer. BoardDetailPage passes these props down.",
+      "steps_to_verify": [
+        "Clicking an item card in PrdKanban opens the ItemDrawer with that item's data",
+        "PrdKanban accepts boardName (string) and activeRuns (number) as additional props",
+        "BoardDetailPage passes boardName and activeRuns to PrdKanban",
+        "Only one drawer is open at a time — clicking a different item replaces the current drawer content",
+        "Drawer can be closed and reopened for the same item"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-9",
+      "category": "Dashboard Enhancements",
+      "description": "Update BoardDetailPage and PrdKanban layout so that the tab bar and board header remain fixed, and each kanban status column scrolls independently. The kanban grid should fill the remaining viewport height below the tabs. Each column's item list should overflow-y: auto with the computed remaining height. No page-level scrollbar should appear on the PRD Items tab.",
+      "steps_to_verify": [
+        "Board title, description, action buttons, and tab bar remain fixed at the top and do not scroll",
+        "Each of the 5 kanban columns scrolls independently when items overflow",
+        "Columns fill the remaining viewport height below the tab bar",
+        "No page-level scrollbar appears when viewing the PRD Items tab",
+        "Plan and Progress tabs still scroll normally (they are markdown content, not columns)",
+        "Layout works correctly when the browser window is resized"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-10",
+      "category": "Dashboard Enhancements",
+      "description": "Implement read-only mode for the board on the dashboard. When a board has activeRuns > 0, display a banner at the top of the board (below the header, above the tabs or just below the tab bar) indicating 'Board is locked — agent run in progress'. In read-only mode: the Verify button on kanban cards is hidden, the Run button is hidden (Stop button still shows), and the ItemDrawer disables comment input, hides Verify button, and hides Move to Pending button.",
+      "steps_to_verify": [
+        "A visible banner appears on the BoardDetailPage when activeRuns > 0 with text 'Board is locked — agent run in progress'",
+        "Banner uses a distinct style (e.g., warning color or muted accent) to be noticeable but not alarming",
+        "Verify buttons on kanban cards are hidden during active runs",
+        "Run button is hidden during active runs (Stop button remains visible)",
+        "ItemDrawer comment input is disabled during active runs",
+        "ItemDrawer Verify and Move to Pending buttons are hidden during active runs",
+        "All interactive elements reappear when the run completes (activeRuns returns to 0)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-11",
+      "category": "Dashboard Enhancements",
+      "description": "Add a 'user' field (string) to RalfieConfig in shared/src/types.ts. Update defaultConfig in cli/src/lib/config.ts to set user to empty string. Update ralf init to infer the user from 'git config user.name' and write it to .ralfie/config.json. Add a User Name input field to the Settings page in the UI that displays and allows editing the user value via PUT /api/config.",
+      "steps_to_verify": [
+        "RalfieConfig in shared/src/types.ts includes user: string",
+        "defaultConfig in cli/src/lib/config.ts has user set to ''",
+        "ralf init runs 'git config user.name', trims the output, and sets the user field in config.json",
+        "If git config user.name fails or returns empty, user defaults to ''",
+        "Settings page shows a User Name input field pre-filled with the current config user value",
+        "Saving settings persists the user value via PUT /api/config",
+        "npm run build succeeds with no type errors",
+        "npm test passes"
+      ],
+      "passes": false
+    },
+    {
+      "id": "DASH-12",
+      "category": "Dashboard Enhancements",
+      "description": "End-to-end verification of all dashboard enhancements: build passes, typecheck passes, all existing tests pass, new endpoints return correct responses, UI renders correctly with the new features.",
+      "steps_to_verify": [
+        "npm run build succeeds across all workspaces",
+        "npm run typecheck passes with no errors",
+        "npm test passes all test suites",
+        "GET /api/boards/:name returns items with started_at and completed_at fields",
+        "POST /api/boards/:name/items/:itemId/comment creates a comment with configured user as session_id",
+        "POST /api/boards/:name/items/:itemId/reset moves item to pending and clears timestamps",
+        "ItemsPerDayChart renders completed items per day",
+        "Kanban cards truncate descriptions after 3 lines",
+        "Clicking a kanban card opens the ItemDrawer",
+        "Kanban columns scroll independently with fixed header and tabs",
+        "Read-only banner appears during active runs"
+      ],
+      "passes": false
     }
   ]
 }

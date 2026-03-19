@@ -20,6 +20,8 @@ function makePrd(): Prd {
         steps_to_verify: ['step 1'],
         status: 'pending',
         assigned_to: null,
+        started_at: null,
+        completed_at: null,
         comments: [],
       },
     ],

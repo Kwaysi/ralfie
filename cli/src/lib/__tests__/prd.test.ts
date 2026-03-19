@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { readPrd, writePrd, claimItem, completeItem, failItem, verifyItem, addComment } from '../prd.js';
+import { readPrd, writePrd, claimItem, completeItem, failItem, verifyItem, resetItem, addComment } from '../prd.js';
 import { prdPath, locksDir } from '../paths.js';
 import type { Prd } from '@ralfie/shared';
 
@@ -22,6 +22,8 @@ function makePrd(overrides: Partial<Prd['items'][0]> = {}): Prd {
         steps_to_verify: ['step 1'],
         status: 'pending',
         assigned_to: null,
+        started_at: null,
+        completed_at: null,
         comments: [],
         ...overrides,
       },
@@ -52,12 +54,13 @@ describe('prd', () => {
     expect(read).toEqual(prd);
   });
 
-  it('claimItem sets status to in_progress and assigned_to', async () => {
+  it('claimItem sets status to in_progress, assigned_to, and started_at', async () => {
     await seedPrd(makePrd());
     await claimItem(board, 'ITEM-1', session, tmp);
     const prd = await readPrd(board, tmp);
     expect(prd.items[0].status).toBe('in_progress');
     expect(prd.items[0].assigned_to).toBe(session);
+    expect(prd.items[0].started_at).toEqual(expect.any(String));
   });
 
   it('claimItem throws when item is already in_progress', async () => {
@@ -65,12 +68,13 @@ describe('prd', () => {
     await expect(claimItem(board, 'ITEM-1', session, tmp)).rejects.toThrow('already in_progress');
   });
 
-  it('completeItem sets status to done and clears assigned_to', async () => {
+  it('completeItem sets status to done, clears assigned_to, and sets completed_at', async () => {
     await seedPrd(makePrd({ status: 'in_progress', assigned_to: session }));
     await completeItem(board, 'ITEM-1', session, tmp);
     const prd = await readPrd(board, tmp);
     expect(prd.items[0].status).toBe('done');
     expect(prd.items[0].assigned_to).toBeNull();
+    expect(prd.items[0].completed_at).toEqual(expect.any(String));
   });
 
   it('failItem sets status to failed, clears assigned_to, and adds comment', async () => {
@@ -94,6 +98,16 @@ describe('prd', () => {
   it('verifyItem throws when status is not done', async () => {
     await seedPrd(makePrd({ status: 'pending' }));
     await expect(verifyItem(board, 'ITEM-1', session, tmp)).rejects.toThrow("must be 'done' to verify");
+  });
+
+  it('resetItem sets status to pending and clears assigned_to, started_at, completed_at', async () => {
+    await seedPrd(makePrd({ status: 'done', assigned_to: null, started_at: '2026-03-19T00:00:00Z', completed_at: '2026-03-19T01:00:00Z' }));
+    await resetItem(board, 'ITEM-1', session, tmp);
+    const prd = await readPrd(board, tmp);
+    expect(prd.items[0].status).toBe('pending');
+    expect(prd.items[0].assigned_to).toBeNull();
+    expect(prd.items[0].started_at).toBeNull();
+    expect(prd.items[0].completed_at).toBeNull();
   });
 
   it('addComment appends a comment with timestamp, session_id, and message', async () => {

@@ -17,10 +17,10 @@ function makePrd(): Prd {
     project: 'test',
     description: 'test project',
     items: [
-      { id: 'ITEM-1', category: 'A', description: 'one', steps_to_verify: [], status: 'in_progress', assigned_to: sessionA, comments: [] },
-      { id: 'ITEM-2', category: 'A', description: 'two', steps_to_verify: [], status: 'in_progress', assigned_to: sessionB, comments: [] },
-      { id: 'ITEM-3', category: 'A', description: 'three', steps_to_verify: [], status: 'in_progress', assigned_to: sessionA, comments: [] },
-      { id: 'ITEM-4', category: 'A', description: 'four', steps_to_verify: [], status: 'done', assigned_to: null, comments: [] },
+      { id: 'ITEM-1', category: 'A', description: 'one', steps_to_verify: [], status: 'in_progress', assigned_to: sessionA, started_at: null, completed_at: null, comments: [] },
+      { id: 'ITEM-2', category: 'A', description: 'two', steps_to_verify: [], status: 'in_progress', assigned_to: sessionB, started_at: null, completed_at: null, comments: [] },
+      { id: 'ITEM-3', category: 'A', description: 'three', steps_to_verify: [], status: 'in_progress', assigned_to: sessionA, started_at: null, completed_at: null, comments: [] },
+      { id: 'ITEM-4', category: 'A', description: 'four', steps_to_verify: [], status: 'done', assigned_to: null, started_at: null, completed_at: null, comments: [] },
     ],
   };
 }

@@ -13,7 +13,7 @@ const makePrd = (status: 'done' | 'pending' | 'in_progress'): Prd => ({
   project: 'test',
   description: 'test project',
   items: [
-    { id: 'T-1', category: 'A', description: 'task one', steps_to_verify: [], status, assigned_to: null, comments: [] },
+    { id: 'T-1', category: 'A', description: 'task one', steps_to_verify: [], status, assigned_to: null, started_at: null, completed_at: null, comments: [] },
   ],
 });
 
