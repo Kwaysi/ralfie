@@ -930,7 +930,7 @@
         "Kanban columns scroll independently with fixed header and tabs",
         "Read-only banner appears during active runs"
       ],
-      "passes": false
+      "passes": true
     }
   ]
 }
