@@ -1,12 +1,18 @@
 {
-  "name": "@ralfie/cli",
-  "version": "0.0.1",
+  "name": "ralfie-cli",
+  "version": "0.0.6",
   "type": "module",
   "bin": {
     "ralf": "dist/index.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/skills/**/*.md",
+    "dist/ui/**"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -15,7 +21,7 @@
   },
   "scripts": {
     "build": "tsc && npm run postbuild",
-    "postbuild": "mkdir -p dist/skills && cp src/skills/*.md dist/skills/ && if [ -d ../ui/dist ]; then mkdir -p dist/ui && cp -r ../ui/dist/* dist/ui/; fi && sed -i '' '/^#!\\/usr\\/bin\\/env node$/d' dist/index.js && printf '#!/usr/bin/env node\\n' | cat - dist/index.js > dist/index.tmp.js && mv dist/index.tmp.js dist/index.js && chmod +x dist/index.js",
+    "postbuild": "cp -r src/skills dist/ && if [ -d ../ui/dist ]; then mkdir -p dist/ui && cp -r ../ui/dist/* dist/ui/; fi && sed -i '' '/^#!\\/usr\\/bin\\/env node$/d' dist/index.js && printf '#!/usr/bin/env node\\n' | cat - dist/index.js > dist/index.tmp.js && mv dist/index.tmp.js dist/index.js && chmod +x dist/index.js",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "vitest"

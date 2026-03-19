@@ -92,7 +92,7 @@ describe('run', () => {
     expect(prompt).toContain('prd.json');
     expect(prompt).toContain('progress.md');
     expect(prompt).toContain('plan.md');
-    expect(prompt).toContain('/ralfie-run');
+    expect(prompt).toContain('/ralf-run');
     log.mockRestore();
   });
 

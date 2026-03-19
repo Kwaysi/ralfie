@@ -19,7 +19,7 @@ export async function editCommand(boardName: string, cwd?: string): Promise<void
   }
 
   const dir = boardDir(boardName, cwd);
-  const prompt = `Use the /ralfie-edit skill to edit the board at ${dir}.`;
+  const prompt = `Use the /ralf-edit skill to edit the board at ${dir}.`;
   const exitCode = await spawnInteractive(prompt, cwd);
   process.exitCode = exitCode;
 }

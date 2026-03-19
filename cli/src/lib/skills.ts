@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SKILL_FILES = ['ralfie-plan.md', 'ralfie-edit.md', 'ralfie-run.md'] as const;
+const SKILL_NAMES = ['ralf-plan', 'ralf-edit', 'ralf-run'] as const;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -17,12 +17,13 @@ function skillsTargetDir(cwd = process.cwd()): string {
 export async function installSkills(cwd?: string): Promise<void> {
   const srcDir = skillsSourceDir();
   const destDir = skillsTargetDir(cwd);
-  await mkdir(destDir, { recursive: true });
 
   await Promise.all(
-    SKILL_FILES.map(async (file) => {
-      const content = await readFile(join(srcDir, file), 'utf-8');
-      await writeFile(join(destDir, file), content);
+    SKILL_NAMES.map(async (name) => {
+      const skillDir = join(destDir, name);
+      await mkdir(skillDir, { recursive: true });
+      const content = await readFile(join(srcDir, name, 'SKILL.md'), 'utf-8');
+      await writeFile(join(skillDir, 'SKILL.md'), content);
     }),
   );
 }
@@ -31,7 +32,7 @@ export async function skillsInstalled(cwd?: string): Promise<boolean> {
   const destDir = skillsTargetDir(cwd);
   try {
     await Promise.all(
-      SKILL_FILES.map((file) => readFile(join(destDir, file), 'utf-8')),
+      SKILL_NAMES.map((name) => readFile(join(destDir, name, 'SKILL.md'), 'utf-8')),
     );
     return true;
   } catch {
@@ -39,4 +40,4 @@ export async function skillsInstalled(cwd?: string): Promise<boolean> {
   }
 }
 
-export { SKILL_FILES };
+export { SKILL_NAMES };

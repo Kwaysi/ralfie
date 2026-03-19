@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm, readFile, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { installSkills, skillsInstalled, SKILL_FILES } from '../skills.js';
+import { installSkills, skillsInstalled, SKILL_NAMES } from '../skills.js';
 
 let tmp: string;
 
@@ -15,10 +15,10 @@ afterEach(async () => {
 });
 
 describe('skills', () => {
-  it('installSkills copies all 3 skill files to .claude/skills/', async () => {
+  it('installSkills copies all 3 skills to .claude/skills/<name>/SKILL.md', async () => {
     await installSkills(tmp);
-    for (const file of SKILL_FILES) {
-      const content = await readFile(join(tmp, '.claude', 'skills', file), 'utf-8');
+    for (const name of SKILL_NAMES) {
+      const content = await readFile(join(tmp, '.claude', 'skills', name, 'SKILL.md'), 'utf-8');
       expect(content).toContain('---');
       expect(content.length).toBeGreaterThan(0);
     }
@@ -26,37 +26,37 @@ describe('skills', () => {
 
   it('skill files have correct frontmatter', async () => {
     await installSkills(tmp);
-    const plan = await readFile(join(tmp, '.claude', 'skills', 'ralfie-plan.md'), 'utf-8');
-    expect(plan).toContain('name: ralfie-plan');
+    const plan = await readFile(join(tmp, '.claude', 'skills', 'ralf-plan', 'SKILL.md'), 'utf-8');
+    expect(plan).toContain('name: ralf-plan');
     expect(plan).toContain('description:');
 
-    const edit = await readFile(join(tmp, '.claude', 'skills', 'ralfie-edit.md'), 'utf-8');
-    expect(edit).toContain('name: ralfie-edit');
+    const edit = await readFile(join(tmp, '.claude', 'skills', 'ralf-edit', 'SKILL.md'), 'utf-8');
+    expect(edit).toContain('name: ralf-edit');
 
-    const run = await readFile(join(tmp, '.claude', 'skills', 'ralfie-run.md'), 'utf-8');
-    expect(run).toContain('name: ralfie-run');
+    const run = await readFile(join(tmp, '.claude', 'skills', 'ralf-run', 'SKILL.md'), 'utf-8');
+    expect(run).toContain('name: ralf-run');
   });
 
-  it('ralfie-plan.md contains required phases', async () => {
+  it('ralf-plan contains required phases', async () => {
     await installSkills(tmp);
-    const content = await readFile(join(tmp, '.claude', 'skills', 'ralfie-plan.md'), 'utf-8');
+    const content = await readFile(join(tmp, '.claude', 'skills', 'ralf-plan', 'SKILL.md'), 'utf-8');
     expect(content).toContain('Grilling');
     expect(content).toContain('Plan Generation');
     expect(content).toContain('PRD Generation');
   });
 
-  it('ralfie-edit.md contains required phases', async () => {
+  it('ralf-edit contains required phases', async () => {
     await installSkills(tmp);
-    const content = await readFile(join(tmp, '.claude', 'skills', 'ralfie-edit.md'), 'utf-8');
+    const content = await readFile(join(tmp, '.claude', 'skills', 'ralf-edit', 'SKILL.md'), 'utf-8');
     expect(content).toContain('Setup');
     expect(content).toContain('Grilling');
     expect(content).toContain('Update');
     expect(content).toContain('Drift Log');
   });
 
-  it('ralfie-run.md contains required workflow steps', async () => {
+  it('ralf-run contains required workflow steps', async () => {
     await installSkills(tmp);
-    const content = await readFile(join(tmp, '.claude', 'skills', 'ralfie-run.md'), 'utf-8');
+    const content = await readFile(join(tmp, '.claude', 'skills', 'ralf-run', 'SKILL.md'), 'utf-8');
     expect(content).toContain('Pick Task');
     expect(content).toContain('Claim Item');
     expect(content).toContain('Implement');

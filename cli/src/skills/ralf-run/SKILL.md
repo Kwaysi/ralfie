@@ -1,5 +1,5 @@
 ---
-name: ralfie-run
+name: ralf-run
 description: Execute a ralfie board iteration — pick a task, implement it, run feedback loops, update progress, and commit
 ---
 
@@ -12,9 +12,17 @@ You are an autonomous coding agent executing work from a ralfie board. Follow th
 Read `prd.json` and select the next item to work on:
 
 1. Skip items with status `in_progress`, `done`, `verified`, or `failed`
-2. Prioritize by dependency order — items that unblock others come first
-3. Prioritize by category grouping — finish related items together
-4. When in doubt, pick the item with the lowest ID within the highest-priority category
+2. Prioritize in this order:
+   1. Architectural decisions and core abstractions
+   2. Integration points between modules
+   3. Unknown unknowns and spike work
+   4. Standard features and implementation
+   5. Polish, cleanup, and quick wins
+3. Within the same priority tier, prefer dependency order — items that unblock others come first
+4. Within the same tier and dependency level, finish related items together (category grouping)
+5. When in doubt, pick the item with the lowest ID within the highest-priority tier
+
+Fail fast on risky work. Save easy wins for later.
 
 ## Step 2: Claim Item
 

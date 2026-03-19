@@ -1,5 +1,5 @@
 ---
-name: ralfie-edit
+name: ralf-edit
 description: Edit an existing ralfie board — review current state, grill on changes, update plan/PRD, and log drift
 ---
 

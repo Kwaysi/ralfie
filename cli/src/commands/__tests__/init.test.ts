@@ -30,10 +30,10 @@ describe('init', () => {
     const boardsStat = await stat(boardsDir(tmp));
     expect(boardsStat.isDirectory()).toBe(true);
 
-    // .claude/skills/ files exist
+    // .claude/skills/ folders exist with SKILL.md
     const skillsDir = join(tmp, '.claude', 'skills');
-    for (const file of ['ralfie-plan.md', 'ralfie-edit.md', 'ralfie-run.md']) {
-      const content = await readFile(join(skillsDir, file), 'utf-8');
+    for (const name of ['ralf-plan', 'ralf-edit', 'ralf-run']) {
+      const content = await readFile(join(skillsDir, name, 'SKILL.md'), 'utf-8');
       expect(content.length).toBeGreaterThan(0);
     }
 

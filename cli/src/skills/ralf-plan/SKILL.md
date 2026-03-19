@@ -1,11 +1,11 @@
 ---
-name: ralfie-plan
+name: ralf-plan
 description: Plan a new ralfie board — grill the user on requirements, generate a plan and PRD, then create the board
 ---
 
 # ralfie-plan
 
-You are creating a new ralfie board. Follow these phases in order.
+You are creating a new ralfie board. Follow these phases in order. **You MUST wait for explicit user approval before advancing to the next phase.** Do NOT proceed to the next phase until the user says to continue.
 
 ## Phase 1: Grilling
 
@@ -17,7 +17,7 @@ Before generating anything, interview the user about their project:
 4. What are the known unknowns? What are you most uncertain about?
 5. Who are the users? What are the core user flows?
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one.
+INTERVIEW THE USER RELENTLESSLY ABOUT EVERY ASPECT OF THIS PLAN UNTIL WE REACH A SHARED UNDERSTANDING. WALK DOWN EACH BRANCH OF THE DESIGN TREE, RESOLVING DEPENDENCIES BETWEEN DECISIONS ONE-BY-ONE.
 
 If a question can be answered by exploring the codebase, explore the codebase instead.
 
@@ -28,11 +28,16 @@ Write a `plan.md` that covers:
 - **Goal**: One-paragraph summary of what we're building and why
 - **Architecture**: High-level system design, key components, data flow
 - **Tech Stack**: Languages, frameworks, libraries with rationale
-- **Milestones**: Ordered list of implementation phases
+- **Milestones**: Ordered list of implementation phases. Each milestone should include:
+  - A **user story** ("As a [user], I can [action] so that [benefit]")
+  - An **end state** describing the observable result when the milestone is complete
+  - Key files or modules involved
 - **Risks**: Known risks and mitigation strategies
 - **Out of Scope**: What we are explicitly NOT building
 
 Keep it concise. The plan is a living document — it will be edited later.
+
+**STOP. Present the plan to the user and ask for approval before continuing.** Do not generate the PRD until the user explicitly approves the plan.
 
 ## Phase 3: PRD Generation
 
@@ -46,7 +51,9 @@ Generate a `prd.json` matching this exact schema:
     {
       "id": "CATEGORY-1",
       "category": "Category Name",
+      "user_story": "As a [user], I can [action] so that [benefit]",
       "description": "What this item implements",
+      "end_state": "Observable result when complete — what the agent should see when done",
       "steps_to_verify": [
         "Specific, observable verification step"
       ],
@@ -60,10 +67,12 @@ Generate a `prd.json` matching this exact schema:
 
 **Required fields — use these exact names:**
 - Root: `project` (string), `description` (string), `items` (array)
-- Item: `id` (string), `category` (string), `description` (string — NOT "title"), `steps_to_verify` (string[]), `status` (ItemStatus), `assigned_to` (string | null), `comments` (PrdItemComment[])
+- Item: `id` (string), `category` (string), `user_story` (string — who benefits and why), `description` (string — NOT "title"), `end_state` (string — what "done" looks like), `steps_to_verify` (string[]), `status` (ItemStatus), `assigned_to` (string | null), `comments` (PrdItemComment[])
 
 Guidelines for good PRD items:
 - Each item must have a unique ID (e.g., `AUTH-1`, `DB-2`)
+- **user_story** explains the motivation — who wants this and why. Gives the agent context for design decisions
+- **end_state** describes what the world looks like when done — files that exist, behaviors that work, outputs visible. This is the agent's north star during implementation
 - Each item must have concrete `steps_to_verify` — specific, observable checks
 - Group items by `category` (e.g., "Authentication", "Database", "API")
 - Order items by dependency — items that block others come first
@@ -72,6 +81,8 @@ Guidelines for good PRD items:
 - Verifiable without human judgment ("tests pass" not "code is clean")
 - Independent where possible — minimize cross-item dependencies
 - Include both the implementation and its tests in the same item
+
+**STOP. Present the PRD to the user and ask for approval before continuing.** Do not create the board until the user explicitly approves the PRD.
 
 ## Phase 4: Board Creation
 

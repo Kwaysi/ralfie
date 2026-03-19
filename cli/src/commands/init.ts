@@ -28,9 +28,9 @@ export async function initCommand(cwd?: string): Promise<void> {
   console.log('Initialized ralfie project.');
   console.log('  .ralfie/config.json');
   console.log('  .ralfie/boards/');
-  console.log('  .claude/skills/ralfie-plan.md');
-  console.log('  .claude/skills/ralfie-edit.md');
-  console.log('  .claude/skills/ralfie-run.md');
+  console.log('  .claude/skills/ralf-plan/SKILL.md');
+  console.log('  .claude/skills/ralf-edit/SKILL.md');
+  console.log('  .claude/skills/ralf-run/SKILL.md');
   console.log('  .claude/settings.json');
 }
 

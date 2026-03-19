@@ -25,7 +25,7 @@ Monorepo with three workspaces:
   - `src/lib/` — Core modules: paths, config, prd (with O_EXCL file locking), board, lock, agent (spawns Claude Code), skills (installs .md skill files)
   - `src/commands/` — CLI commands: init, plan, edit, run, list, status, verify, unlock, serve
   - `src/server/` — HTTP static server (serves ui build with SPA fallback), REST API, WebSocket broadcaster, file watcher
-  - `src/skills/` — Bundled skill markdown files (ralfie-plan, ralfie-edit, ralfie-run)
+  - `src/skills/` — Bundled skill markdown files (ralf-plan, ralf-edit, ralf-run)
 - **ui/** — React SPA (Vite + Tailwind v4 + recharts + react-markdown). Dark theme, monospace font. Pages: Dashboard, BoardList, BoardDetail (tabbed kanban/plan/progress), Settings. Auto-refreshes via WebSocket.
 
 ### Data flow

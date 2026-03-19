@@ -11,7 +11,9 @@ export interface PrdItemComment {
 export interface PrdItem {
   id: string;
   category: string;
+  user_story?: string;
   description: string;
+  end_state?: string;
   steps_to_verify: string[];
   status: ItemStatus;
   assigned_to: string | null;

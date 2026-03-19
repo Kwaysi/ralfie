@@ -37,7 +37,7 @@ export async function runCommand(
 
       const prompt = [
         `You are session ${sessionId}.`,
-        `Use the /ralfie-run skill to execute one iteration.`,
+        `Use the /ralf-run skill to execute one iteration.`,
         `Board files: @${prd} @${progress} @${plan}`,
       ].join(' ');
 

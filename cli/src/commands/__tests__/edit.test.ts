@@ -50,7 +50,7 @@ describe('edit', () => {
     await editCommand('my-board', tmp);
 
     expect(spawnInteractive).toHaveBeenCalledWith(
-      expect.stringContaining('/ralfie-edit'),
+      expect.stringContaining('/ralf-edit'),
       tmp,
     );
   });

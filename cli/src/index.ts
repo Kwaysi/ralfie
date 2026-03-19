@@ -26,10 +26,10 @@ program
   });
 
 program
-  .command('plan')
+  .command('plan [context]')
   .description('Start an interactive planning session to create a new board')
-  .action(async () => {
-    await planCommand();
+  .action(async (context?: string) => {
+    await planCommand(context);
   });
 
 program

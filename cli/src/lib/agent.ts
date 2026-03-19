@@ -20,7 +20,7 @@ export async function spawnInteractive(
 ): Promise<number> {
   const config = await readConfig(cwd);
   const [cmd, ...baseArgs] = config.agent_command.split(/\s+/);
-  const args = [...baseArgs, '--prompt', prompt];
+  const args = [...baseArgs, prompt];
 
   return new Promise((resolve) => {
     const child = spawn(cmd, args, {
