@@ -37,6 +37,7 @@ function CollapsibleCard({ entry }) {
                         }, children: "\u25B6" }), _jsx("span", { children: entry.heading })] }), expanded && (_jsx("div", { className: "px-4 pb-4 prose prose-invert max-w-none", style: { borderTop: `1px solid var(--border)` }, children: _jsx(ReactMarkdown, { remarkPlugins: [remarkGfm], children: entry.body }) }))] }));
 }
 export default function ProgressTimeline({ content }) {
+    const [search, setSearch] = useState("");
     const entries = parseEntries(content);
     // Fallback: render as single markdown block
     if (!entries) {
@@ -45,6 +46,17 @@ export default function ProgressTimeline({ content }) {
                 borderColor: "var(--border)",
             }, children: content.trim() ? (_jsx(ReactMarkdown, { remarkPlugins: [remarkGfm], children: content })) : (_jsx("p", { style: { color: "var(--text-muted)" }, children: "No progress logged yet." })) }));
     }
-    return (_jsx("div", { className: "flex flex-col gap-2", children: entries.map((entry, i) => (_jsx(CollapsibleCard, { entry: entry }, i))) }));
+    const filtered = search
+        ? entries.filter((entry) => {
+            const term = search.toLowerCase();
+            return (entry.heading.toLowerCase().includes(term) ||
+                entry.body.toLowerCase().includes(term));
+        })
+        : entries;
+    return (_jsxs("div", { className: "flex flex-col gap-2", children: [_jsx("input", { type: "text", placeholder: "Search progress entries\u2026", value: search, onChange: (e) => setSearch(e.target.value), className: "rounded-lg border px-3 py-2 text-sm outline-none", style: {
+                    backgroundColor: "var(--bg-card)",
+                    borderColor: "var(--border)",
+                    color: "var(--text)",
+                } }), filtered.map((entry, i) => (_jsx(CollapsibleCard, { entry: entry }, i))), filtered.length === 0 && (_jsx("p", { className: "px-1 text-sm", style: { color: "var(--text-muted)" }, children: "No entries match your search." }))] }));
 }
 //# sourceMappingURL=ProgressTimeline.js.map

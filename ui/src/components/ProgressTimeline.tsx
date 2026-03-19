@@ -80,6 +80,7 @@ function CollapsibleCard({ entry }: { entry: ProgressEntry }) {
 }
 
 export default function ProgressTimeline({ content }: ProgressTimelineProps) {
+  const [search, setSearch] = useState("");
   const entries = parseEntries(content);
 
   // Fallback: render as single markdown block
@@ -101,11 +102,38 @@ export default function ProgressTimeline({ content }: ProgressTimelineProps) {
     );
   }
 
+  const filtered = search
+    ? entries.filter((entry) => {
+        const term = search.toLowerCase();
+        return (
+          entry.heading.toLowerCase().includes(term) ||
+          entry.body.toLowerCase().includes(term)
+        );
+      })
+    : entries;
+
   return (
     <div className="flex flex-col gap-2">
-      {entries.map((entry, i) => (
+      <input
+        type="text"
+        placeholder="Search progress entries…"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="rounded-lg border px-3 py-2 text-sm outline-none"
+        style={{
+          backgroundColor: "var(--bg-card)",
+          borderColor: "var(--border)",
+          color: "var(--text)",
+        }}
+      />
+      {filtered.map((entry, i) => (
         <CollapsibleCard key={i} entry={entry} />
       ))}
+      {filtered.length === 0 && (
+        <p className="px-1 text-sm" style={{ color: "var(--text-muted)" }}>
+          No entries match your search.
+        </p>
+      )}
     </div>
   );
 }

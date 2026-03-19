@@ -52,3 +52,20 @@
 - Expanded card body renders through ReactMarkdown with remarkGfm for full GFM support
 
 ---
+
+## PROG-2 — Progress Search Filter
+
+**Key decisions:**
+- Added a search input above the collapsible progress entries list
+- Search filters entries in real-time by case-insensitive match against both heading and body content
+- Empty search shows all entries; shows "No entries match your search" when filter yields zero results
+- Search input only appears when entries are parseable (not in the single-block fallback mode)
+
+**Files changed:**
+- `ui/src/components/ProgressTimeline.tsx` — added `search` state, search input element, and filtering logic
+
+**Notes:**
+- Search input uses existing CSS custom properties (`--bg-card`, `--border`, `--text`) for dark theme consistency
+- Filtering is done with simple `toLowerCase().includes()` for both heading and body fields
+
+---
