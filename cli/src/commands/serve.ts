@@ -16,7 +16,10 @@ const EVENT_MAP: Record<WatchEvent['type'], WsEventType> = {
   'lock:released': 'lock:released',
 };
 
-export async function serveCommand(options: { daemon?: boolean } = {}): Promise<void> {
+export async function serveCommand(options: { daemon?: boolean; stop?: boolean } = {}): Promise<void> {
+  if (options.stop) {
+    return stopServer();
+  }
   if (options.daemon) {
     return startDaemon();
   }
@@ -87,6 +90,38 @@ export async function serveCommand(options: { daemon?: boolean } = {}): Promise<
 
   process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);
+}
+
+async function stopServer(): Promise<void> {
+  const config = await readConfig();
+  const pid = config.serve_pid;
+
+  if (!pid) {
+    console.log('No server running (no serve_pid in config).');
+    return;
+  }
+
+  // Check if the process is actually alive
+  let alive = false;
+  try {
+    process.kill(pid, 0); // signal 0 = existence check, no signal sent
+    alive = true;
+  } catch {
+    // Process doesn't exist — stale PID
+  }
+
+  if (!alive) {
+    console.log(`No server running (stale pid: ${pid}).`);
+    config.serve_pid = null;
+    await writeConfig(config);
+    return;
+  }
+
+  // Send SIGTERM for graceful shutdown
+  process.kill(pid, 'SIGTERM');
+  config.serve_pid = null;
+  await writeConfig(config);
+  console.log(`Stopped ralfie server (pid: ${pid}).`);
 }
 
 async function startDaemon(): Promise<void> {

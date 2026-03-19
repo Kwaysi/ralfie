@@ -56,3 +56,20 @@
 - SERVE-4 will add `--stop`/`-s` to read `serve_pid` and send SIGTERM
 
 ---
+
+## SERVE-4 — CLI Stop (`--stop` / `-s`)
+
+**Key decisions:**
+- Added `stopServer()` function in `serve.ts` alongside `startDaemon()` — keeps all serve-related logic in one file
+- Uses `process.kill(pid, 0)` to check if the process is alive before sending SIGTERM — handles stale PIDs gracefully
+- Three code paths: no PID in config → "No server running", stale PID → clears config and reports, live PID → sends SIGTERM and clears config
+- Reuses existing `readConfig`/`writeConfig` — no new dependencies needed
+
+**Files changed:**
+- `cli/src/commands/serve.ts` — Added `stopServer()` function, extended `serveCommand()` options type to include `stop`
+- `cli/src/index.ts` — Added `-s, --stop` option to the serve command
+
+**Notes:**
+- SERVE-5 will add a `POST /api/server/stop` endpoint that triggers the same graceful shutdown from the dashboard — it can call `process.exit()` directly since the HTTP handler runs in the server process itself
+
+---

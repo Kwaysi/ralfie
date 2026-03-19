@@ -85,7 +85,8 @@ program
   .command('serve')
   .description('Start the ralfie dashboard server')
   .option('-d, --daemon', 'Run the server in the background')
-  .action(async (options: { daemon?: boolean }) => {
+  .option('-s, --stop', 'Stop the running server')
+  .action(async (options: { daemon?: boolean; stop?: boolean }) => {
     await serveCommand(options);
   });
 

@@ -66,10 +66,10 @@
         "Run `ralf serve -s` with no server running — prints 'No server running' without error",
         "Run `ralf serve -s` with a stale PID in config — handles gracefully"
       ],
-      "status": "pending",
+      "status": "done",
       "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "started_at": "2026-03-19T23:48:03.683Z",
+      "completed_at": "2026-03-19T23:49:26.370Z",
       "comments": []
     },
     {
