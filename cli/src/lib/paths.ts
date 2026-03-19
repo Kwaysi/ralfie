@@ -31,3 +31,5 @@ export const runPidPath = (boardName: string, sessionId: string, cwd = process.c
   join(runsDir(boardName, cwd), `${sessionId}.pid`);
 
 export const ralfMdPath = (cwd = process.cwd()) => join(ralfieDir(cwd), 'RALF.md');
+
+export const claudeMdPath = (cwd = process.cwd()) => join(cwd, 'CLAUDE.md');
