@@ -73,3 +73,22 @@
 - SERVE-5 will add a `POST /api/server/stop` endpoint that triggers the same graceful shutdown from the dashboard — it can call `process.exit()` directly since the HTTP handler runs in the server process itself
 
 ---
+
+## SERVE-5 — Dashboard UI (Stop Server)
+
+**Key decisions:**
+- Added `POST /api/server/stop` endpoint in `api.ts` — responds with `{ ok: true }` then sends `SIGTERM` to self after 100ms delay, reusing the existing cleanup handler registered in `serve.ts`
+- The 100ms delay ensures the HTTP response is flushed before shutdown begins
+- The Settings page conditionally renders a server status card when `serve_pid` is present in config (which it always is when the dashboard is being served)
+- The stop button catches errors silently since the server shutting down will naturally drop the connection
+- Used `--danger` CSS variable for the stop button to match the project's existing color scheme
+
+**Files changed:**
+- `cli/src/server/api.ts` — Added `POST /api/server/stop` endpoint that triggers graceful shutdown via self-SIGTERM
+- `ui/src/lib/api.ts` — Added `stopServer()` export that calls `POST /api/server/stop`
+- `ui/src/pages/SettingsPage.tsx` — Added server status card with PID display and red "Stop Server" button
+
+**Notes:**
+- This completes the serve-lifecycle board — all 5 items are now done
+
+---

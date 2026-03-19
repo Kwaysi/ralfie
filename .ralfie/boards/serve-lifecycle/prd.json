@@ -84,10 +84,10 @@
         "Verify `.ralfie/config.json` has `serve_pid: null` after dashboard stop",
         "The API function for stopping is exported from ui/src/lib/api.ts"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773963576125-608329a9",
+      "started_at": "2026-03-20T00:20:00.000Z",
+      "completed_at": "2026-03-20T00:25:00.000Z",
       "comments": []
     }
   ]

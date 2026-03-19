@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import type { RalfieConfig, EffortLevel, AgentModel } from "@ralfie/shared";
-import { fetchConfig, updateConfig } from "../lib/api";
+import { fetchConfig, updateConfig, stopServer } from "../lib/api";
 
 export default function SettingsPage() {
   const [config, setConfig] = useState<RalfieConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [stopping, setStopping] = useState(false);
 
   useEffect(() => {
     fetchConfig().then(setConfig).catch((e) => setError(e.message));
@@ -29,9 +30,39 @@ export default function SettingsPage() {
   if (error) return <div className="text-[var(--danger)]">{error}</div>;
   if (!config) return <div className="text-[var(--text-muted)]">Loading...</div>;
 
+  async function handleStop() {
+    setStopping(true);
+    try {
+      await stopServer();
+    } catch {
+      // Expected — server shuts down and connection drops
+    }
+  }
+
   return (
     <div>
       <h1 className="text-xl font-bold mb-6">Settings</h1>
+
+      {config.serve_pid && (
+        <div className="max-w-lg mb-6 bg-[var(--bg-card)] border border-[var(--border)] rounded p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm text-[var(--text-muted)]">Server Status</div>
+              <div className="text-sm mt-1">
+                Running — PID{" "}
+                <span className="font-mono text-[var(--accent)]">{config.serve_pid}</span>
+              </div>
+            </div>
+            <button
+              onClick={handleStop}
+              disabled={stopping}
+              className="bg-[var(--danger)] text-white px-4 py-2 rounded text-sm hover:opacity-90 disabled:opacity-50"
+            >
+              {stopping ? "Stopping..." : "Stop Server"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-lg space-y-5">
         <div>

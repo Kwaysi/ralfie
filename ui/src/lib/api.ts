@@ -74,6 +74,12 @@ export async function addCommentApi(
   return res.json();
 }
 
+export async function stopServer(): Promise<{ ok: boolean }> {
+  const res = await fetch('/api/server/stop', { method: 'POST' });
+  if (!res.ok) throw new Error(`Failed to stop server: ${res.statusText}`);
+  return res.json();
+}
+
 export async function fetchConfig(): Promise<RalfieConfig> {
   const res = await fetch('/api/config');
   if (!res.ok) throw new Error(`Failed to fetch config: ${res.statusText}`);

@@ -182,6 +182,16 @@ export async function handleApi(
       return true;
     }
 
+    // POST /api/server/stop
+    if (method === 'POST' && url === '/api/server/stop') {
+      json(res, { ok: true });
+      // Trigger graceful shutdown after response is sent
+      setTimeout(() => {
+        process.kill(process.pid, 'SIGTERM');
+      }, 100);
+      return true;
+    }
+
     // GET /api/boards/:name
     const boardParams = matchRoute(url, '/api/boards/:name');
     if (method === 'GET' && boardParams) {
