@@ -24,13 +24,13 @@ export default function PrdKanban({ items, onVerify, onRefresh, boardName, activ
 
   return (
     <>
-      <div className="grid grid-cols-5 gap-3 items-start">
+      <div className="grid grid-cols-5 gap-3 h-full">
         {columns.map((col) => {
           const colItems = items.filter((i) => i.status === col.status);
           return (
-            <div key={col.status} className="min-w-0">
+            <div key={col.status} className="min-w-0 flex flex-col min-h-0">
               <div
-                className="text-xs font-bold uppercase tracking-wide mb-3 flex items-center justify-between"
+                className="text-xs font-bold uppercase tracking-wide mb-3 flex items-center justify-between shrink-0"
                 style={{ color: col.color }}
               >
                 <span>{col.label}</span>
@@ -38,7 +38,7 @@ export default function PrdKanban({ items, onVerify, onRefresh, boardName, activ
                   {colItems.length}
                 </span>
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 overflow-y-auto min-h-0 flex-1">
                 {colItems.map((item) => (
                   <ItemCard
                     key={item.id}

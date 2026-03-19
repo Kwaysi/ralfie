@@ -49,8 +49,8 @@ export default function BoardDetailPage() {
   ];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4 shrink-0">
         <div>
           <h1 className="text-xl font-bold">{board.meta.name}</h1>
           {board.meta.description && (
@@ -80,7 +80,7 @@ export default function BoardDetailPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 mb-4 border-b border-[var(--border)]">
+      <div className="flex gap-1 border-b border-[var(--border)] shrink-0">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -96,11 +96,21 @@ export default function BoardDetailPage() {
         ))}
       </div>
 
-      {tab === "prd" && (
-        <PrdKanban items={board.prd.items} onVerify={handleVerify} onRefresh={load} boardName={board.meta.name} activeRuns={board.activeRuns} />
-      )}
-      {tab === "plan" && <PlanViewer content={board.plan} />}
-      {tab === "progress" && <ProgressTimeline content={board.progress} />}
+      <div className="flex-1 min-h-0 pt-4">
+        {tab === "prd" && (
+          <PrdKanban items={board.prd.items} onVerify={handleVerify} onRefresh={load} boardName={board.meta.name} activeRuns={board.activeRuns} />
+        )}
+        {tab === "plan" && (
+          <div className="h-full overflow-auto">
+            <PlanViewer content={board.plan} />
+          </div>
+        )}
+        {tab === "progress" && (
+          <div className="h-full overflow-auto">
+            <ProgressTimeline content={board.progress} />
+          </div>
+        )}
+      </div>
 
       <RunDialog
         open={runOpen}

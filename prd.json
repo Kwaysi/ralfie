@@ -880,7 +880,7 @@
         "Plan and Progress tabs still scroll normally (they are markdown content, not columns)",
         "Layout works correctly when the browser window is resized"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-10",
