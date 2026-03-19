@@ -59,6 +59,7 @@ export interface RalfieConfig {
   serve_port: number;
   effort: EffortLevel;
   model: AgentModel;
+  user: string;
 }
 
 // -- WebSocket events --

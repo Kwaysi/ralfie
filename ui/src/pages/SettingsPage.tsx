@@ -36,6 +36,18 @@ export default function SettingsPage() {
       <div className="max-w-lg space-y-5">
         <div>
           <label className="block text-sm text-[var(--text-muted)] mb-1">
+            User Name
+          </label>
+          <input
+            type="text"
+            value={config.user}
+            onChange={(e) => setConfig({ ...config, user: e.target.value })}
+            className="w-full bg-[var(--bg-card)] border border-[var(--border)] rounded px-3 py-2 text-sm text-[var(--text)] focus:outline-none focus:border-[var(--accent)]"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm text-[var(--text-muted)] mb-1">
             Agent Command
           </label>
           <input

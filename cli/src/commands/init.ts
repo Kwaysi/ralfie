@@ -1,9 +1,13 @@
+import { execFile } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { promisify } from 'node:util';
 import { readConfig, writeConfig } from '../lib/config.js';
 import { ralfieDir, boardsDir } from '../lib/paths.js';
 import { installSkills } from '../lib/skills.js';
 import { claudeSettingsPath, syncClaudeSettings } from '../lib/claude-settings.js';
+
+const execFileAsync = promisify(execFile);
 
 const REQUIRED_PERMISSIONS = ['Bash', 'Edit', 'Write', 'Read'];
 
@@ -12,8 +16,11 @@ export async function initCommand(cwd?: string): Promise<void> {
   await mkdir(ralfieDir(cwd), { recursive: true });
   await mkdir(boardsDir(cwd), { recursive: true });
 
-  // Write default config only if it doesn't exist
+  // Write default config, inferring user from git if not already set
   const existingConfig = await readConfig(cwd);
+  if (!existingConfig.user) {
+    existingConfig.user = await getGitUserName();
+  }
   await writeConfig(existingConfig, cwd);
 
   // Install Claude Code skills
@@ -32,6 +39,15 @@ export async function initCommand(cwd?: string): Promise<void> {
   console.log('  .claude/skills/ralf-edit/SKILL.md');
   console.log('  .claude/skills/ralf-run/SKILL.md');
   console.log('  .claude/settings.json');
+}
+
+async function getGitUserName(): Promise<string> {
+  try {
+    const { stdout } = await execFileAsync('git', ['config', 'user.name']);
+    return stdout.trim();
+  } catch {
+    return '';
+  }
 }
 
 async function mergePermissions(cwd?: string): Promise<void> {

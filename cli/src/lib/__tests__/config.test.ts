@@ -37,6 +37,7 @@ describe('config', () => {
       serve_port: 4444,
       effort: 'medium',
       model: 'opus',
+      user: '',
     });
   });
 });

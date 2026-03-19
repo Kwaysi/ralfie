@@ -911,7 +911,7 @@
         "npm run build succeeds with no type errors",
         "npm test passes"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-12",

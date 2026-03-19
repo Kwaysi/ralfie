@@ -10,6 +10,7 @@ export const defaultConfig: RalfieConfig = {
   serve_port: 3333,
   effort: 'medium',
   model: 'opus',
+  user: '',
 };
 
 export async function readConfig(cwd?: string): Promise<RalfieConfig> {
