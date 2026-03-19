@@ -1,6 +1,6 @@
 import { readConfig } from '../lib/config.js';
 import { createHttpServer } from '../server/http.js';
-import { createWsServer, broadcast } from '../server/ws.js';
+import { createWsServer, broadcast, closeAllConnections } from '../server/ws.js';
 import { startWatcher, type WatchEvent } from '../server/watcher.js';
 import type { WsEventType } from '@ralfie/shared';
 
@@ -36,11 +36,36 @@ export async function serveCommand(): Promise<void> {
     console.log('Press Ctrl+C to stop');
   });
 
-  // Cleanup on exit
+  let shutdownInProgress = false;
+
   const cleanup = () => {
+    if (shutdownInProgress) {
+      // Second ctrl+c — force kill immediately
+      console.log('Force killing...');
+      process.exit(1);
+    }
+    shutdownInProgress = true;
+    console.log('Shutting down...');
+
+    // Close file watchers
     for (const w of watchers) w.close();
-    server.close();
+
+    // Terminate all WebSocket connections
+    closeAllConnections();
+
+    // Close the HTTP server and exit
+    server.close(() => {
+      console.log('Server stopped.');
+      process.exit(0);
+    });
+
+    // Force exit if server.close() takes too long
+    setTimeout(() => {
+      console.log('Shutdown timed out, force exiting.');
+      process.exit(1);
+    }, 2000).unref();
   };
+
   process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);
 }

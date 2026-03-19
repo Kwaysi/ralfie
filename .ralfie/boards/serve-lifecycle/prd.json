@@ -1,0 +1,94 @@
+{
+  "project": "serve-lifecycle",
+  "description": "Fix ctrl+c shutdown, add daemon mode with -d flag, and dashboard stop button for ralf serve",
+  "items": [
+    {
+      "id": "SERVE-1",
+      "category": "Graceful Shutdown",
+      "user_story": "As a developer, I can press ctrl+c and the server exits cleanly so that the port is freed immediately",
+      "description": "Fix the cleanup function in serve.ts to terminate all WebSocket connections, call process.exit(), log shutdown messages, and support double ctrl+c for force-kill",
+      "end_state": "Pressing ctrl+c logs 'Shutting down...' and exits within 2 seconds. A second ctrl+c force-kills immediately. The port is freed and no orphan processes remain.",
+      "steps_to_verify": [
+        "Run `ralf serve` and press ctrl+c — process exits and logs 'Shutting down...'",
+        "Run `ralf serve`, connect a browser to the dashboard, press ctrl+c — process still exits cleanly",
+        "Run `ralf serve` and press ctrl+c twice rapidly — process exits immediately on second press"
+      ],
+      "status": "done",
+      "assigned_to": null,
+      "started_at": "2026-03-20T00:00:00.000Z",
+      "completed_at": "2026-03-20T00:01:00.000Z",
+      "comments": []
+    },
+    {
+      "id": "SERVE-2",
+      "category": "Config & Types",
+      "user_story": "As a developer, I can see the server PID in the config so I know whether the server is running",
+      "description": "Add optional serve_pid field to RalfieConfig in shared types. Write PID to config on server start, clear it on shutdown.",
+      "end_state": "RalfieConfig has an optional serve_pid: number | null field. When the server starts, config.json contains the PID. When it stops, serve_pid is null or absent.",
+      "steps_to_verify": [
+        "Start `ralf serve`, check `.ralfie/config.json` contains `serve_pid` matching the process PID",
+        "Stop the server (ctrl+c), check `.ralfie/config.json` has `serve_pid: null`",
+        "Run `npm run typecheck` — no type errors in shared, cli, or ui workspaces"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "SERVE-3",
+      "category": "Daemon Mode",
+      "user_story": "As a developer, I can run `ralf serve -d` to start the server in the background so my terminal stays free",
+      "description": "Add -d/--daemon flag to the serve command. When set, fork a detached child process running the server, save its PID to config, print the PID, and exit the parent.",
+      "end_state": "`ralf serve -d` prints the PID and returns to the shell prompt. The server runs in the background serving HTTP and WebSocket. The PID is saved in config.json.",
+      "steps_to_verify": [
+        "Run `ralf serve -d` — command prints PID and returns to shell",
+        "Verify the printed PID is a running process: `ps -p <pid>`",
+        "Verify `.ralfie/config.json` contains the correct `serve_pid`",
+        "Verify dashboard is accessible at http://localhost:3333"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "SERVE-4",
+      "category": "CLI Stop",
+      "user_story": "As a developer, I can run `ralf serve --stop` or `ralf serve -s` to kill the daemon from the terminal",
+      "description": "Add --stop/-s flag to the serve command. Reads serve_pid from config, verifies the process exists, sends SIGTERM, clears serve_pid from config, and prints confirmation.",
+      "end_state": "`ralf serve -s` kills the daemon, clears serve_pid from config, and prints a confirmation message. If no server is running, it prints a helpful message instead of crashing.",
+      "steps_to_verify": [
+        "Start daemon with `ralf serve -d`, then run `ralf serve -s` — process is killed",
+        "Verify `.ralfie/config.json` has `serve_pid: null` after stop",
+        "Run `ralf serve -s` with no server running — prints 'No server running' without error",
+        "Run `ralf serve -s` with a stale PID in config — handles gracefully"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "SERVE-5",
+      "category": "Dashboard UI",
+      "user_story": "As a developer, I can see the server PID and stop the server from the dashboard so I don't need the terminal",
+      "description": "Add a POST /api/server/stop endpoint that triggers graceful shutdown. On the Settings page, display the server PID and a 'Stop Server' button that calls this endpoint.",
+      "end_state": "Settings page shows the server PID in a status section. A red 'Stop Server' button calls POST /api/server/stop. The server shuts down gracefully after the response is sent.",
+      "steps_to_verify": [
+        "Start `ralf serve -d` and open the Settings page — PID is displayed",
+        "Click 'Stop Server' — server shuts down, dashboard disconnects",
+        "Verify `.ralfie/config.json` has `serve_pid: null` after dashboard stop",
+        "The API function for stopping is exported from ui/src/lib/api.ts"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    }
+  ]
+}

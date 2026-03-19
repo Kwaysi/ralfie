@@ -18,3 +18,11 @@ export function broadcast(event: WsEvent): void {
     }
   }
 }
+
+export function closeAllConnections(): void {
+  if (!wss) return;
+  for (const client of wss.clients) {
+    client.terminate();
+  }
+  wss.close();
+}
