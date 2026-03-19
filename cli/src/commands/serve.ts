@@ -1,3 +1,6 @@
+import { fork } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { readConfig, writeConfig } from '../lib/config.js';
 import { createHttpServer } from '../server/http.js';
 import { createWsServer, broadcast, closeAllConnections } from '../server/ws.js';
@@ -13,7 +16,11 @@ const EVENT_MAP: Record<WatchEvent['type'], WsEventType> = {
   'lock:released': 'lock:released',
 };
 
-export async function serveCommand(): Promise<void> {
+export async function serveCommand(options: { daemon?: boolean } = {}): Promise<void> {
+  if (options.daemon) {
+    return startDaemon();
+  }
+
   const config = await readConfig();
   const port = config.serve_port;
 
@@ -80,4 +87,28 @@ export async function serveCommand(): Promise<void> {
 
   process.on('SIGINT', cleanup);
   process.on('SIGTERM', cleanup);
+}
+
+async function startDaemon(): Promise<void> {
+  const config = await readConfig();
+  const port = config.serve_port;
+
+  // Fork a detached child running this same module without the --daemon flag
+  const modulePath = fileURLToPath(import.meta.url);
+  const entryPath = path.resolve(path.dirname(modulePath), '..', 'index.js');
+
+  const child = fork(entryPath, ['serve'], {
+    detached: true,
+    stdio: 'ignore',
+    cwd: process.cwd(),
+  });
+
+  // Wait briefly for the child to start and write its PID to config
+  child.unref();
+
+  // Write the child PID to config
+  config.serve_pid = child.pid ?? null;
+  await writeConfig(config);
+
+  console.log(`ralfie server started in background (pid: ${child.pid}, port: ${port})`);
 }

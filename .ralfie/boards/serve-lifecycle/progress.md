@@ -36,3 +36,23 @@
 - SERVE-4 (--stop) will read `serve_pid` from config to find and kill the daemon
 
 ---
+
+## SERVE-3 — Daemon Mode (-d flag)
+
+**Key decisions:**
+- Used `child_process.fork()` to spawn a detached child process running `ralf serve` (without `-d`) via the CLI entry point (`index.js`)
+- The parent writes the child PID to `config.json` immediately after forking, then exits — the child will overwrite with its own `process.pid` once `server.listen` fires
+- Used `fileURLToPath(import.meta.url)` to resolve the entry point path relative to the compiled module, ensuring it works regardless of install location
+- `stdio: 'ignore'` and `detached: true` ensure the child is fully detached from the parent's terminal
+- `child.unref()` allows the parent process to exit without waiting for the child
+
+**Files changed:**
+- `cli/src/commands/serve.ts` — Added `startDaemon()` function, added `options` parameter to `serveCommand()`, added imports for `fork`, `fileURLToPath`, `path`
+- `cli/src/index.ts` — Added `-d, --daemon` option to the serve command, passes options to `serveCommand()`
+
+**Notes:**
+- The child process inherits the parent's `cwd` explicitly so board file paths resolve correctly
+- Daemon output goes to `/dev/null` (stdio: 'ignore') — log file support is out of scope per plan.md
+- SERVE-4 will add `--stop`/`-s` to read `serve_pid` and send SIGTERM
+
+---

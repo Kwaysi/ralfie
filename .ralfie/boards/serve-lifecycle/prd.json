@@ -48,10 +48,10 @@
         "Verify `.ralfie/config.json` contains the correct `serve_pid`",
         "Verify dashboard is accessible at http://localhost:3333"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773963576125-608329a9",
+      "started_at": "2026-03-20T00:10:00.000Z",
+      "completed_at": "2026-03-20T00:15:00.000Z",
       "comments": []
     },
     {
