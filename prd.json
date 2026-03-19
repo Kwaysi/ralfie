@@ -780,7 +780,7 @@
         "ralfie-run.md workflow references setting completed_at via completeItem",
         "The skill instructs the agent to use the updated prd.ts functions that handle timestamps automatically"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-3",

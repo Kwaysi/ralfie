@@ -26,7 +26,7 @@ Fail fast on risky work. Save easy wins for later.
 
 ## Step 2: Claim Item
 
-Claim the selected item by setting its status to `in_progress` and `assigned_to` to your session ID. This prevents other agents from working on the same item.
+Claim the selected item by setting its status to `in_progress` and `assigned_to` to your session ID. This prevents other agents from working on the same item. The `claimItem` function in `prd.ts` automatically sets `started_at` to the current ISO timestamp when claiming.
 
 ## Step 3: Implement
 
@@ -64,6 +64,8 @@ Append to `progress.md`:
 Mark the item as `done` in `prd.json`:
 - Set `status` to `done`
 - Set `passes` to `true`
+
+The `completeItem` function in `prd.ts` automatically sets `completed_at` to the current ISO timestamp when marking done.
 
 ## Step 7: Commit
 
