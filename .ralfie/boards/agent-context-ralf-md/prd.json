@@ -53,10 +53,10 @@
         "Running initCommand twice does not duplicate CLAUDE.md section or regenerate RALF.md",
         "Running initCommand with existing boards populates RALF.md board entries"
       ],
-      "status": "pending",
+      "status": "done",
       "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "started_at": "2026-03-19T11:06:34.600Z",
+      "completed_at": "2026-03-19T11:08:27.381Z",
       "comments": []
     },
     {

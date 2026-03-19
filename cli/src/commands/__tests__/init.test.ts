@@ -3,7 +3,7 @@ import { mkdtemp, rm, readFile, writeFile, stat, mkdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { initCommand } from '../init.js';
-import { configPath, boardsDir, ralfieDir } from '../../lib/paths.js';
+import { configPath, boardsDir, ralfieDir, ralfMdPath, claudeMdPath } from '../../lib/paths.js';
 import { claudeSettingsPath } from '../../lib/claude-settings.js';
 
 let tmp: string;
@@ -44,6 +44,16 @@ describe('init', () => {
     );
     expect(settings.effortLevel).toBe('medium');
     expect(settings.model).toBe('claude-opus-4-6');
+
+    // CLAUDE.md exists with Ralfie section
+    const claudeMd = await readFile(claudeMdPath(tmp), 'utf-8');
+    expect(claudeMd).toContain('## Ralfie');
+    expect(claudeMd).toContain('@.ralfie/RALF.md');
+
+    // .ralfie/RALF.md exists with documentation
+    const ralfMd = await readFile(ralfMdPath(tmp), 'utf-8');
+    expect(ralfMd).toContain('## How Ralfie Works');
+    expect(ralfMd).toContain('## Active Boards');
   });
 
   it('does not overwrite modified config.json on second init', async () => {
@@ -92,6 +102,35 @@ describe('init', () => {
     // Effort/model still set
     expect(settings.effortLevel).toBe('medium');
     expect(settings.model).toBe('claude-opus-4-6');
+  });
+
+  it('running init twice does not duplicate CLAUDE.md section or regenerate RALF.md', async () => {
+    await initCommand(tmp);
+    const claudeFirst = await readFile(claudeMdPath(tmp), 'utf-8');
+    const ralfFirst = await readFile(ralfMdPath(tmp), 'utf-8');
+
+    await initCommand(tmp);
+    const claudeSecond = await readFile(claudeMdPath(tmp), 'utf-8');
+    const ralfSecond = await readFile(ralfMdPath(tmp), 'utf-8');
+
+    expect(claudeSecond).toBe(claudeFirst);
+    expect(ralfSecond).toBe(ralfFirst);
+  });
+
+  it('running init with existing boards populates RALF.md board entries', async () => {
+    // Create a board before running init
+    const boardPath = join(tmp, '.ralfie', 'boards', 'test-board');
+    await mkdir(boardPath, { recursive: true });
+    await writeFile(join(boardPath, 'meta.json'), JSON.stringify({ name: 'test-board', description: 'A test board' }));
+    await writeFile(join(boardPath, 'prd.json'), JSON.stringify({ project: 'test-board', description: 'A test board', items: [] }));
+    await writeFile(join(boardPath, 'plan.md'), '# Plan');
+    await writeFile(join(boardPath, 'progress.md'), '');
+
+    await initCommand(tmp);
+
+    const ralfMd = await readFile(ralfMdPath(tmp), 'utf-8');
+    expect(ralfMd).toContain('**test-board**');
+    expect(ralfMd).toContain('A test board');
   });
 
   it('is idempotent — running twice produces the same settings', async () => {

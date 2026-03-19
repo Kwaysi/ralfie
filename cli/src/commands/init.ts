@@ -6,6 +6,8 @@ import { readConfig, writeConfig } from '../lib/config.js';
 import { ralfieDir, boardsDir } from '../lib/paths.js';
 import { installSkills } from '../lib/skills.js';
 import { claudeSettingsPath, syncClaudeSettings } from '../lib/claude-settings.js';
+import { ensureClaudeMd } from '../lib/claude-md.js';
+import { ensureRalfMd } from '../lib/ralf-md.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -32,6 +34,10 @@ export async function initCommand(cwd?: string): Promise<void> {
   // Sync effort and model settings
   await syncClaudeSettings(cwd);
 
+  // Set up agent context chain: CLAUDE.md → RALF.md
+  await ensureClaudeMd(cwd);
+  await ensureRalfMd(cwd);
+
   console.log('Initialized ralfie project.');
   console.log('  .ralfie/config.json');
   console.log('  .ralfie/boards/');
@@ -39,6 +45,8 @@ export async function initCommand(cwd?: string): Promise<void> {
   console.log('  .claude/skills/ralf-edit/SKILL.md');
   console.log('  .claude/skills/ralf-run/SKILL.md');
   console.log('  .claude/settings.json');
+  console.log('  CLAUDE.md');
+  console.log('  .ralfie/RALF.md');
 }
 
 async function getGitUserName(): Promise<string> {

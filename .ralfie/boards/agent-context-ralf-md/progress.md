@@ -65,3 +65,24 @@
 - `cli/src/lib/board.ts` — import and call `appendBoardToRalfMd` in `createBoard`
 - `cli/src/lib/__tests__/board.test.ts` — 2 new tests for RALF.md integration
 - `cli/src/skills/ralf-plan/SKILL.md` — Phase 4 updated with RALF.md step
+
+## RALF-3: Init Wiring
+
+**Status**: done
+**Session**: ralfie-1773918134806-74f1139b
+
+### What was done
+- Updated `initCommand` in `cli/src/commands/init.ts` to call `ensureClaudeMd()` and `ensureRalfMd()` during initialization
+- Added console output lines for `CLAUDE.md` and `.ralfie/RALF.md`
+- Added 2 new tests to `cli/src/commands/__tests__/init.test.ts`:
+  - `running init twice does not duplicate CLAUDE.md section or regenerate RALF.md`
+  - `running init with existing boards populates RALF.md board entries`
+- Updated existing first test to assert CLAUDE.md and RALF.md are created
+
+### Key decisions
+- `ensureClaudeMd` runs before `ensureRalfMd` so CLAUDE.md references RALF.md which then exists
+- Both calls happen after `syncClaudeSettings` since they're independent of settings
+
+### Files changed
+- `cli/src/commands/init.ts` — import and call `ensureClaudeMd` + `ensureRalfMd`
+- `cli/src/commands/__tests__/init.test.ts` — 2 new tests + assertions in existing test
