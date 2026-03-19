@@ -11,7 +11,7 @@ interface ProgressEntry {
   body: string;
 }
 
-function parseEntries(content: string): ProgressEntry[] | null {
+export function parseEntries(content: string): ProgressEntry[] | null {
   const trimmed = content.trim();
   if (!trimmed) return null;
 

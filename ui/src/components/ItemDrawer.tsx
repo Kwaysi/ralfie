@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ItemStatus, PrdItem } from "@ralfie/shared";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { verifyItem, resetItemApi, addCommentApi } from "../lib/api";
+import { parseEntries } from "./ProgressTimeline";
 
 interface ItemDrawerProps {
   item: PrdItem | null;
@@ -8,6 +11,7 @@ interface ItemDrawerProps {
   boardName?: string;
   activeRuns?: number;
   onRefresh?: () => void;
+  progressContent?: string;
 }
 
 const statusColors: Record<ItemStatus, string> = {
@@ -38,9 +42,16 @@ function formatTimestamp(ts: string): string {
   });
 }
 
-export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, onRefresh }: ItemDrawerProps) {
+export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, onRefresh, progressContent }: ItemDrawerProps) {
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const progressEntry = useMemo(() => {
+    if (!item || !progressContent) return null;
+    const entries = parseEntries(progressContent);
+    if (!entries) return null;
+    return entries.find((e) => e.heading.startsWith(item.id)) ?? null;
+  }, [item, progressContent]);
 
   useEffect(() => {
     if (!item) return;
@@ -213,6 +224,28 @@ export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, o
             </ul>
           </section>
 
+          {/* Progress */}
+          <section>
+            <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2">
+              Progress
+            </h3>
+            {progressEntry ? (
+              <div
+                className="rounded-lg border p-4 prose prose-invert max-w-none text-sm"
+                style={{
+                  backgroundColor: "var(--bg-card)",
+                  borderColor: "var(--border)",
+                }}
+              >
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {progressEntry.body}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <p className="text-sm text-[var(--text-muted)]">No progress entry yet</p>
+            )}
+          </section>
+
           {/* Comments */}
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2">
@@ -223,7 +256,7 @@ export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, o
             ) : (
               <div className="space-y-3">
                 {item.comments.map((comment, i) => {
-                  const isAgent = comment.session_id.startsWith("ralfie-");
+                  const isAgent = comment.session_id?.startsWith("ralfie-") ?? false;
                   return (
                     <div
                       key={i}
@@ -237,7 +270,7 @@ export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, o
                       <div className="flex items-center gap-2 mb-1.5 text-xs text-[var(--text-muted)]">
                         <span>{isAgent ? "🤖" : "👤"}</span>
                         <span className="font-mono font-bold">
-                          {comment.session_id}
+                          {comment.session_id ?? "unknown"}
                         </span>
                         <span className="ml-auto">
                           {formatTimestamp(comment.timestamp)}

@@ -8,6 +8,7 @@ interface PrdKanbanProps {
   onRefresh: () => void;
   boardName: string;
   activeRuns: number;
+  progressContent?: string;
 }
 
 const columns: { status: ItemStatus; label: string; color: string }[] = [
@@ -18,7 +19,7 @@ const columns: { status: ItemStatus; label: string; color: string }[] = [
   { status: "verified", label: "Verified", color: "var(--success)" },
 ];
 
-export default function PrdKanban({ items, onVerify, onRefresh, boardName, activeRuns }: PrdKanbanProps) {
+export default function PrdKanban({ items, onVerify, onRefresh, boardName, activeRuns, progressContent }: PrdKanbanProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedItem = selectedId ? items.find((i) => i.id === selectedId) ?? null : null;
 
@@ -60,6 +61,7 @@ export default function PrdKanban({ items, onVerify, onRefresh, boardName, activ
         boardName={boardName}
         activeRuns={activeRuns}
         onRefresh={onRefresh}
+        progressContent={progressContent}
       />
     </>
   );

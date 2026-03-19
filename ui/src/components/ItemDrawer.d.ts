@@ -5,7 +5,8 @@ interface ItemDrawerProps {
     boardName?: string;
     activeRuns?: number;
     onRefresh?: () => void;
+    progressContent?: string;
 }
-export default function ItemDrawer({ item, onClose, boardName, activeRuns, onRefresh }: ItemDrawerProps): import("react/jsx-runtime").JSX.Element | null;
+export default function ItemDrawer({ item, onClose, boardName, activeRuns, onRefresh, progressContent }: ItemDrawerProps): import("react/jsx-runtime").JSX.Element | null;
 export {};
 //# sourceMappingURL=ItemDrawer.d.ts.map

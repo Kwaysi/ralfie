@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-function parseEntries(content) {
+export function parseEntries(content) {
     const trimmed = content.trim();
     if (!trimmed)
         return null;

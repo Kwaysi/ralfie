@@ -69,3 +69,24 @@
 - Filtering is done with simple `toLowerCase().includes()` for both heading and body fields
 
 ---
+
+## PROG-3 — Progress Entry in Item Drawer
+
+**Key decisions:**
+- Exported `parseEntries` from `ProgressTimeline.tsx` so it can be reused by `ItemDrawer`
+- Added `progressContent` prop threaded from `BoardDetailPage` → `PrdKanban` → `ItemDrawer`
+- Matching uses prefix check: `entry.heading.startsWith(item.id)` to find the progress entry for a given PRD item
+- Progress section placed between "Steps to Verify" and "Comments" in the drawer layout
+- Used `useMemo` to avoid re-parsing progress content on every render
+
+**Files changed:**
+- `ui/src/components/ProgressTimeline.tsx` — exported `parseEntries` function
+- `ui/src/components/ItemDrawer.tsx` — added `progressContent` prop, progress matching logic, and Progress section with ReactMarkdown rendering
+- `ui/src/components/PrdKanban.tsx` — added `progressContent` prop and threaded it to `ItemDrawer`
+- `ui/src/pages/BoardDetailPage.tsx` — passed `board.progress` to `PrdKanban`
+
+**Notes:**
+- Shows "No progress entry yet" when no matching entry is found
+- Progress body renders with `ReactMarkdown` + `remarkGfm` for full GFM support (tables, code blocks, etc.)
+
+---

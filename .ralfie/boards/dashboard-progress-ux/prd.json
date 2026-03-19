@@ -88,10 +88,10 @@
         "Open a PRD item with no matching progress entry — shows 'No progress entry yet'",
         "The progress entry markdown renders with proper GFM styling (tables, code blocks, etc.)"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773914894000-29aaf782",
+      "started_at": "2026-03-19T10:35:00.000Z",
+      "completed_at": "2026-03-19T10:40:00.000Z",
       "comments": []
     }
   ]

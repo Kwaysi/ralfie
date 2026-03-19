@@ -106,7 +106,7 @@ export default function BoardDetailPage() {
 
       <div className="flex-1 min-h-0 pt-4">
         {tab === "prd" && (
-          <PrdKanban items={board.prd.items} onVerify={handleVerify} onRefresh={load} boardName={board.meta.name} activeRuns={board.activeRuns} />
+          <PrdKanban items={board.prd.items} onVerify={handleVerify} onRefresh={load} boardName={board.meta.name} activeRuns={board.activeRuns} progressContent={board.progress} />
         )}
         {tab === "plan" && (
           <div className="h-full overflow-auto">
