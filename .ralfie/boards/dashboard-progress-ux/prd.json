@@ -50,10 +50,10 @@
         "All cards are collapsed by default",
         "Progress content without --- separators renders as a single markdown block (no crash)"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773914894000-29aaf782",
+      "started_at": "2026-03-19T10:15:00.000Z",
+      "completed_at": "2026-03-19T10:20:00.000Z",
       "comments": []
     },
     {

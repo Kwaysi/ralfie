@@ -34,3 +34,21 @@
 - Existing MDFIX-1 entry already follows this format, so no retroactive changes needed
 
 ---
+
+## PROG-1 — Collapsible Progress Entries
+
+**Key decisions:**
+- Rewrote `ProgressTimeline.tsx` to parse progress markdown by splitting on `\n---\n` separators
+- Each chunk becomes a `CollapsibleCard` component with the `##` heading as the clickable summary
+- Cards are collapsed by default; clicking toggles expanded state with a rotating arrow indicator
+- Falls back to rendering the entire content as a single markdown block when no separators are found (backward compatible)
+
+**Files changed:**
+- `ui/src/components/ProgressTimeline.tsx` — full rewrite with `parseEntries()` function and `CollapsibleCard` component
+
+**Notes:**
+- `parseEntries` returns `null` when content has no `---` separators, triggering the fallback path
+- Each card border and background uses existing CSS custom properties (`--bg-card`, `--border`)
+- Expanded card body renders through ReactMarkdown with remarkGfm for full GFM support
+
+---
