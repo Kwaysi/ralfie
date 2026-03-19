@@ -1,0 +1,98 @@
+{
+  "project": "dashboard-progress-ux",
+  "description": "Fix markdown rendering and enhance progress tab with collapsible entries, search, and item drawer integration",
+  "items": [
+    {
+      "id": "MDFIX-1",
+      "category": "Markdown Rendering",
+      "user_story": "As a user viewing a board, I can read plan and progress content with properly rendered tables, code blocks, and GFM elements so that the content is legible",
+      "description": "Install remark-gfm and add it as a plugin to ReactMarkdown in both PlanViewer and ProgressTimeline. Add dark-theme CSS overrides for prose elements — tables (borders, cell padding, alternating rows), code blocks (background color, padding), blockquotes, and horizontal rules — using the existing CSS custom properties.",
+      "end_state": "Tables render as styled HTML tables with no raw pipe characters visible. Code blocks have dark background styling. Headings, lists, and all GFM elements (task lists, strikethrough) render correctly in the dark theme on both Plan and Progress tabs.",
+      "steps_to_verify": [
+        "npm run build completes without errors",
+        "Open a board with a plan containing a markdown table — table renders as an HTML table with borders, no pipe characters visible",
+        "Code blocks in plan/progress have a visible dark background distinct from the card background",
+        "GFM elements like task lists (- [ ] item) and strikethrough (~~text~~) render correctly"
+      ],
+      "status": "done",
+      "assigned_to": "ralfie-1773914894000-29aaf782",
+      "started_at": "2026-03-19T10:08:35.328Z",
+      "completed_at": "2026-03-19T10:10:20.144Z",
+      "comments": []
+    },
+    {
+      "id": "MDFIX-2",
+      "category": "Markdown Rendering",
+      "user_story": "As a developer running ralf run, progress entries are written with separators and structured headings so the UI can parse them into discrete items",
+      "description": "Update the ralf-run skill's Step 5 (Update Progress) to specify that each progress entry must start with '## ITEM-ID — Description' as a heading and end with a '---' horizontal rule separator. This gives the UI a reliable delimiter to split entries.",
+      "end_state": "The ralf-run SKILL.md specifies the exact progress entry format: '## ITEM-ID — Description' heading, body content (key decisions, files changed, notes), followed by '---' separator.",
+      "steps_to_verify": [
+        "Read cli/src/skills/ralf-run/SKILL.md and confirm Step 5 specifies the ## heading and --- separator format",
+        "The format example in the skill shows the exact structure with a real item ID"
+      ],
+      "status": "done",
+      "assigned_to": "ralfie-1773914894000-29aaf782",
+      "started_at": "2026-03-19T10:11:09.328Z",
+      "completed_at": "2026-03-19T10:12:24.087Z",
+      "comments": []
+    },
+    {
+      "id": "PROG-1",
+      "category": "Progress UX",
+      "user_story": "As a user viewing the progress tab, I see each progress entry as a collapsible card that I can expand or collapse so I can focus on specific entries without scrolling through everything",
+      "description": "Rewrite ProgressTimeline to parse the progress markdown by splitting on '---' separators. Each chunk becomes a collapsible card with the '##' heading as the visible summary. Cards are collapsed by default. If no separators are found, fall back to rendering the entire content as a single markdown block.",
+      "end_state": "Progress tab shows a list of collapsible cards. Each card header shows the item ID and description from the ## heading. Clicking a card expands it to show the full markdown content for that entry. All cards start collapsed. Progress content without --- separators renders as a single block (backward compatible).",
+      "steps_to_verify": [
+        "npm run build completes without errors",
+        "Progress tab with --- separated entries shows individual collapsible cards",
+        "Each card header displays the ## heading text",
+        "Clicking a card header toggles its expanded/collapsed state",
+        "All cards are collapsed by default",
+        "Progress content without --- separators renders as a single markdown block (no crash)"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "PROG-2",
+      "category": "Progress UX",
+      "user_story": "As a user viewing the progress tab, I can type in a search box to filter progress entries by title or body content so I can quickly find relevant entries",
+      "description": "Add a search input above the collapsible progress list. Typing filters the entries in real-time by case-insensitive match against both the heading and body content of each entry. Empty search shows all entries.",
+      "end_state": "A search input appears above the progress entries. Typing filters entries instantly — only entries whose heading or body contains the search text are shown. Clearing the input restores all entries. Search is case-insensitive.",
+      "steps_to_verify": [
+        "npm run build completes without errors",
+        "A search input is visible above the progress entries",
+        "Typing a term filters entries to only those containing the term in heading or body",
+        "Search is case-insensitive",
+        "Clearing the search input shows all entries",
+        "Search input is styled consistently with the dark theme"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "PROG-3",
+      "category": "Progress UX",
+      "user_story": "As a user viewing a PRD item in the drawer, I can see the matching progress entry so I have full context on what was done for that item without switching tabs",
+      "description": "Add a 'Progress' section to ItemDrawer that finds and displays the progress entry matching the current item's ID. Parse the board's progress markdown, find the entry whose ## heading starts with the item ID, and render it as markdown. Show 'No progress entry yet' if no match is found.",
+      "end_state": "The ItemDrawer shows a 'Progress' section after the existing sections. If a matching progress entry exists (matched by item ID prefix in the ## heading), it renders the entry body as markdown. If no match exists, it shows a muted 'No progress entry yet' message.",
+      "steps_to_verify": [
+        "npm run build completes without errors",
+        "Open a PRD item in the drawer that has a matching progress entry — the Progress section shows the rendered markdown",
+        "Open a PRD item with no matching progress entry — shows 'No progress entry yet'",
+        "The progress entry markdown renders with proper GFM styling (tables, code blocks, etc.)"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    }
+  ]
+}

@@ -26,7 +26,13 @@ Fail fast on risky work. Save easy wins for later.
 
 ## Step 2: Claim Item
 
-Claim the selected item by setting its status to `in_progress` and `assigned_to` to your session ID. This prevents other agents from working on the same item. The `claimItem` function in `prd.ts` automatically sets `started_at` to the current ISO timestamp when claiming.
+Claim the selected item **before starting any implementation work**:
+
+1. Set `status` to `in_progress`
+2. Set `assigned_to` to your session ID
+3. Set `started_at` to the current ISO timestamp (e.g., `new Date().toISOString()`)
+
+The `claimItem` function in `prd.ts` handles all three automatically. You MUST call this before writing any code — it timestamps when work began and prevents other agents from picking the same item.
 
 ## Step 3: Implement
 
@@ -53,11 +59,29 @@ If any feedback loop fails:
 
 ## Step 5: Update Progress
 
-Append to `progress.md`:
-- Item ID and description
-- Key decisions made
-- Files changed
+Append to `progress.md` using this exact format:
+
+```markdown
+## ITEM-ID — Short Description
+
+**Key decisions:**
+- Decision or rationale
+
+**Files changed:**
+- `path/to/file` — what changed
+
+**Notes:**
 - Any notes for future iterations
+
+---
+```
+
+Each progress entry MUST:
+1. Start with a `## ITEM-ID — Description` heading (using the item's ID from `prd.json`)
+2. Include key decisions, files changed, and notes sections
+3. End with a `---` horizontal rule separator
+
+This structure allows the UI to parse entries into individual collapsible cards.
 
 ## Step 6: Update PRD
 
