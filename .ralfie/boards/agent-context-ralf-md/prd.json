@@ -1,0 +1,81 @@
+{
+  "project": "agent-context-ralf-md",
+  "description": "Auto-generate .ralfie/RALF.md and wire it into CLAUDE.md so agents get project context",
+  "items": [
+    {
+      "id": "RALF-1",
+      "category": "RALF.md Generation",
+      "user_story": "As a ralfie agent, I can read .ralfie/RALF.md to understand how ralfie works and see all boards with progress links",
+      "description": "Create cli/src/lib/ralf-md.ts with ensureRalfMd() that generates RALF.md with ralfie documentation and board entries, and appendBoardToRalfMd() that adds a single board entry. ensureRalfMd scans existing boards via listBoards().",
+      "end_state": "cli/src/lib/ralf-md.ts exports ensureRalfMd(cwd) and appendBoardToRalfMd(name, description, cwd). RALF.md contains a 'How Ralfie Works' section explaining the orchestration system, board structure (plan.md, prd.json, progress.md), and PRD statuses. An 'Active Boards' section lists each board with description and link to its progress.md. Tests pass.",
+      "steps_to_verify": [
+        "npm test --workspace=cli -- --run ralf-md",
+        "ensureRalfMd on empty project creates RALF.md with documentation section and empty boards section",
+        "ensureRalfMd with existing boards populates board entries",
+        "ensureRalfMd is idempotent — running twice does not duplicate content",
+        "appendBoardToRalfMd adds a new board entry to existing RALF.md",
+        "appendBoardToRalfMd does not duplicate if board already listed"
+      ],
+      "status": "done",
+      "assigned_to": null,
+      "started_at": "2026-03-19T11:00:43.378Z",
+      "completed_at": "2026-03-19T11:02:58.231Z",
+      "comments": []
+    },
+    {
+      "id": "RALF-2",
+      "category": "CLAUDE.md Integration",
+      "user_story": "As a ralfie user, I can run ralf init and have CLAUDE.md automatically reference .ralfie/RALF.md so spawned agents get context",
+      "description": "Create cli/src/lib/claude-md.ts with ensureClaudeMd() that creates or updates CLAUDE.md with a Ralfie section containing a description and @.ralfie/RALF.md reference.",
+      "end_state": "cli/src/lib/claude-md.ts exports ensureClaudeMd(cwd). When CLAUDE.md doesn't exist, creates it with a ## Ralfie section. When it exists without a Ralfie section, appends the section. When it already has the section, does nothing. Tests pass.",
+      "steps_to_verify": [
+        "npm test --workspace=cli -- --run claude-md",
+        "ensureClaudeMd with no CLAUDE.md creates one with ## Ralfie section and @.ralfie/RALF.md reference",
+        "ensureClaudeMd with existing CLAUDE.md lacking Ralfie section appends it",
+        "ensureClaudeMd with existing Ralfie section is a no-op",
+        "Existing CLAUDE.md content is preserved"
+      ],
+      "status": "in_progress",
+      "assigned_to": "ralfie-1773918134806-74f1139b",
+      "started_at": "2026-03-19T11:02:53.917Z",
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "RALF-3",
+      "category": "Init Wiring",
+      "user_story": "As a ralfie user, ralf init sets up the full CLAUDE.md → RALF.md context chain automatically",
+      "description": "Update initCommand in cli/src/commands/init.ts to call ensureClaudeMd() and ensureRalfMd() during initialization. Update init tests.",
+      "end_state": "ralf init creates/updates CLAUDE.md with Ralfie section and creates .ralfie/RALF.md (if missing) with documentation and existing board entries. Init test assertions verify both files. Console output lists the new files.",
+      "steps_to_verify": [
+        "npm test --workspace=cli -- --run init",
+        "Running initCommand in a fresh directory creates both CLAUDE.md and .ralfie/RALF.md",
+        "Running initCommand twice does not duplicate CLAUDE.md section or regenerate RALF.md",
+        "Running initCommand with existing boards populates RALF.md board entries"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "RALF-4",
+      "category": "Board Creation Wiring",
+      "user_story": "As a ralfie user, when I create a board, RALF.md is automatically updated with the new board's progress link",
+      "description": "Update createBoard in cli/src/lib/board.ts to call appendBoardToRalfMd() after writing board files. Update ralf-plan skill Phase 4 to include a RALF.md update step for the direct-write path. Update board tests.",
+      "end_state": "createBoard() appends the new board entry to RALF.md. The ralf-plan skill Phase 4 instructions include updating RALF.md. Board creation tests verify RALF.md is updated.",
+      "steps_to_verify": [
+        "npm test --workspace=cli -- --run board",
+        "createBoard adds a board entry to RALF.md",
+        "Creating a board that already exists in RALF.md does not duplicate the entry",
+        "ralf-plan SKILL.md Phase 4 mentions updating RALF.md"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    }
+  ]
+}
