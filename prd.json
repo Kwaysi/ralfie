@@ -822,7 +822,7 @@
         "Drawer closes on Escape key press",
         "Drawer width is approximately 40-50% of viewport on desktop"
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "DASH-6",
