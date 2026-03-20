@@ -91,3 +91,25 @@
 - The commit-msg hook (HOOK-1) already validates this format, so this brings the skill guidance in line with the enforcement
 
 ---
+
+## UI-1 — Dashboard item drawer cycling
+
+**Key decisions:**
+- Added `onNavigate` callback and `siblingIds` props to ItemDrawer rather than having the drawer query items directly — keeps the component stateless with respect to item selection
+- PrdKanban computes sorted sibling IDs per status column via `useMemo` and passes them to the drawer
+- Navigation wraps around: going up from first item lands on last, going down from last lands on first
+- Chevron buttons only appear when there are 2+ items in the same status column (no point showing navigation for a single item)
+- Added a "1/N" counter between the chevrons and close button for positional context
+- Used inline SVG chevrons to avoid adding an icon library dependency
+- Arrow up/down keyboard handlers call `preventDefault()` to avoid scrolling the drawer content while navigating
+
+**Files changed:**
+- `ui/src/components/ItemDrawer.tsx` — added `onNavigate`/`siblingIds` props, `navigatePrev`/`navigateNext` callbacks with wrap-around, chevron up/down SVG buttons in header, arrow key handlers, position counter
+- `ui/src/components/PrdKanban.tsx` — added `useMemo` to compute `columnItemIds` map and `siblingIds` for the selected item, passed `onNavigate={setSelectedId}` and `siblingIds` to ItemDrawer
+
+**Notes:**
+- No new dependencies added — uses inline SVG for chevron icons
+- Keyboard navigation coexists with existing Escape-to-close handler
+- The `currentIndex` is derived from `siblingIds.indexOf(item.id)` on each render — no stale index issues when items change status
+
+---

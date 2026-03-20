@@ -116,10 +116,10 @@
         "At the first item, pressing up wraps to the last item in that status",
         "The drawer content updates without closing and reopening"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1774018557567-4b6b79ca",
+      "started_at": "2026-03-20T15:40:00.000Z",
+      "completed_at": "2026-03-20T15:55:00.000Z",
       "comments": []
     }
   ]

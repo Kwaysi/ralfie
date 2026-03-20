@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ItemStatus, PrdItem } from "@ralfie/shared";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -8,6 +8,8 @@ import { parseEntries } from "./ProgressTimeline";
 interface ItemDrawerProps {
   item: PrdItem | null;
   onClose: () => void;
+  onNavigate?: (id: string) => void;
+  siblingIds?: string[];
   boardName?: string;
   activeRuns?: number;
   onRefresh?: () => void;
@@ -42,7 +44,7 @@ function formatTimestamp(ts: string): string {
   });
 }
 
-export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, onRefresh, progressContent }: ItemDrawerProps) {
+export default function ItemDrawer({ item, onClose, onNavigate, siblingIds = [], boardName, activeRuns = 0, onRefresh, progressContent }: ItemDrawerProps) {
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -53,14 +55,31 @@ export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, o
     return entries.find((e) => e.heading.startsWith(item.id)) ?? null;
   }, [item, progressContent]);
 
+  const currentIndex = item ? siblingIds.indexOf(item.id) : -1;
+  const hasSiblings = siblingIds.length > 1 && currentIndex !== -1;
+
+  const navigatePrev = useCallback(() => {
+    if (!hasSiblings || !onNavigate) return;
+    const prevIndex = currentIndex === 0 ? siblingIds.length - 1 : currentIndex - 1;
+    onNavigate(siblingIds[prevIndex]);
+  }, [hasSiblings, onNavigate, currentIndex, siblingIds]);
+
+  const navigateNext = useCallback(() => {
+    if (!hasSiblings || !onNavigate) return;
+    const nextIndex = currentIndex === siblingIds.length - 1 ? 0 : currentIndex + 1;
+    onNavigate(siblingIds[nextIndex]);
+  }, [hasSiblings, onNavigate, currentIndex, siblingIds]);
+
   useEffect(() => {
     if (!item) return;
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
+      if (e.key === "ArrowUp") { e.preventDefault(); navigatePrev(); }
+      if (e.key === "ArrowDown") { e.preventDefault(); navigateNext(); }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [item, onClose]);
+  }, [item, onClose, navigatePrev, navigateNext]);
 
   if (!item) return null;
 
@@ -112,12 +131,39 @@ export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, o
           <span className="px-2 py-0.5 rounded text-xs bg-[var(--border)] text-[var(--text-muted)]">
             {item.category}
           </span>
-          <button
-            onClick={onClose}
-            className="ml-auto text-[var(--text-muted)] hover:text-[var(--text)] text-lg cursor-pointer"
-          >
-            ✕
-          </button>
+          <div className="ml-auto flex items-center gap-1">
+            {hasSiblings && (
+              <>
+                <button
+                  onClick={navigatePrev}
+                  className="p-1 text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer rounded hover:bg-[var(--border)]"
+                  title="Previous item (↑)"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="4,10 8,6 12,10" />
+                  </svg>
+                </button>
+                <button
+                  onClick={navigateNext}
+                  className="p-1 text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer rounded hover:bg-[var(--border)]"
+                  title="Next item (↓)"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="4,6 8,10 12,6" />
+                  </svg>
+                </button>
+                <span className="text-xs text-[var(--text-muted)] tabular-nums ml-1">
+                  {currentIndex + 1}/{siblingIds.length}
+                </span>
+              </>
+            )}
+            <button
+              onClick={onClose}
+              className="ml-1 p-1 text-[var(--text-muted)] hover:text-[var(--text)] text-lg cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className="p-5 space-y-5">

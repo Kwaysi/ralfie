@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { ItemStatus, PrdItem } from "@ralfie/shared";
 import ItemDrawer from "./ItemDrawer";
 
@@ -39,6 +39,19 @@ export default function PrdKanban({ items, onVerify, onRefresh, boardName, activ
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedItem = selectedId ? items.find((i) => i.id === selectedId) ?? null : null;
 
+  // Build sorted column maps so ItemDrawer can cycle within the same status
+  const columnItemIds = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    for (const col of columns) {
+      const colItems = items.filter((i) => i.status === col.status);
+      sortColumnItems(colItems, col.status);
+      map[col.status] = colItems.map((i) => i.id);
+    }
+    return map;
+  }, [items]);
+
+  const siblingIds = selectedItem ? columnItemIds[selectedItem.status] ?? [] : [];
+
   return (
     <>
       <div className="grid grid-cols-5 gap-3 h-full">
@@ -75,6 +88,8 @@ export default function PrdKanban({ items, onVerify, onRefresh, boardName, activ
       <ItemDrawer
         item={selectedItem}
         onClose={() => setSelectedId(null)}
+        onNavigate={setSelectedId}
+        siblingIds={siblingIds}
         boardName={boardName}
         activeRuns={activeRuns}
         onRefresh={onRefresh}
