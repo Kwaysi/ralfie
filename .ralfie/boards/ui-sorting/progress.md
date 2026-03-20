@@ -25,3 +25,20 @@
 - Dashboard and BoardList now have identical sorting behavior
 
 ---
+
+## SORT-3 — Sort PRD kanban columns by relevant timestamps
+
+**Key decisions:**
+- Added `sortColumnItems` helper in `PrdKanban.tsx` that sorts in-place after filtering by status
+- In Progress sorted by `started_at` desc, Done by `completed_at` desc, Verified by `completed_at` desc
+- Pending and Failed columns keep original array order (no sort applied)
+- Null timestamps sort to the bottom using explicit null checks before `localeCompare`
+- Consistent with SORT-1/SORT-2 pattern: `localeCompare` on ISO strings, descending order
+
+**Files changed:**
+- `ui/src/components/PrdKanban.tsx` — Added `sortColumnItems` function and call in column rendering
+
+**Notes:**
+- All three SORT items are now complete; board should be finished
+
+---

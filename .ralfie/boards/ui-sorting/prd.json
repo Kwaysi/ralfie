@@ -50,10 +50,10 @@
         "Confirm Pending and Failed columns are unchanged from array order",
         "Confirm items with null timestamps appear at the bottom of sorted columns"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773967343920-be46ad03",
+      "started_at": "2026-03-20T00:56:01.604Z",
+      "completed_at": "2026-03-20T00:58:50.912Z",
       "comments": []
     }
   ]

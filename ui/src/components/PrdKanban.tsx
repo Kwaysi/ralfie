@@ -19,6 +19,22 @@ const columns: { status: ItemStatus; label: string; color: string }[] = [
   { status: "verified", label: "Verified", color: "var(--success)" },
 ];
 
+function sortColumnItems(items: PrdItem[], status: ItemStatus): void {
+  const key: "started_at" | "completed_at" | null =
+    status === "in_progress" ? "started_at" :
+    status === "done" || status === "verified" ? "completed_at" :
+    null;
+  if (!key) return; // pending and failed keep array order
+  items.sort((a, b) => {
+    const aVal = a[key];
+    const bVal = b[key];
+    if (!aVal && !bVal) return 0;
+    if (!aVal) return 1;
+    if (!bVal) return -1;
+    return (bVal as string).localeCompare(aVal as string);
+  });
+}
+
 export default function PrdKanban({ items, onVerify, onRefresh, boardName, activeRuns, progressContent }: PrdKanbanProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const selectedItem = selectedId ? items.find((i) => i.id === selectedId) ?? null : null;
@@ -28,6 +44,7 @@ export default function PrdKanban({ items, onVerify, onRefresh, boardName, activ
       <div className="grid grid-cols-5 gap-3 h-full">
         {columns.map((col) => {
           const colItems = items.filter((i) => i.status === col.status);
+          sortColumnItems(colItems, col.status);
           return (
             <div key={col.status} className="min-w-0 flex flex-col min-h-0">
               <div
