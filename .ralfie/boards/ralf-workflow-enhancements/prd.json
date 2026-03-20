@@ -13,10 +13,10 @@
         "Confirm the format shows scope as board name and item ID in the body",
         "Confirm examples cover at least feat, fix, test, docs types"
       ],
-      "status": "pending",
+      "status": "done",
       "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "started_at": "2026-03-20T15:17:09.676Z",
+      "completed_at": "2026-03-20T15:18:27.383Z",
       "comments": []
     },
     {

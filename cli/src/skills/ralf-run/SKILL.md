@@ -93,9 +93,47 @@ The `completeItem` function in `prd.ts` automatically sets `completed_at` to the
 
 ## Step 7: Commit
 
-Create a git commit with:
-- A descriptive message referencing the item ID
-- Only the files relevant to this item
+Create a git commit using **conventional commit format**:
+
+```
+type(board-name): short description
+
+ITEM-ID
+```
+
+- **type** — choose based on the nature of the change:
+  - `feat` — new feature or capability
+  - `fix` — bug fix
+  - `test` — adding or updating tests
+  - `docs` — documentation changes
+  - `refactor` — code restructuring without behavior change
+  - `chore` — maintenance, config, or tooling changes
+- **scope** — always use the board name (e.g., `feat(my-board): ...`)
+- **body** — include the item ID on its own line in the commit body
+
+Examples:
+```
+feat(my-board): add user authentication endpoint
+
+AUTH-3
+```
+```
+fix(my-board): handle null response from API
+
+API-7
+```
+```
+test(my-board): add integration tests for payment flow
+
+PAY-2
+```
+```
+docs(my-board): update API reference with new endpoints
+
+DOC-1
+```
+
+Only commit files relevant to the current item.
 
 ## Step 8: Check Completion
 

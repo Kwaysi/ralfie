@@ -73,3 +73,21 @@
 - The gh check runs `gh --version` which is lightweight and doesn't require authentication
 
 ---
+
+## SKILL-1 — Conventional commit format in ralf-run skill
+
+**Key decisions:**
+- Added full conventional commit format guidance to Step 7 of SKILL.md with type, scope, and body structure
+- Type is chosen by agent judgment from a defined list (feat, fix, test, docs, refactor, chore)
+- Scope is always the board name to keep commits traceable to their board
+- Item ID goes in the commit body on its own line (not the subject) to keep subjects concise
+- Included 4 examples covering feat, fix, test, and docs types
+
+**Files changed:**
+- `cli/src/skills/ralf-run/SKILL.md` — rewrote Step 7 with conventional commit format instructions, type list, scope/body rules, and examples
+
+**Notes:**
+- This is a documentation-only change — no code or test changes needed
+- The commit-msg hook (HOOK-1) already validates this format, so this brings the skill guidance in line with the enforcement
+
+---
