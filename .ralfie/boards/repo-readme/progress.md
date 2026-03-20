@@ -13,3 +13,19 @@
 - All three images are valid PNGs and visually confirmed before rename
 
 ---
+
+## README-2 — Hero, Explainer, and Features
+
+**Key decisions:**
+- Led with the pitch line from the PRD: "Ralfie turns a product spec into working code — one task at a time, fully automated."
+- "What is Ralfie?" section uses a project-manager analogy to explain the concept without jargon
+- Dashboard screenshot placed prominently after the tagline
+- Features list covers 6 capabilities: planning, execution, dashboard, file-based tracking, guardrails, and editing
+
+**Files changed:**
+- `README.md` — created at repo root with hero section, dashboard screenshot, What is Ralfie? explainer, and features list
+
+**Notes:**
+- README is structured so subsequent items (Quick Start, CLI Reference, Dashboard, Architecture) can append sections below Features
+
+---

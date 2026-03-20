@@ -33,10 +33,10 @@
         "Contains a features list with at least 4 items",
         "Language is approachable — no unexplained jargon like 'agentic loops' without context"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773966864483-7bfd8914",
+      "started_at": "2026-03-20T00:37:21.979Z",
+      "completed_at": "2026-03-20T00:38:36.143Z",
       "comments": []
     },
     {
