@@ -73,10 +73,10 @@
         "If my-board-2 exists on remote but not locally, it creates my-board-3",
         "git branch --show-current returns the new branch name after ralf run starts"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1774018557567-4b6b79ca",
+      "started_at": "2026-03-20T15:10:00.000Z",
+      "completed_at": "2026-03-20T15:20:00.000Z",
       "comments": []
     },
     {

@@ -16,3 +16,21 @@
 - `push` and `createPr` are not tested with real remotes — they will be integration-tested when wired into the run command (RUN-1, RUN-2)
 
 ---
+
+## RUN-1 — Branch creation on run start
+
+**Key decisions:**
+- Added dirty check as the first pre-flight in `runCommand`, before any config reading or session setup
+- Branch creation happens immediately after the dirty check, before the iteration loop
+- Mocked git functions in run tests since temp dirs aren't real git repos — git.test.ts already covers real git operations
+- Re-applied mock implementations in `beforeEach` after `vi.clearAllMocks()` to ensure consistent state across tests
+
+**Files changed:**
+- `cli/src/commands/run.ts` — imported `isDirty`, `nextBranchName`, `createAndCheckoutBranch` from git module; added dirty tree abort and branch creation before the iteration loop
+- `cli/src/commands/__tests__/run.test.ts` — added `vi.mock` for git module, 4 new tests: dirty tree abort, no agent spawn when dirty, branch creation, branch increment
+
+**Notes:**
+- 5 new test cases added (dirty abort, no agent spawn when dirty, branch creation, branch increment)
+- The dirty check uses `isDirty` which only checks tracked files (ignores untracked `.ralfie/` files)
+
+---

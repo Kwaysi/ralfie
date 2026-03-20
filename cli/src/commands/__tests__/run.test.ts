@@ -16,6 +16,12 @@ vi.mock('../../lib/agent.js', async (importOriginal) => {
   };
 });
 
+vi.mock('../../lib/git.js', () => ({
+  isDirty: vi.fn().mockResolvedValue(false),
+  nextBranchName: vi.fn().mockResolvedValue('my-board-1'),
+  createAndCheckoutBranch: vi.fn().mockResolvedValue(undefined),
+}));
+
 let tmp: string;
 
 const makePrd = (): Prd => ({
@@ -32,6 +38,10 @@ beforeEach(async () => {
   vi.clearAllMocks();
   const { spawnPrintMode } = await import('../../lib/agent.js');
   (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({ exitCode: 0, stdout: '', complete: false });
+  const { isDirty, nextBranchName, createAndCheckoutBranch } = await import('../../lib/git.js');
+  (isDirty as ReturnType<typeof vi.fn>).mockResolvedValue(false);
+  (nextBranchName as ReturnType<typeof vi.fn>).mockResolvedValue('my-board-1');
+  (createAndCheckoutBranch as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 });
 
 afterEach(async () => {
@@ -176,6 +186,74 @@ describe('run', () => {
     const pidFiles = files.filter((f) => f.endsWith('.pid'));
     expect(pidFiles).toHaveLength(0);
     err.mockRestore();
+    log.mockRestore();
+  });
+
+  it('aborts with error when working tree is dirty', async () => {
+    await initCommand(tmp);
+    await createBoard('my-board', '# Plan', makePrd(), 'test board', tmp);
+
+    const { isDirty } = await import('../../lib/git.js');
+    (isDirty as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await runCommand('my-board', 1, tmp);
+
+    expect(process.exitCode).toBe(1);
+    const allErr = err.mock.calls.map((c) => c[0]).join('\n');
+    expect(allErr).toContain('uncommitted changes');
+    err.mockRestore();
+    log.mockRestore();
+  });
+
+  it('does not spawn agent when working tree is dirty', async () => {
+    await initCommand(tmp);
+    await createBoard('my-board', '# Plan', makePrd(), 'test board', tmp);
+
+    const { isDirty } = await import('../../lib/git.js');
+    (isDirty as ReturnType<typeof vi.fn>).mockResolvedValue(true);
+
+    const { spawnPrintMode } = await import('../../lib/agent.js');
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await runCommand('my-board', 1, tmp);
+
+    expect(spawnPrintMode).not.toHaveBeenCalled();
+    err.mockRestore();
+    log.mockRestore();
+  });
+
+  it('creates a new branch before starting the run', async () => {
+    await initCommand(tmp);
+    await createBoard('my-board', '# Plan', makePrd(), 'test board', tmp);
+
+    const { nextBranchName, createAndCheckoutBranch } = await import('../../lib/git.js');
+    (nextBranchName as ReturnType<typeof vi.fn>).mockResolvedValue('my-board-1');
+
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await runCommand('my-board', 1, tmp);
+
+    expect(nextBranchName).toHaveBeenCalledWith('my-board', tmp);
+    expect(createAndCheckoutBranch).toHaveBeenCalledWith('my-board-1', tmp);
+    const allOutput = log.mock.calls.map((c) => c[0]).join('\n');
+    expect(allOutput).toContain('Created branch: my-board-1');
+    log.mockRestore();
+  });
+
+  it('increments branch number when prior branches exist', async () => {
+    await initCommand(tmp);
+    await createBoard('my-board', '# Plan', makePrd(), 'test board', tmp);
+
+    const { nextBranchName, createAndCheckoutBranch } = await import('../../lib/git.js');
+    (nextBranchName as ReturnType<typeof vi.fn>).mockResolvedValue('my-board-3');
+
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+    await runCommand('my-board', 1, tmp);
+
+    expect(createAndCheckoutBranch).toHaveBeenCalledWith('my-board-3', tmp);
+    const allOutput = log.mock.calls.map((c) => c[0]).join('\n');
+    expect(allOutput).toContain('Created branch: my-board-3');
     log.mockRestore();
   });
 });

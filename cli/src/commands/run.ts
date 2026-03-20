@@ -4,6 +4,7 @@ import { syncClaudeSettings } from '../lib/claude-settings.js';
 import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
 import { prdPath, progressPath, planPath } from '../lib/paths.js';
 import { saveRunPid, removeRunPid } from '../lib/run-tracker.js';
+import { isDirty, nextBranchName, createAndCheckoutBranch } from '../lib/git.js';
 
 export async function runCommand(
   boardName: string,
@@ -16,6 +17,20 @@ export async function runCommand(
     process.exitCode = 1;
     return;
   }
+
+  // Pre-flight: abort if working tree has uncommitted changes
+  if (await isDirty(cwd)) {
+    console.error(
+      'Working tree has uncommitted changes. Please commit or stash them before running.',
+    );
+    process.exitCode = 1;
+    return;
+  }
+
+  // Create and checkout a new branch for this run
+  const branchName = await nextBranchName(boardName, cwd);
+  await createAndCheckoutBranch(branchName, cwd);
+  console.log(`Created branch: ${branchName}`);
 
   const config = await readConfig(cwd);
   const maxIterations = iterations ?? config.default_iterations;
