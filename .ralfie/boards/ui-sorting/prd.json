@@ -1,0 +1,60 @@
+{
+  "project": "ui-sorting",
+  "description": "Sort boards newest-first and PRD kanban items by relevant timestamps across the Ralfie dashboard UI",
+  "items": [
+    {
+      "id": "SORT-1",
+      "category": "Board Sorting",
+      "user_story": "As a user, I see boards sorted newest-first on the BoardList page so I can quickly find my most recent work",
+      "description": "Sort boards by created_at descending on the BoardList page",
+      "end_state": "BoardListPage renders boards in descending created_at order. A board created today appears before one created yesterday.",
+      "steps_to_verify": [
+        "Open the BoardList page in the browser",
+        "Confirm boards are ordered from most recently created to oldest",
+        "Verify the sort uses meta.created_at, not alphabetical or filesystem order"
+      ],
+      "status": "done",
+      "assigned_to": "ralfie-1773967343920-be46ad03",
+      "started_at": "2026-03-20T00:00:00.000Z",
+      "completed_at": "2026-03-20T00:01:00.000Z",
+      "comments": []
+    },
+    {
+      "id": "SORT-2",
+      "category": "Board Sorting",
+      "user_story": "As a user, I see boards sorted newest-first on the Dashboard so the most recent boards are prominent",
+      "description": "Sort boards by created_at descending on the Dashboard page",
+      "end_state": "DashboardPage renders boards in descending created_at order, matching the BoardList sort behavior.",
+      "steps_to_verify": [
+        "Open the Dashboard page in the browser",
+        "Confirm boards are ordered from most recently created to oldest",
+        "Verify the sort uses meta.created_at"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "SORT-3",
+      "category": "Kanban Sorting",
+      "user_story": "As a user, I see in-progress, done, and verified items sorted by most recent activity so I can track what changed last",
+      "description": "Sort PRD kanban columns: In Progress by started_at desc, Done by completed_at desc, Verified by completed_at desc. Pending and Failed remain in array order. Null timestamps sort to the bottom.",
+      "end_state": "PrdKanban component sorts In Progress items by started_at newest-first, Done items by completed_at newest-first, Verified items by completed_at newest-first. Pending and Failed columns keep their original array order. Items with null timestamps appear at the bottom of their column.",
+      "steps_to_verify": [
+        "Open a board detail page with items in multiple statuses",
+        "Confirm In Progress column shows most recently started items first",
+        "Confirm Done column shows most recently completed items first",
+        "Confirm Verified column shows most recently completed items first",
+        "Confirm Pending and Failed columns are unchanged from array order",
+        "Confirm items with null timestamps appear at the bottom of sorted columns"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    }
+  ]
+}
