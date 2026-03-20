@@ -34,3 +34,22 @@
 - The dirty check uses `isDirty` which only checks tracked files (ignores untracked `.ralfie/` files)
 
 ---
+
+## HOOK-1 — Wire commit-msg hook into ralf init
+
+**Key decisions:**
+- Added `installCommitMsgHookSafe` wrapper in init.ts that checks for `.git` directory before calling `installCommitMsgHook` — silently skips in non-git directories
+- Hook installation happens after all other init steps (config, skills, permissions, CLAUDE.md, RALF.md) to avoid blocking init on hook issues
+- Init tests that need hook behavior create real git repos with `git init` in the temp dir
+- Bumped pre-existing git.test.ts timeout from 15s to 30s for the `accepts valid conventional commit messages` test that was flaky at the 15s boundary
+
+**Files changed:**
+- `cli/src/commands/init.ts` — imported `installCommitMsgHook` from git module, added `installCommitMsgHookSafe` wrapper, wired it into `initCommand`
+- `cli/src/commands/__tests__/init.test.ts` — added 3 tests: hook installed with marker, non-ralfie hook preserved, ralfie hook overwritten on re-init
+- `cli/src/lib/__tests__/git.test.ts` — bumped timeout on flaky test from 15s to 30s
+
+**Notes:**
+- The `installCommitMsgHook` function in git.ts already handles all the hook logic (marker detection, content validation, permissions). Init just needs to call it safely.
+- Existing non-init tests that use temp dirs without git repos are unaffected since `installCommitMsgHookSafe` silently skips.
+
+---

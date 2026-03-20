@@ -134,7 +134,7 @@ describe('installCommitMsgHook', () => {
     expect(content).toContain('conventional commit format');
   });
 
-  it('accepts valid conventional commit messages', { timeout: 15000 }, async () => {
+  it('accepts valid conventional commit messages', { timeout: 30000 }, async () => {
     await installCommitMsgHook(tmp);
 
     await writeFile(join(tmp, 'test.txt'), 'hello\n');

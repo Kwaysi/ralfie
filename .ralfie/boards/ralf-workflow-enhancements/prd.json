@@ -54,10 +54,10 @@
         "A commit with message 'fix(my-board): resolve bug\\n\\nMY-1' is accepted",
         "Running ralf init when a non-ralfie commit-msg hook exists prints a warning and does not overwrite it"
       ],
-      "status": "pending",
+      "status": "done",
       "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "started_at": "2026-03-20T15:25:00.000Z",
+      "completed_at": "2026-03-20T15:35:00.000Z",
       "comments": []
     },
     {

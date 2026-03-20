@@ -1,10 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtemp, rm, readFile, writeFile, stat, mkdir } from 'node:fs/promises';
+import { mkdtemp, rm, readFile, writeFile, stat, mkdir, chmod } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { promisify } from 'node:util';
 import { initCommand } from '../init.js';
 import { configPath, boardsDir, ralfieDir, ralfMdPath, claudeMdPath } from '../../lib/paths.js';
 import { claudeSettingsPath } from '../../lib/claude-settings.js';
+
+const execFileAsync = promisify(execFile);
 
 let tmp: string;
 
@@ -141,5 +145,55 @@ describe('init', () => {
     const second = await readFile(claudeSettingsPath(tmp), 'utf-8');
 
     expect(JSON.parse(first)).toEqual(JSON.parse(second));
+  });
+
+  describe('commit-msg hook', () => {
+    beforeEach(async () => {
+      // Make tmp a git repo so the hook can be installed
+      await execFileAsync('git', ['init'], { cwd: tmp });
+      await execFileAsync('git', ['config', 'user.email', 'test@test.com'], { cwd: tmp });
+      await execFileAsync('git', ['config', 'user.name', 'Test'], { cwd: tmp });
+    });
+
+    it('installs commit-msg hook with ralfie marker', async () => {
+      await initCommand(tmp);
+
+      const hookPath = join(tmp, '.git', 'hooks', 'commit-msg');
+      const content = await readFile(hookPath, 'utf-8');
+      expect(content).toContain('# ralfie-managed-hook');
+
+      // Hook should be executable
+      const hookStat = await stat(hookPath);
+      const isExecutable = (hookStat.mode & 0o111) !== 0;
+      expect(isExecutable).toBe(true);
+    });
+
+    it('does not overwrite a non-ralfie commit-msg hook', async () => {
+      const hookPath = join(tmp, '.git', 'hooks', 'commit-msg');
+      await mkdir(join(tmp, '.git', 'hooks'), { recursive: true });
+      await writeFile(hookPath, '#!/bin/sh\n# custom user hook\nexit 0\n');
+      await chmod(hookPath, 0o755);
+
+      await initCommand(tmp);
+
+      const content = await readFile(hookPath, 'utf-8');
+      expect(content).toContain('# custom user hook');
+      expect(content).not.toContain('# ralfie-managed-hook');
+    });
+
+    it('overwrites an existing ralfie-managed hook on re-init', async () => {
+      await initCommand(tmp);
+      const hookPath = join(tmp, '.git', 'hooks', 'commit-msg');
+
+      // Corrupt the hook content but keep the marker
+      await writeFile(hookPath, '#!/bin/sh\n# ralfie-managed-hook\n# corrupted\n');
+
+      await initCommand(tmp);
+
+      const content = await readFile(hookPath, 'utf-8');
+      expect(content).toContain('# ralfie-managed-hook');
+      expect(content).toContain('conventional commit format');
+      expect(content).not.toContain('# corrupted');
+    });
   });
 });

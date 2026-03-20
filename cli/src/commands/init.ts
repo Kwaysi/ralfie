@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { promisify } from 'node:util';
 import { readConfig, writeConfig } from '../lib/config.js';
 import { ralfieDir, boardsDir } from '../lib/paths.js';
@@ -8,6 +8,7 @@ import { installSkills } from '../lib/skills.js';
 import { claudeSettingsPath, syncClaudeSettings } from '../lib/claude-settings.js';
 import { ensureClaudeMd } from '../lib/claude-md.js';
 import { ensureRalfMd } from '../lib/ralf-md.js';
+import { installCommitMsgHook } from '../lib/git.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -38,6 +39,9 @@ export async function initCommand(cwd?: string): Promise<void> {
   await ensureClaudeMd(cwd);
   await ensureRalfMd(cwd);
 
+  // Install conventional commit hook (only in git repos)
+  await installCommitMsgHookSafe(cwd);
+
   console.log('Initialized ralfie project.');
   console.log('  .ralfie/config.json');
   console.log('  .ralfie/boards/');
@@ -55,6 +59,16 @@ async function getGitUserName(): Promise<string> {
     return stdout.trim();
   } catch {
     return '';
+  }
+}
+
+async function installCommitMsgHookSafe(cwd?: string): Promise<void> {
+  const dir = cwd ?? process.cwd();
+  try {
+    await stat(join(dir, '.git'));
+    await installCommitMsgHook(dir);
+  } catch {
+    // Not a git repo — skip hook installation silently
   }
 }
 
