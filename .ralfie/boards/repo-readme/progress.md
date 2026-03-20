@@ -60,3 +60,20 @@
 - Screenshots are the same files renamed in README-1; captions describe what each view shows
 
 ---
+
+## README-5 — Architecture, Contributing & License
+
+**Key decisions:**
+- Architecture section uses an ASCII tree diagram to show the monorepo structure at a glance
+- Data flow described as a 4-step pipeline matching the CLI workflow (init → plan → run → serve)
+- Contributing section leads with the early-alpha framing to set expectations and encourage participation
+- License set to MIT (no LICENSE file existed yet — section added as placeholder in README)
+
+**Files changed:**
+- `README.md` — added Architecture section (monorepo tree + data flow), Contributing section (early-alpha callout, star/fork/PR encouragement, clone instructions), and License section (MIT)
+
+**Notes:**
+- No LICENSE file exists at repo root yet — the README references MIT but a formal LICENSE file should be added separately
+- This completes all 5 README items for the repo-readme board
+
+---

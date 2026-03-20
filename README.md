@@ -114,3 +114,50 @@ The Ralfie dashboard gives you real-time visibility into board progress without 
   <br />
   <em>Kanban view — task cards organized by status with detailed progress logs</em>
 </p>
+
+## Architecture
+
+Ralfie is a monorepo with three workspaces:
+
+```
+ralfie/
+├── shared/    TypeScript types shared across CLI and UI
+├── cli/       Node.js CLI (ralf) built with Commander
+│   ├── commands/   CLI command handlers
+│   ├── lib/        Core modules (config, PRD, board, locking, agent)
+│   ├── server/     HTTP server, REST API, WebSocket broadcaster, file watcher
+│   └── skills/     Bundled skill markdown files
+└── ui/        React SPA (Vite + Tailwind + recharts)
+    ├── components/  Dashboard widgets, kanban board, charts
+    └── pages/       Dashboard, BoardList, BoardDetail, Settings
+```
+
+**Data flow:**
+
+1. **`ralf init`** — creates a `.ralfie/` directory in your project with config and skills
+2. **`ralf plan`** — spawns an interactive Claude Code session that generates a plan (`plan.md`) and task list (`prd.json`)
+3. **`ralf run`** — picks up tasks one by one, claims each via file lock, implements it, runs feedback loops, commits the result
+4. **`ralf serve`** — watches `.ralfie/boards/` for file changes and broadcasts updates over WebSocket to the React dashboard
+
+## Contributing
+
+Ralfie is in early alpha — the architecture is settling, the API is evolving, and there's a lot of room to shape how this thing works. That means now is a great time to get involved.
+
+Here's how you can help:
+
+- **Star the repo** to help others find it
+- **Fork and experiment** — try Ralfie on your own projects and see what breaks
+- **Open issues** for bugs, rough edges, or ideas you'd like to see
+- **Submit PRs** — whether it's a typo fix or a new feature, contributions are welcome
+
+```bash
+git clone https://github.com/anthropics/ralfie.git
+cd ralfie
+npm install
+npm run build
+npm test
+```
+
+## License
+
+MIT
