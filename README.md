@@ -78,3 +78,39 @@ ralf serve
 ```
 
 Opens a live web dashboard at `http://localhost:3333` where you can see board progress, task status, and detailed logs updating in real time.
+
+## CLI Reference
+
+| Command | Description |
+|---------|-------------|
+| `ralf init` | Create `.ralfie/` directory with config and skills |
+| `ralf plan` | Start an interactive session to create a new board |
+| `ralf edit <board>` | Modify an existing board's plan and tasks |
+| `ralf run <board> [iterations]` | Execute tasks autonomously (default iterations from config) |
+| `ralf list` | Show all boards with progress bars |
+| `ralf status <board> <status>` | Filter tasks by status (pending, in_progress, done, failed) |
+| `ralf verify <board> <item-id>` | Mark a completed task as verified |
+| `ralf unlock <board>` | Clear lockfiles if a run was interrupted |
+| `ralf serve` | Start the live dashboard (HTTP + WebSocket on port 3333) |
+
+## Dashboard
+
+The Ralfie dashboard gives you real-time visibility into board progress without leaving your browser.
+
+<p align="center">
+  <img src="docs/images/dashboard.png" alt="Dashboard overview — see all boards at a glance with progress charts and status summaries" width="800" />
+  <br />
+  <em>Dashboard overview — progress charts and status summaries across all boards</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/boards.png" alt="Boards list — browse all boards with progress bars and quick access to details" width="800" />
+  <br />
+  <em>Boards list — browse boards with progress bars and quick navigation</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/kanban.png" alt="Kanban view — drag-free kanban showing task status, assignments, and detailed progress logs" width="800" />
+  <br />
+  <em>Kanban view — task cards organized by status with detailed progress logs</em>
+</p>

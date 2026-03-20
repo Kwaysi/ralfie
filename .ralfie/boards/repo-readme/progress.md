@@ -45,3 +45,18 @@
 - Installation instructions will need updating once the npm package is published
 
 ---
+
+## README-4 — CLI Reference & Dashboard Screenshots
+
+**Key decisions:**
+- CLI Reference table lists all 9 commands with descriptions adapted from CLAUDE.md, adjusted for a user-facing audience
+- Dashboard section showcases all three screenshots (dashboard.png, boards.png, kanban.png) with centered layout and descriptive captions
+- Each image uses `<p align="center">` with `<em>` caption for consistent GitHub rendering
+
+**Files changed:**
+- `README.md` — added CLI Reference table and Dashboard section with 3 captioned screenshots after Quick Start
+
+**Notes:**
+- Screenshots are the same files renamed in README-1; captions describe what each view shows
+
+---

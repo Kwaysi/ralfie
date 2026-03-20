@@ -73,10 +73,10 @@
         "All three images are embedded: dashboard.png, boards.png, kanban.png",
         "Each image has a caption or description"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773966864483-7bfd8914",
+      "started_at": "2026-03-20T00:40:47.688Z",
+      "completed_at": "2026-03-20T00:42:07.685Z",
       "comments": []
     },
     {
