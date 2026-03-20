@@ -30,10 +30,10 @@
         "Confirm boards are ordered from most recently created to oldest",
         "Verify the sort uses meta.created_at"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1773967343920-be46ad03",
+      "started_at": "2026-03-20T00:02:00.000Z",
+      "completed_at": "2026-03-20T00:03:00.000Z",
       "comments": []
     },
     {
