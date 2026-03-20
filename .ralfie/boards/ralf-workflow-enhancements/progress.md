@@ -53,3 +53,23 @@
 - Existing non-init tests that use temp dirs without git repos are unaffected since `installCommitMsgHookSafe` silently skips.
 
 ---
+
+## RUN-2 — Auto-PR on completion
+
+**Key decisions:**
+- Added `isGhInstalled` check as a pre-flight in `runCommand`, right after the dirty check — aborts early with a helpful error if `gh` is not on PATH
+- Extracted `pushAndCreatePr` as a private helper in run.ts to keep the main function clean
+- PR title is the PRD `description` field; PR body is a markdown checklist of all items (`- [x] ID: description`)
+- Uses `getDefaultBranch` for the PR base branch rather than hardcoding `main`
+- Mocked `readPrd` in run tests to control the PRD data used for PR body assertions
+
+**Files changed:**
+- `cli/src/lib/git.ts` — added `isGhInstalled` function that runs `gh --version` to check availability
+- `cli/src/commands/run.ts` — imported `isGhInstalled`, `push`, `createPr`, `getDefaultBranch` from git module and `readPrd` from prd module; added gh pre-flight check; replaced completion handler with `pushAndCreatePr` that pushes branch and creates PR with checklist body
+- `cli/src/commands/__tests__/run.test.ts` — expanded git mock with `isGhInstalled`, `push`, `createPr`, `getDefaultBranch`; added `readPrd` mock; 5 new tests: gh not installed abort, no agent spawn without gh, push+PR on complete, PR URL printed, PR body checklist format
+
+**Notes:**
+- `push` and `createPr` are tested via mocks in run.test.ts — real integration testing requires a remote repo
+- The gh check runs `gh --version` which is lightweight and doesn't require authentication
+
+---

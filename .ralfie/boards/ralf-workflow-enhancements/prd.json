@@ -93,10 +93,10 @@
         "The PR URL is printed to stdout",
         "If gh is not installed, a clear error message is shown before the run starts"
       ],
-      "status": "pending",
+      "status": "done",
       "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "started_at": "2026-03-20T15:11:52.656Z",
+      "completed_at": "2026-03-20T15:16:00.933Z",
       "comments": []
     },
     {

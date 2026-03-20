@@ -4,7 +4,16 @@ import { syncClaudeSettings } from '../lib/claude-settings.js';
 import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
 import { prdPath, progressPath, planPath } from '../lib/paths.js';
 import { saveRunPid, removeRunPid } from '../lib/run-tracker.js';
-import { isDirty, nextBranchName, createAndCheckoutBranch } from '../lib/git.js';
+import {
+  isDirty,
+  nextBranchName,
+  createAndCheckoutBranch,
+  isGhInstalled,
+  push,
+  createPr,
+  getDefaultBranch,
+} from '../lib/git.js';
+import { readPrd } from '../lib/prd.js';
 
 export async function runCommand(
   boardName: string,
@@ -22,6 +31,15 @@ export async function runCommand(
   if (await isDirty(cwd)) {
     console.error(
       'Working tree has uncommitted changes. Please commit or stash them before running.',
+    );
+    process.exitCode = 1;
+    return;
+  }
+
+  // Pre-flight: check that gh CLI is available for PR creation
+  if (!(await isGhInstalled(cwd))) {
+    console.error(
+      'The GitHub CLI (gh) is not installed. It is required for automatic PR creation.\nInstall it from https://cli.github.com/',
     );
     process.exitCode = 1;
     return;
@@ -59,7 +77,8 @@ export async function runCommand(
       const result = await spawnPrintMode(prompt, cwd);
 
       if (result.complete) {
-        console.log('\nAll items complete. Stopping run.');
+        console.log('\nAll items complete. Creating PR...');
+        await pushAndCreatePr(boardName, cwd);
         return;
       }
 
@@ -74,4 +93,21 @@ export async function runCommand(
   } finally {
     await removeRunPid(boardName, sessionId, cwd);
   }
+}
+
+async function pushAndCreatePr(boardName: string, cwd?: string): Promise<void> {
+  const prdData = await readPrd(boardName, cwd);
+  const title = prdData.description;
+  const checklist = prdData.items
+    .map((item) => `- [x] ${item.id}: ${item.description}`)
+    .join('\n');
+  const body = `## Completed Items\n\n${checklist}`;
+
+  const baseBranch = await getDefaultBranch(cwd);
+
+  await push(cwd);
+  console.log('Pushed branch to origin.');
+
+  const prUrl = await createPr(title, body, baseBranch, cwd);
+  console.log(`PR created: ${prUrl}`);
 }

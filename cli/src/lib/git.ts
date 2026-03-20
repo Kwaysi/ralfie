@@ -6,6 +6,18 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 
 /**
+ * Check if the `gh` CLI is installed and available on PATH.
+ */
+export async function isGhInstalled(cwd = process.cwd()): Promise<boolean> {
+  try {
+    await execFileAsync('gh', ['--version'], { cwd });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Check if the working tree has staged or unstaged changes to tracked files.
  */
 export async function isDirty(cwd = process.cwd()): Promise<boolean> {
