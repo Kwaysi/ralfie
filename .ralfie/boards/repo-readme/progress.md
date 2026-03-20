@@ -29,3 +29,19 @@
 - README is structured so subsequent items (Quick Start, CLI Reference, Dashboard, Architecture) can append sections below Features
 
 ---
+
+## README-3 — Quick Start Guide
+
+**Key decisions:**
+- Prerequisites limited to Node.js v18+ and Claude Code — the only true requirements
+- Installation shows clone-and-build workflow with a callout that `npm install -g ralfie` is coming soon
+- Walkthrough covers the full lifecycle: `ralf init` → `ralf plan` → `ralf run` → `ralf serve`
+- Each step has a brief explanation of what happens, not just the command
+
+**Files changed:**
+- `README.md` — added Quick Start section after Features with Prerequisites, Installation, and 4-step walkthrough
+
+**Notes:**
+- Installation instructions will need updating once the npm package is published
+
+---
