@@ -41,6 +41,12 @@ export async function addCommentApi(board, itemId, message) {
         throw new Error(`Failed to add comment: ${res.statusText}`);
     return res.json();
 }
+export async function stopServer() {
+    const res = await fetch('/api/server/stop', { method: 'POST' });
+    if (!res.ok)
+        throw new Error(`Failed to stop server: ${res.statusText}`);
+    return res.json();
+}
 export async function fetchConfig() {
     const res = await fetch('/api/config');
     if (!res.ok)

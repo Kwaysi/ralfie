@@ -28,7 +28,7 @@ Each board lives in \`.ralfie/boards/<board-name>/\` and contains:
 `;
 
 function boardEntry(name: string, description: string): string {
-  return `- **${name}**${description ? ` — ${description}` : ''} → [progress](.ralfie/boards/${name}/progress.md)`;
+  return `- **${name}**${description ? ` — ${description}` : ''} → @.ralfie/boards/${name}/progress.md`;
 }
 
 export async function ensureRalfMd(cwd?: string): Promise<void> {

@@ -14,21 +14,24 @@ function getLast7Days() {
 }
 export default function ItemsPerDayChart({ items }) {
     const days = getLast7Days();
-    const activityByDay = new Map();
+    const countByDay = new Map();
     for (const day of days) {
-        activityByDay.set(day.date, new Set());
+        countByDay.set(day.date, 0);
     }
     for (const item of items) {
-        for (const comment of item.comments) {
-            const day = comment.timestamp.slice(0, 10);
-            activityByDay.get(day)?.add(item.id);
+        if (!item.completed_at)
+            continue;
+        const day = item.completed_at.slice(0, 10);
+        const current = countByDay.get(day);
+        if (current !== undefined) {
+            countByDay.set(day, current + 1);
         }
     }
     const data = days.map((day) => ({
         name: day.label,
-        items: activityByDay.get(day.date)?.size ?? 0,
+        items: countByDay.get(day.date) ?? 0,
     }));
-    return (_jsxs("div", { className: "bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-4", children: [_jsx("div", { className: "text-sm text-[var(--text-muted)] mb-3", children: "Items with activity (last 7 days)" }), _jsx(ResponsiveContainer, { width: "100%", height: 200, children: _jsxs(BarChart, { data: data, children: [_jsx(XAxis, { dataKey: "name", tick: { fill: "var(--text-muted)", fontSize: 12 }, axisLine: { stroke: "var(--border)" }, tickLine: false }), _jsx(YAxis, { allowDecimals: false, tick: { fill: "var(--text-muted)", fontSize: 12 }, axisLine: { stroke: "var(--border)" }, tickLine: false, width: 30 }), _jsx(Tooltip, { contentStyle: {
+    return (_jsxs("div", { className: "bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-4", children: [_jsx("div", { className: "text-sm text-[var(--text-muted)] mb-3", children: "Items completed per day (last 7 days)" }), _jsx(ResponsiveContainer, { width: "100%", height: 200, children: _jsxs(BarChart, { data: data, children: [_jsx(XAxis, { dataKey: "name", tick: { fill: "var(--text-muted)", fontSize: 12 }, axisLine: { stroke: "var(--border)" }, tickLine: false }), _jsx(YAxis, { allowDecimals: false, tick: { fill: "var(--text-muted)", fontSize: 12 }, axisLine: { stroke: "var(--border)" }, tickLine: false, width: 30 }), _jsx(Tooltip, { contentStyle: {
                                 backgroundColor: "var(--bg-card)",
                                 border: "1px solid var(--border)",
                                 color: "var(--text)",

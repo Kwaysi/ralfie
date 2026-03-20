@@ -1,7 +1,12 @@
 {
-	"permissions": {
-		"allow": ["Bash", "Edit", "Write", "Read"]
-	},
-	"effortLevel": "medium",
-	"model": "opus"
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Edit",
+      "Write",
+      "Read"
+    ]
+  },
+  "effortLevel": "medium",
+  "model": "claude-opus-4-6"
 }

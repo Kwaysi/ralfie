@@ -1,5 +1,5 @@
 import { watch, type FSWatcher } from 'node:fs';
-import { readdir } from 'node:fs/promises';
+import { readdir, stat } from 'node:fs/promises';
 import { join, basename, extname } from 'node:path';
 import { boardsDir } from '../lib/paths.js';
 
@@ -67,6 +67,8 @@ export async function startWatcher(cb: WatchCallback, cwd = process.cwd()): Prom
 
   for (const entry of entries) {
     const boardPath = join(boards, entry);
+    const s = await stat(boardPath).catch(() => null);
+    if (!s?.isDirectory()) continue;
     watchers.push(...watchBoard(boardPath, entry, cb));
   }
 

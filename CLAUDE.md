@@ -48,3 +48,9 @@ Monorepo with three workspaces:
 | `ralf verify <board> <item-id>` | Mark a done item as verified |
 | `ralf unlock <board>` | Clear all lockfiles for a board |
 | `ralf serve` | Start HTTP + WebSocket dashboard server |
+
+## Ralfie
+
+This project uses [Ralfie](https://github.com/anthropics/ralfie) for agentic task orchestration. See the file below for board status and how ralfie works.
+
+@.ralfie/RALF.md

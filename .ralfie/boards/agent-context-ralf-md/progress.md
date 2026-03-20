@@ -22,6 +22,8 @@
 - `cli/src/lib/ralf-md.ts` — new module
 - `cli/src/lib/__tests__/ralf-md.test.ts` — new test file
 
+---
+
 ## RALF-2: CLAUDE.md Integration
 
 **Session**: ralfie-1773918134806-74f1139b
@@ -45,6 +47,8 @@
 - `cli/src/lib/claude-md.ts` — new module
 - `cli/src/lib/__tests__/claude-md.test.ts` — new test file
 
+---
+
 ## RALF-4: Board Creation Wiring
 
 **Status**: done
@@ -66,6 +70,8 @@
 - `cli/src/lib/__tests__/board.test.ts` — 2 new tests for RALF.md integration
 - `cli/src/skills/ralf-plan/SKILL.md` — Phase 4 updated with RALF.md step
 
+---
+
 ## RALF-3: Init Wiring
 
 **Status**: done
@@ -86,3 +92,24 @@
 ### Files changed
 - `cli/src/commands/init.ts` — import and call `ensureClaudeMd` + `ensureRalfMd`
 - `cli/src/commands/__tests__/init.test.ts` — 2 new tests + assertions in existing test
+
+---
+
+## RALF-5: Fix board entries to use @ references
+
+**Status**: done
+**Date**: 2026-03-20
+
+### What was done
+- Fixed `boardEntry()` in `cli/src/lib/ralf-md.ts` to output `@.ralfie/boards/<name>/progress.md` instead of `[progress](.ralfie/boards/<name>/progress.md)`
+- Updated existing `.ralfie/RALF.md` to use the new format
+
+### Why (drift log)
+- **What changed**: Board entry format in RALF.md switched from markdown links to `@` references
+- **Why**: Markdown links are just navigable text — they don't cause Claude Code to auto-load the file into context. The `@` reference syntax is what Claude Code uses to include files (same as `@.ralfie/RALF.md` in CLAUDE.md). Without this, agents don't get automatic visibility into board progress.
+- **Items affected**: RALF-5 added as a bug fix to RALF-1's implementation
+- **Impact**: No architectural change. One-line fix in `boardEntry()`. All existing tests pass unchanged.
+
+### Files changed
+- `cli/src/lib/ralf-md.ts` — `boardEntry()` format fix
+- `.ralfie/RALF.md` — updated existing entries to new format

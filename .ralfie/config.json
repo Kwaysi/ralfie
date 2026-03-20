@@ -1,0 +1,10 @@
+{
+  "agent_command": "claude",
+  "default_iterations": 10,
+  "feedback_loops": [],
+  "serve_port": 3333,
+  "effort": "medium",
+  "model": "opus",
+  "user": "kwaysi",
+  "serve_pid": null
+}

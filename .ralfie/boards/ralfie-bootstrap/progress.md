@@ -1,0 +1,264 @@
+# Progress Log
+
+## SCAFFOLD-1
+
+Created root package.json (workspaces: cli, ui, shared), tsconfig.base.json (ES2022, Node16, strict), .gitignore (node_modules/, dist/, .ralfie/). No deps installed yet - workspace dirs don't exist. Next: SCAFFOLD-2 (shared package).
+
+## SCAFFOLD-2
+
+Created shared/package.json (@ralfie/shared, type module, build+typecheck scripts), shared/tsconfig.json (extends base), shared/src/index.ts (placeholder). Build verified: produces dist/index.js + dist/index.d.ts. Next: SCAFFOLD-3 (CLI package).
+
+## SCAFFOLD-3
+
+Created cli/package.json (@ralfie/cli, type module, bin.ralf→dist/index.js, commander+ws deps, vitest devDep), cli/tsconfig.json (extends base), cli/src/index.ts (placeholder). npm install added 106 packages. Build+typecheck pass. Files: cli/package.json, cli/tsconfig.json, cli/src/index.ts. Next: SCAFFOLD-4 (UI package).
+
+SCAFFOLD-4 + SCAFFOLD-5 done. Created ui/package.json (@ralfie/ui, react+react-dom+react-router-dom+recharts+react-markdown deps, vite+tailwind+@vitejs/plugin-react devDeps), ui/tsconfig.json (jsx react-jsx, module ESNext, moduleResolution bundler), ui/vite.config.ts (react+tailwind plugins, /api→localhost:3333 proxy, /ws→ws://localhost:3333 ws proxy), ui/index.html, ui/src/main.tsx (placeholder). npm install added 286 packages. Build+typecheck+lint all pass. Files: ui/package.json, ui/tsconfig.json, ui/vite.config.ts, ui/index.html, ui/src/main.tsx. Next: TYPES-1 (shared types).
+
+## TYPES-1
+
+Created shared/src/types.ts with all shared types: ItemStatus (5-value union), PrdItemComment, PrdItem (id/category/description/steps_to_verify/status/assigned_to/comments), Prd, BoardMeta, Board, RalfieConfig (agent_command/default_iterations/feedback_loops/serve_port), WsEventType (8 event types), WsEvent. Re-exported all types from shared/src/index.ts. Build produces types.js + types.d.ts. Typecheck+lint pass. No tests yet (vitest exits 1 with no test files — expected). Files: shared/src/types.ts, shared/src/index.ts. Next: LIB-1 (paths.ts).
+
+## LIB-1
+
+Implemented cli/src/lib/paths.ts with all 9 path helpers: ralfieDir, configPath, boardsDir, boardDir, planPath, prdPath, progressPath, locksDir, lockPath. Each accepts optional cwd param (defaults to process.cwd()). 9 tests pass. Files: cli/src/lib/paths.ts, cli/src/lib/__tests__/paths.test.ts. Next: LIB-2 (config.ts) or LIB-5 (lock.ts) — both depend only on paths.ts.
+
+## LIB-2
+
+Implemented cli/src/lib/config.ts: readConfig (returns defaultConfig on missing file, merges partial with defaults), writeConfig (creates .ralfie dir via mkdir recursive, writes JSON), defaultConfig (agent_command='claude', default_iterations=10, feedback_loops=[], serve_port=3333). 3 tests pass. Typecheck clean. Files: cli/src/lib/config.ts, cli/src/lib/__tests__/config.test.ts. Next: LIB-5 (lock.ts) — core abstraction needed by LIB-3 (prd.ts).
+
+## LIB-5
+
+Implemented cli/src/lib/lock.ts: acquireLock (O_EXCL atomic via open('wx')), releaseLock (unlink), isLocked (readFile existence check), getLockInfo (parses JSON lock content), clearStaleLocks (readdir+filter .lock+unlink all, returns count). LockInfo interface: {session_id, acquired_at}. 5 tests pass. Typecheck clean. Files: cli/src/lib/lock.ts, cli/src/lib/__tests__/lock.test.ts. Next: LIB-3 (prd.ts) — uses lock.ts for concurrent-safe PRD mutations.
+
+## LIB-3
+
+Implemented cli/src/lib/prd.ts: readPrd, writePrd, claimItem, completeItem, failItem, verifyItem, addComment. All mutations use withLock helper that acquires O_EXCL lock, reads PRD, applies mutation, writes PRD, releases lock in finally block. claimItem throws on already in_progress. verifyItem throws on non-done status. failItem appends failure reason as comment. 8 tests pass. Typecheck+lint clean. Files: cli/src/lib/prd.ts, cli/src/lib/__tests__/prd.test.ts. Next: LIB-4 (board.ts) — depends on prd.ts+paths.ts.
+
+## LIB-4
+
+Implemented cli/src/lib/board.ts: createBoard (creates dir+locks/, writes plan.md+prd.json+progress.md+meta.json), boardExists (checks meta.json), getBoard (parallel reads all 4 files, returns Board), listBoards (readdir boards/, reads meta.json for each, returns BoardMeta[]), appendProgress (reads+appends to progress.md). 4 tests pass. All 29 tests pass. Typecheck+lint clean. Files: cli/src/lib/board.ts, cli/src/lib/__tests__/board.test.ts. Next: LIB-6 (agent.ts) or LIB-7 (skills.ts) — both independent.
+
+## LIB-6
+
+Implemented cli/src/lib/agent.ts: generateSessionId (ralfie-<timestamp>-<hex8>), spawnInteractive (reads agent_command from config, splits into cmd+args, adds --prompt, spawns with inherited stdio, returns exit code), spawnPrintMode (adds -p flag, pipes stdout while capturing, detects <ralfie>COMPLETE</ralfie> in output). SpawnResult interface: {exitCode, stdout, complete}. 5 tests pass. All 34 tests pass. Typecheck clean. Files: cli/src/lib/agent.ts, cli/src/lib/__tests__/agent.test.ts. Next: LIB-7 (skills.ts) — last lib module, needed by CMD-1 (init).
+
+## LIB-7
+
+Implemented cli/src/lib/skills.ts: installSkills (copies 3 .md files from bundled source to .claude/skills/), skillsInstalled (checks all 3 exist), SKILL_FILES constant. Created 3 skill markdown files in cli/src/skills/: ralfie-plan.md (Grilling→Plan Generation→PRD Generation→Board Creation), ralfie-edit.md (Setup→Grilling→Update→Drift Log), ralfie-run.md (Pick Task→Claim Item→Implement→Run Feedback Loops→Update Progress→Update PRD→Commit→Check Completion→Failure Protocol). Uses import.meta.url for __dirname in ESM. 7 tests pass. All 41 tests pass. Typecheck clean. Files: cli/src/lib/skills.ts, cli/src/skills/ralfie-plan.md, cli/src/skills/ralfie-edit.md, cli/src/skills/ralfie-run.md, cli/src/lib/__tests__/skills.test.ts. Next: CMD-1 (init) — depends on skills.ts+config.ts+paths.ts.
+
+## CMD-1
+
+Implemented cli/src/commands/init.ts: initCommand creates .ralfie/ dir, .ralfie/boards/, writes config (preserves existing), installs skills to .claude/skills/. 2 tests pass (creation + idempotent config preservation). All 43 tests pass. Typecheck clean. Files: cli/src/commands/init.ts, cli/src/commands/__tests__/init.test.ts. Next: CMD-2 (CLI entry point) — wires init command into Commander program.
+
+## CMD-2
+
+Implemented cli/src/index.ts: Commander program with name 'ralf', version 0.0.1, init command wired. --help shows commands, init executes correctly. All 43 tests pass. Typecheck clean. Files: cli/src/index.ts. Note: `ralf init` from dist/ fails because skill .md files aren't copied to dist/skills/ — that's BUILD-1's responsibility. Next: CMD-6 (list) or CMD-7 (status) — simple commands that add user-facing value with no new deps.
+
+## CMD-6
+
+Implemented cli/src/commands/list.ts: listCommand displays boards with progress bars (█/░), done/total counts, active count, failed count. Empty state shows "No boards found". Wired into cli/src/index.ts. 2 tests pass (empty state + board with mixed statuses). All 45 tests pass. Typecheck+lint clean. Files: cli/src/commands/list.ts, cli/src/commands/__tests__/list.test.ts, cli/src/index.ts. Next: CMD-7 (status) or CMD-8 (verify) — more simple CLI commands.
+
+## CMD-7
+
+Implemented cli/src/commands/status.ts: statusCommand filters PRD items by status, displays id/category/description/assigned_to/comment count. Validates status arg against valid options, checks board exists. Wired into cli/src/index.ts as `ralf status <board> <status>`. 4 tests pass (filter by done, show agent for in_progress, invalid status error, pending filter). All 49 tests pass. Typecheck+lint clean. Files: cli/src/commands/status.ts, cli/src/commands/__tests__/status.test.ts, cli/src/index.ts. Next: CMD-8 (verify) or CMD-9 (unlock).
+
+## CMD-8
+
+(previously implemented, unmarked). verify.ts + 3 tests already existed. Wired into index.ts. Marked passes:true.
+
+## CMD-9
+
+Implemented cli/src/commands/unlock.ts: unlockCommand checks board exists, calls clearStaleLocks, prints count. Wired into cli/src/index.ts as `ralf unlock <board>`. 2 tests pass (clears locks + nonexistent board error). All 54 tests pass. Typecheck+lint clean. Files: cli/src/commands/unlock.ts, cli/src/commands/__tests__/unlock.test.ts, cli/src/index.ts. Next: CMD-3/CMD-4/CMD-5 (agent-spawning commands) or SERVER-1 (file watcher).
+
+## CMD-3
+
+Implemented cli/src/commands/plan.ts: planCommand checks skillsInstalled, exits with error if not, spawns interactive agent with /ralfie-plan prompt. Wired into cli/src/index.ts as `ralf plan`. All 54 tests pass. Typecheck+lint clean. Files: cli/src/commands/plan.ts, cli/src/index.ts. Next: CMD-4 (edit) or CMD-5 (run).
+
+## CMD-4
+
+Implemented cli/src/commands/edit.ts: editCommand checks skillsInstalled, checks boardExists, spawns interactive agent with /ralfie-edit prompt including board path. Wired into cli/src/index.ts as `ralf edit <board>`. 3 tests (nonexistent board error, spawns agent, skills not installed error). All 57 tests pass. Typecheck+lint clean. Files: cli/src/commands/edit.ts, cli/src/commands/__tests__/edit.test.ts, cli/src/index.ts. Next: CMD-5 (run) or SERVER-1 (file watcher).
+
+## CMD-5
+
+Implemented cli/src/commands/run.ts: runCommand checks boardExists, reads config for default_iterations, generates sessionId, runs serial loop spawning spawnPrintMode per iteration with prompt containing @prd.json @progress.md @plan.md refs and session ID. Exits early on COMPLETE signal or non-zero exit code. Prints iteration counter. Wired into cli/src/index.ts as `ralf run <board> [iterations]`. 6 tests (nonexistent board error, default iterations, custom iterations, prompt content, early COMPLETE exit, iteration counter). All 63 tests pass. Typecheck+lint clean. Files: cli/src/commands/run.ts, cli/src/commands/__tests__/run.test.ts, cli/src/index.ts, prd.json. Next: SERVER-1 (file watcher) — starts the server layer.
+
+## SERVER-1
+
+Implemented cli/src/server/watcher.ts: startWatcher watches .ralfie/boards/ dir for new board creation (rename events), watches each existing board dir for prd.json/progress.md/plan.md changes, watches locks/ subdir for .lock file events. WatchEvent interface: {type, board, filename}. WatchCallback type. Returns FSWatcher[] for cleanup. classifyChange helper maps filenames to event types. Uses node:fs watch (not chokidar) to avoid extra deps. All 63 existing tests pass. Typecheck clean. Files: cli/src/server/watcher.ts. Next: SERVER-2 (WebSocket server) — needed by SERVER-5 (serve command).
+
+## SERVER-2
+
+Implemented cli/src/server/ws.ts: createWsServer (attaches WebSocketServer to HTTP server instance via ws library), broadcast (JSON-serializes WsEvent and sends to all connected clients with readyState OPEN). Module-level wss variable stores the server instance. Uses numeric 1 for OPEN readyState comparison. All 63 tests pass. Typecheck clean. Files: cli/src/server/ws.ts. Next: SERVER-3 (REST API) or SERVER-4 (HTTP static server) — both needed before SERVER-5.
+
+## SERVER-3
+
+Implemented cli/src/server/api.ts: handleApi(req, res) → boolean, returns true if request was handled. Endpoints: GET /api/boards (lists all boards with full data), GET /api/boards/:name (full board data, 404 on missing), POST /api/boards/:name/verify/:itemId (verifies item, returns {ok:true}), POST /api/boards/:name/run (starts background agent loop, broadcasts ws events), GET /api/config, PUT /api/config. Uses matchRoute helper for URL param extraction. runInBackground spawns agent loop with broadcast for run:started/run:iteration/run:completed events. No new deps — uses raw node:http types. All 63 tests pass. Typecheck clean. Files: cli/src/server/api.ts, prd.json. Next: SERVER-4 (HTTP static server) — needed before SERVER-5 (serve command).
+
+## SERVER-4
+
+Implemented cli/src/server/http.ts: createHttpServer returns node:http server. Routes API requests to handleApi first, then serves static files from cli/dist/ui/ with MIME types map (html/js/css/json/images/fonts). SPA fallback serves index.html for non-file routes. Returns 404 with "run npm run build" message when UI build missing. Directory traversal prevention via path prefix check. Uses import.meta.url for __dirname in ESM. All 63 tests pass. Typecheck clean. Files: cli/src/server/http.ts, prd.json. Next: SERVER-5 (serve command) — wires http+ws+watcher together.
+
+## SERVER-5
+
+Implemented cli/src/commands/serve.ts: serveCommand reads config for port, creates HTTP server, attaches WS server, starts file watcher with callback that maps WatchEvent types to WsEventType via EVENT_MAP and broadcasts. Prints HTTP+WS URLs. Cleans up watchers+server on SIGINT/SIGTERM. Wired into cli/src/index.ts as `ralf serve`. All 63 tests pass. Typecheck+lint clean. Files: cli/src/commands/serve.ts, cli/src/index.ts, prd.json. Next: UI-1 (React app entry point) — starts the UI layer.
+
+## UI-1
+
+Created React app entry point: ui/src/main.tsx (StrictMode+BrowserRouter wrapping App), ui/src/index.css (Tailwind v4 import via @import "tailwindcss", CSS vars: --bg/--bg-card/--border/--text/--text-muted/--accent/--success/--warning/--danger, monospace font-family on body), ui/src/App.tsx (Routes: / Dashboard, /boards BoardList, /boards/:name BoardDetail, /settings Settings — placeholder components for now). index.html already existed with root div+script tag. All 63 tests pass. Typecheck+lint clean. Files: ui/src/main.tsx, ui/src/index.css, ui/src/App.tsx. Next: UI-2 (API client) or UI-3 (WebSocket hook) — foundational libs before UI components.
+
+## UI-2
+
+Created ui/src/lib/api.ts: fetchBoards (GET /api/boards), fetchBoard (GET /api/boards/:name), verifyItem (POST verify endpoint), triggerRun (POST run with iterations body), fetchConfig (GET /api/config), updateConfig (PUT /api/config). All use fetch with proper error handling, URL encoding for params, JSON content-type headers where needed. Imports Board+RalfieConfig from @ralfie/shared. Typecheck+lint+tests pass. Files: ui/src/lib/api.ts, prd.json. Next: UI-3 (WebSocket hook) — other foundational lib before components.
+
+## UI-3
+
+Created ui/src/lib/ws.ts: useWs hook auto-connects to ws(s)://<host>/ws, parses WsEvent JSON messages, calls onEvent callback via ref (avoids reconnect on callback change), auto-reconnects after 2s on close, exposes {connected} state. Cleanup on unmount. Typecheck+lint+63 tests pass. Files: ui/src/lib/ws.ts, prd.json. Next: UI-4 (Layout) — needed by all pages before implementing page components.
+
+## UI-4
+
+Created ui/src/components/Layout.tsx: sidebar (w-56, border-r), "ralfie" title in accent color, NavLink items for Dashboard/Boards/Settings with active highlighting (accent bg), main content area (flex-1, overflow-auto, p-6). Used Outlet for nested routing. Updated App.tsx to wrap all routes inside Layout route. Typecheck+lint+63 tests pass. Files: ui/src/components/Layout.tsx, ui/src/App.tsx, prd.json. Next: UI-9 (StatsCards) or UI-11 (PrdKanban) — leaf components needed before page components.
+
+BUILD-1 + BUILD-2 done. BUILD-2 was already implemented (root package.json had correct shared→ui→cli order). BUILD-1: added postbuild script to cli/package.json that copies src/skills/*.md to dist/skills/, copies ../ui/dist/* to dist/ui/, prepends shebang to dist/index.js, chmod +x. Used shell commands (mkdir -p, cp, printf+cat, mv, chmod). Verified: dist/skills/ has 3 .md files, dist/ui/ has Vite output (index.html+assets/), dist/index.js starts with #!/usr/bin/env node and is executable. All 63 tests pass. Files: cli/package.json, prd.json. Next: UI leaf components (UI-9 through UI-13) needed before pages.
+
+## UI-9
+
+Created ui/src/components/StatsCards.tsx: 5 KPI cards (Total/Completed/In Progress/Failed/Verified) in grid-cols-5 layout. Each card has bg-card bg, border styling, muted label, color-coded value (success for done/verified, accent for in_progress, danger for failed). Takes PrdItem[] prop, computes counts. Typecheck+63 tests pass. Files: ui/src/components/StatsCards.tsx, prd.json. Next: UI-10 (ItemsPerDayChart) or UI-11 (PrdKanban) — more leaf components before pages.
+
+## UI-10
+
+Created ui/src/components/ItemsPerDayChart.tsx: recharts BarChart in ResponsiveContainer (200px height). Derives activity from PrdItem comment timestamps, groups by ISO date, shows last 7 days. XAxis MM-DD labels, YAxis integer-only (allowDecimals=false), bars use #6366f1 with radius [4,4,0,0] for rounded tops. Tooltip styled with dark theme vars. Takes PrdItem[] prop. Typecheck+lint+63 tests pass. Files: ui/src/components/ItemsPerDayChart.tsx, prd.json. Next: UI-11 (PrdKanban) or UI-12 (PlanViewer/ProgressTimeline) — remaining leaf components before pages.
+
+## UI-11
+
+Created ui/src/components/PrdKanban.tsx: 5-column kanban (Pending/In Progress/Done/Failed/Verified) with color-coded headers and item counts. ItemCard subcomponent shows ID (mono bold), category, description, assigned agent (accent color), comment count. Done items get green Verify button calling onVerify(itemId). Used filter instead of Object.groupBy (not available in ES2022 target). Typecheck+lint+63 tests pass. Files: ui/src/components/PrdKanban.tsx, prd.json. Next: UI-12 (PlanViewer/ProgressTimeline) or UI-13 (RunDialog) — remaining leaf components before pages.
+
+## UI-12
+
+Created ui/src/components/PlanViewer.tsx and ui/src/components/ProgressTimeline.tsx. Both use react-markdown with prose prose-invert styling, bg-card container with border. ProgressTimeline shows "No progress logged yet" when content is empty. Typecheck+lint+63 tests pass. Files: ui/src/components/PlanViewer.tsx, ui/src/components/ProgressTimeline.tsx, prd.json. Next: UI-13 (RunDialog) — last leaf component before page implementations.
+
+## UI-13
+
+Created ui/src/components/RunDialog.tsx: modal overlay with backdrop click dismiss, iteration count input (default 10), Start Run button calls triggerRun API, loading state, success confirmation replaces form with Close button. Cancel resets state. Follows existing dark theme patterns (bg-card, border, accent). Typecheck+lint+63 tests pass. Files: ui/src/components/RunDialog.tsx, prd.json. Next: UI-5/UI-6/UI-7/UI-8 (page components) — all leaf components now done.
+
+## UI-7
+
+Created ui/src/pages/BoardDetailPage.tsx: tabbed view (PRD Items/Plan/Progress), useParams for board name, fetchBoard on mount, useWs auto-refresh filtered by matching board name, verify button calls verifyItem API+reloads, Run button opens RunDialog. Tabs: PrdKanban (5-col kanban), PlanViewer (markdown), ProgressTimeline (markdown). Updated App.tsx to use BoardDetailPage instead of placeholder. Typecheck+lint+63 tests pass. Files: ui/src/pages/BoardDetailPage.tsx, ui/src/App.tsx, prd.json. Next: UI-5 (DashboardPage) or UI-6 (BoardListPage) — remaining page components.
+
+## UI-5
+
+Created ui/src/pages/DashboardPage.tsx: fetchBoards on mount, useWs auto-refresh on any event, aggregates allItems across boards for StatsCards (5 KPI cards) and ItemsPerDayChart (recharts bar chart). Board cards grid with name, description, progress bar (done+verified/total), percentage, links to /boards/:name. Empty state directs to ralf plan. Updated App.tsx to use DashboardPage instead of placeholder. Typecheck+lint+63 tests pass. Files: ui/src/pages/DashboardPage.tsx, ui/src/App.tsx, prd.json. Next: UI-6 (BoardListPage) or UI-8 (SettingsPage).
+
+## UI-6
+
+Created ui/src/pages/BoardListPage.tsx: fetchBoards on mount, useWs auto-refresh, board cards with name/description/total item count/per-status counts (pending/active/done/failed/verified) color-coded. Links to /boards/:name. Empty state directs to ralf plan. Updated App.tsx to use BoardListPage instead of Placeholder. Typecheck+lint+63 tests pass. Files: ui/src/pages/BoardListPage.tsx, ui/src/App.tsx, prd.json. Next: UI-8 (SettingsPage).
+
+## UI-8
+
+Created ui/src/pages/SettingsPage.tsx: fetchConfig on mount, input fields for agent_command (text), default_iterations (number), serve_port (number), feedback_loops (textarea, one per line with split/filter). Save button calls updateConfig, shows "Saved!" for 2s. Loading/error states. Removed Placeholder component from App.tsx, wired SettingsPage. Typecheck+lint+63 tests pass. Files: ui/src/pages/SettingsPage.tsx, ui/src/App.tsx, prd.json. Next: E2E-1 (integration smoke test) or DOCS-1 (CLAUDE.md).
+
+## E2E-1
+
+Fixed idempotent shebang bug in cli postbuild script (sed strips existing shebangs before prepending). Verified all 4 smoke test criteria: ralf init creates .ralfie/config.json+boards/+3 skills, ralf list shows empty state, ralf serve responds with React HTML, all 63 tests pass (14 suites). Files: cli/package.json (postbuild fix), prd.json. Next: DOCS-1 (CLAUDE.md).
+
+## DOCS-1
+
+Updated CLAUDE.md with: project description, build/run/test/lint commands, monorepo architecture (shared/cli/ui workspaces), data flow overview, CLI commands table. All 63 tests pass, typecheck+lint clean. Files: CLAUDE.md, prd.json. ALL PRD ITEMS COMPLETE.
+
+## CONFIG-1
+
+Added EffortLevel ('low'|'medium'|'high') and AgentModel ('opus'|'sonnet'|'haiku') types to shared/src/types.ts. Added effort and model fields to RalfieConfig interface. Updated defaultConfig in cli/src/lib/config.ts with effort='medium', model='opus'. Updated config merge test to include new fields. Build+typecheck+lint+63 tests pass. Files: shared/src/types.ts, cli/src/lib/config.ts, cli/src/lib/__tests__/config.test.ts, prd.json. Next: CONFIG-2 (claude-settings sync).
+
+## CONFIG-2
+
+Created cli/src/lib/claude-settings.ts: syncClaudeSettings reads ralfie config, maps effort→effortLevel and model→claude model ID (opus→claude-opus-4-6, sonnet→claude-sonnet-4-6, haiku→claude-haiku-4-5-20251001), merges into .claude/settings.json preserving existing fields. Also exported EffortLevel+AgentModel from shared/src/index.ts (were missing). claudeSettingsPath helper exported for testability. 5 tests pass. All 68 tests pass. Typecheck+lint clean. Files: cli/src/lib/claude-settings.ts, cli/src/lib/__tests__/claude-settings.test.ts, shared/src/index.ts, prd.json. Next: CONFIG-3 (integrate syncClaudeSettings into run/API).
+
+## CONFIG-3
+
+Added syncClaudeSettings() call before iteration loop in cli/src/commands/run.ts and before broadcast in cli/src/server/api.ts runInBackground. Settings synced before first agent spawn. All 68 tests pass. Typecheck+lint clean. Files: cli/src/commands/run.ts, cli/src/server/api.ts, prd.json. Next: CONFIG-4 (effort/model UI dropdowns) or STOP-1 (run tracker).
+
+## STOP-1
+
+Added runsDir and runPidPath path helpers to cli/src/lib/paths.ts. Created cli/src/lib/run-tracker.ts: saveRunPid (mkdir+writeFile), removeRunPid (unlink, silent on ENOENT), getActiveRuns (readdir .pid files, process.kill(pid,0) liveness check, cleans stale), countActiveRuns. RunPidInfo interface: {pid, sessionId}. 5 tests pass. All 73 tests pass. Typecheck+lint clean. Files: cli/src/lib/paths.ts, cli/src/lib/run-tracker.ts, cli/src/lib/__tests__/run-tracker.test.ts, prd.json. Next: STOP-2 (integrate PID tracking into run/API).
+
+## STOP-3
+
+Added releaseSessionLocks to lock.ts: reads all .lock files, parses JSON, deletes those matching sessionId, returns count. Added resetSessionItems to prd.ts: direct read-modify-write (no per-item locking), resets in_progress items assigned to sessionId back to pending with assigned_to=null. 4 tests pass (2 releaseSessionLocks + 2 resetSessionItems). All 77 tests pass. Typecheck+lint clean. Files: cli/src/lib/lock.ts, cli/src/lib/prd.ts, cli/src/lib/__tests__/release-session.test.ts, prd.json. Next: STOP-2 (integrate PID tracking) or STOP-4 (stop command).
+
+## STOP-2
+
+Integrated PID tracking into both run paths. cli/src/commands/run.ts: saveRunPid(boardName, sessionId, process.pid) after syncClaudeSettings, wrapped iteration loop in try/finally with removeRunPid in finally. cli/src/server/api.ts: same pattern in runInBackground — saveRunPid before broadcast, try/finally with removeRunPid+broadcast in finally. Each run keyed by sessionId so concurrent runs get separate PID files. 2 new tests: PID file created+removed on normal completion, PID file removed on agent error exit. All 79 tests pass. Typecheck+lint clean. Files: cli/src/commands/run.ts, cli/src/server/api.ts, cli/src/commands/__tests__/run.test.ts, prd.json. Next: STOP-4 (stop command).
+
+## STOP-4
+
+Created cli/src/lib/stop-board.ts: stopBoard extracts core stop logic (shared with future STOP-5 server endpoint). Sends SIGTERM to process group (-pid), polls up to 5s, SIGKILL if still alive. Then releases session locks, resets in_progress items to pending, removes PID files. Returns StopResult {stopped, locksReleased, itemsReset}. Created cli/src/commands/stop.ts: stopCommand checks boardExists, calls stopBoard, prints summary or "No active runs" message. Wired into cli/src/index.ts as `ralf stop <board>`. 3 tests pass (no active runs message, nonexistent board error, full kill+cleanup+summary). All 82 tests pass (18 suites). Typecheck+lint clean. Files: cli/src/lib/stop-board.ts, cli/src/commands/stop.ts, cli/src/commands/__tests__/stop.test.ts, cli/src/index.ts, prd.json. Next: STOP-5 (server endpoint) or CONFIG-4 (UI dropdowns).
+
+## STOP-5
+
+Added 'run:stopped' to WsEventType union in shared/src/types.ts. Added POST /api/boards/:name/stop endpoint in cli/src/server/api.ts: checks boardExists (404 if not), calls shared stopBoard function, broadcasts run:stopped WsEvent with stop result data, returns {ok:true, stopped:N}. Reuses stop-board.ts — no logic duplication. All 82 tests pass. Typecheck+lint clean. Files: shared/src/types.ts, cli/src/server/api.ts, prd.json. Next: STOP-6 (BoardWithStatus type+API).
+
+## STOP-6
+
+Added BoardWithStatus interface extending Board with activeRuns: number to shared/src/types.ts. Exported from shared/src/index.ts. Updated GET /api/boards to map each board through countActiveRuns and return BoardWithStatus[]. Updated GET /api/boards/:name to include activeRuns via countActiveRuns. countActiveRuns uses process.kill(pid,0) liveness check so stale PIDs aren't counted. All 82 tests pass. Typecheck+lint clean. Files: shared/src/types.ts, shared/src/index.ts, cli/src/server/api.ts, prd.json. Next: CONFIG-4 or STOP-7 or INIT-1.
+
+## INIT-1
+
+Updated ralf init to merge Claude Code permissions into .claude/settings.json: ensures permissions.allow includes Bash/Edit/Write/Read, preserves existing permissions+settings, calls syncClaudeSettings for effort/model. Added mergePermissions helper. Console output lists .claude/settings.json. 4 tests (creation+settings, config preservation, existing permissions preserved, idempotent). All 84 tests pass. Typecheck+lint clean. Files: cli/src/commands/init.ts, cli/src/commands/__tests__/init.test.ts, prd.json. Next: CONFIG-4 or STOP-7 or STOP-8.
+
+## CONFIG-4
+
+Added Effort Level select (Low/Medium/High) and Model select (Opus/Sonnet/Haiku) dropdowns to SettingsPage. Dropdowns reflect current config on load, save writes via PUT /api/config. Added syncClaudeSettings() call to PUT /api/config handler in api.ts so settings sync after save. Imported EffortLevel+AgentModel types from @ralfie/shared. All 84 tests pass. Typecheck+lint clean. Files: ui/src/pages/SettingsPage.tsx, cli/src/server/api.ts, prd.json. Next: STOP-7 or STOP-8.
+
+## STOP-7
+
+Added stopBoard to ui/src/lib/api.ts (POST /api/boards/:name/stop). Updated BoardDetailPage: BoardWithStatus type, Stop button next to Run when activeRuns > 0, shows "Stop (N)" with danger styling. Updated fetchBoards/fetchBoard return types to BoardWithStatus. All 84 tests pass. Typecheck+lint clean. Files: ui/src/lib/api.ts, ui/src/pages/BoardDetailPage.tsx, prd.json. Next: STOP-8 or E2E-2.
+
+STOP-8 + E2E-2 done. Updated BoardListPage to use BoardWithStatus type (was Board). Added "N agent(s) running" badge with accent-colored pill styling when activeRuns > 0. Badge hidden when no active runs. Updates in real-time via existing WebSocket refresh. E2E-2 verified: build/test/typecheck/lint all pass, ralf init creates correct .claude/settings.json and .ralfie/config.json. All 84 tests pass (18 suites). Files: ui/src/pages/BoardListPage.tsx, prd.json, progress.txt. ALL PRD ITEMS COMPLETE.
+
+## BUG-2
+
+Made board.ts resilient to missing files. boardExists now checks directory existence via stat() instead of requiring meta.json. getBoard uses readFileSafe helper — returns empty string for missing plan.md/progress.md, infers minimal BoardMeta (name from dir, empty description) when meta.json missing. prd.json still required (hard fail). listBoards checks isDirectory() and infers meta for dirs without meta.json. 3 new tests added (boardExists without meta, getBoard with partial files, listBoards without meta). All 87 tests pass (18 suites). Typecheck+lint clean. Files: cli/src/lib/board.ts, cli/src/lib/__tests__/board.test.ts, prd.json. Next: BUG-1 or BUG-3 (skill file fixes).
+
+BUG-1 + BUG-3 done. Updated ralfie-plan.md Phase 3 to include exact PRD JSON schema with all required field names (project/description/items, item fields: id/category/description/steps_to_verify/status/assigned_to/comments) and a concrete example snippet. Updated Phase 4 to explicitly list all 4 required board files: meta.json (with structure), plan.md, prd.json, progress.md (empty). All 87 tests pass. Typecheck+lint clean. Files: cli/src/skills/ralfie-plan.md, prd.json. ALL PRD ITEMS COMPLETE.
+
+## DASH-1
+
+Added started_at (string|null) and completed_at (string|null) to PrdItem in shared/src/types.ts. Updated claimItem to set started_at=ISO timestamp. Updated completeItem to set completed_at=ISO timestamp. Added resetItem function that sets status=pending, assigned_to/started_at/completed_at=null. Updated resetSessionItems to also clear both timestamp fields. Added resetItem test. Updated all 9 test files with new required fields. 88 tests pass (18 suites). Typecheck+lint clean. Files: shared/src/types.ts, cli/src/lib/prd.ts, cli/src/lib/__tests__/prd.test.ts, + 9 other test files. Next: DASH-2 (skill update) or DASH-11 (user field, needed by DASH-7).
+
+## DASH-11
+
+Added user:string to RalfieConfig in shared/src/types.ts. Set defaultConfig user='' in cli/src/lib/config.ts. Updated ralf init to infer user from `git config user.name` (falls back to '' on failure). Added User Name input field to SettingsPage above Agent Command. Updated config merge test to include user field. Build+typecheck+lint+88 tests pass. Files: shared/src/types.ts, cli/src/lib/config.ts, cli/src/commands/init.ts, ui/src/pages/SettingsPage.tsx, cli/src/lib/__tests__/config.test.ts, prd.json. Next: DASH-5 (ItemDrawer core component, unblocks DASH-6/7/8/10).
+
+## DASH-5
+
+Created ui/src/components/ItemDrawer.tsx: right-side sliding panel (45vw, 360-720px), semi-transparent backdrop, Escape key + backdrop click dismiss. Header: mono bold ID, color-coded status badge, category tag, close button. Body sections: Description, User Story (italic, conditional), End State (conditional), Assigned To (accent color, conditional), timestamps (started_at/completed_at formatted), Steps to Verify (visual checklist with checkmarks for verified items, circles for others), chronological comment thread (agent=ralfie-* prefix gets robot icon + indigo tint, user gets person icon + green tint, formatted timestamps). Typecheck+lint+88 tests pass. Files: ui/src/components/ItemDrawer.tsx, prd.json. Next: DASH-6 (drawer action buttons + reset endpoint) or DASH-8 (wire into kanban).
+
+DASH-6 + DASH-7 done. Added Verify button (done items only) and Move to Pending button (done/failed/in_progress, not verified) to ItemDrawer. Both hidden when activeRuns > 0. Added POST /api/boards/:name/items/:itemId/reset endpoint calling resetItem. Added POST /api/boards/:name/items/:itemId/comment endpoint reading user from config (fallback 'user'), calling addComment. Added resetItemApi and addCommentApi to ui/src/lib/api.ts. Added comment input with Send button at bottom of comment thread, disabled when readOnly or verified. ItemDrawer now accepts boardName, activeRuns, onRefresh props. Typecheck+lint+88 tests pass. Files: cli/src/server/api.ts, ui/src/lib/api.ts, ui/src/components/ItemDrawer.tsx, prd.json. Next: DASH-8 (wire ItemDrawer into PrdKanban).
+
+## DASH-8
+
+Wired ItemDrawer into PrdKanban. Added boardName, activeRuns, onRefresh props to PrdKanbanProps. PrdKanban tracks selectedId (not object) so drawer stays in sync when items refresh. ItemCard gets onClick+hover styling with stopPropagation on Verify button. BoardDetailPage passes boardName, activeRuns, and load as onRefresh. Typecheck+lint+88 tests pass. Files: ui/src/components/PrdKanban.tsx, ui/src/pages/BoardDetailPage.tsx, prd.json. Next: DASH-9 (fixed header + independently scrolling columns) or DASH-3/DASH-4 (chart rewrite / CSS clamp).
+
+## DASH-9
+
+Updated BoardDetailPage to use h-full flex flex-col layout: header+tabs shrink-0, tab content area flex-1 min-h-0. PrdKanban grid now h-full with each column using flex flex-col min-h-0, item list overflow-y-auto flex-1. Plan/Progress tabs wrapped in h-full overflow-auto. No page-level scrollbar on PRD tab; plan/progress still scroll normally. Layout resizes with browser. Typecheck+lint+88 tests pass. Files: ui/src/pages/BoardDetailPage.tsx, ui/src/components/PrdKanban.tsx, prd.json. Next: DASH-10 (read-only banner) or DASH-2/DASH-3/DASH-4 (remaining dashboard items).
+
+## DASH-10
+
+Read-only mode for boards with active runs. BoardDetailPage: added warning banner below tabs when activeRuns > 0 ("Board is locked — agent run in progress"), Run button hidden during active runs (Stop still shows). PrdKanban: Verify button on kanban cards hidden when activeRuns > 0 (condition added to onVerify prop). ItemDrawer already handled activeRuns from DASH-6/7 (comment input disabled, Verify/Move to Pending hidden). All elements reappear when activeRuns returns to 0 via WebSocket refresh. Typecheck+lint+88 tests pass. Files: ui/src/pages/BoardDetailPage.tsx, ui/src/components/PrdKanban.tsx, prd.json. Next: DASH-2/DASH-3/DASH-4 (remaining dashboard items).
+
+## DASH-3
+
+Rewrote ItemsPerDayChart to use completed_at field instead of comment timestamps. Groups items by completed_at date (YYYY-MM-DD), shows last 7 days as bar chart. Items without completed_at excluded. Title updated to "Items completed per day (last 7 days)". Typecheck+lint+88 tests pass. Files: ui/src/components/ItemsPerDayChart.tsx, prd.json. Next: DASH-2/DASH-4 (remaining items).
+
+## DASH-2
+
+Updated ralf-run skill to document that claimItem auto-sets started_at and completeItem auto-sets completed_at timestamps. Minimal change — prd.ts already handles timestamps, skill just needed to reference this. Typecheck+lint+88 tests pass. Files: cli/src/skills/ralf-run/SKILL.md, prd.json. Next: DASH-4 (CSS line clamp) then DASH-12 (E2E verification).
+
+## DASH-4
+
+Added Tailwind line-clamp-3 class to item description div in PrdKanban ItemCard. One-line change. Truncates long descriptions after 3 lines with ellipsis. Typecheck+lint+88 tests pass. Files: ui/src/components/PrdKanban.tsx, prd.json. Next: DASH-12 (E2E verification).
+
+## DASH-12
+
+E2E verification: npm run build succeeds (shared→ui→cli), npm run typecheck passes, npm test passes 88 tests/18 suites, npm run lint passes. All dashboard enhancements verified: timestamps on items, completed_at chart, line-clamp-3, ItemDrawer with actions/comments, independent column scroll, read-only banner. ALL PRD ITEMS COMPLETE.
+

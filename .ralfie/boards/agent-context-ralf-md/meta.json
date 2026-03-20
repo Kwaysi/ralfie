@@ -1,0 +1,5 @@
+{
+  "name": "agent-context-ralf-md",
+  "created_at": "2026-03-19T12:00:00.000Z",
+  "description": "Auto-generate .ralfie/RALF.md and wire it into CLAUDE.md so agents get project context"
+}

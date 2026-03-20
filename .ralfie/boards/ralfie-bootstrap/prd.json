@@ -1,7 +1,6 @@
 {
-  "project": "ralfie",
+  "project": "ralfie-bootstrap",
   "description": "CLI tool that manages agentic coding loops with planning, execution, tracking, and a real-time React dashboard",
-  "created": "2026-03-18",
   "items": [
     {
       "id": "SCAFFOLD-1",
@@ -12,7 +11,11 @@
         "tsconfig.base.json exists with target ES2022, module Node16, strict true",
         ".gitignore includes node_modules/, dist/, and .ralfie/"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SCAFFOLD-2",
@@ -23,7 +26,11 @@
         "shared/tsconfig.json extends ../tsconfig.base.json",
         "shared/package.json has build and typecheck scripts"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SCAFFOLD-3",
@@ -34,7 +41,11 @@
         "cli/package.json has commander and ws as dependencies, vitest as devDependency",
         "cli/tsconfig.json extends ../tsconfig.base.json"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SCAFFOLD-4",
@@ -45,7 +56,11 @@
         "ui/vite.config.ts configures React and Tailwind plugins, proxies /api and /ws to localhost:3333",
         "ui/tsconfig.json has jsx: 'react-jsx' and module: 'ESNext'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SCAFFOLD-5",
@@ -55,7 +70,11 @@
         "Running 'npm install' succeeds without errors",
         "Running 'npm run typecheck' passes for all workspaces"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "TYPES-1",
@@ -68,7 +87,11 @@
         "WsEventType includes board:updated, prd:updated, progress:updated, lock:acquired, lock:released, run:started, run:iteration, run:completed",
         "Running 'npm run build --workspace=shared' produces shared/dist/types.js and shared/dist/types.d.ts"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "LIB-1",
@@ -80,7 +103,11 @@
         "boardDir returns '<cwd>/.ralfie/boards/<boardName>'",
         "lockPath returns '<cwd>/.ralfie/boards/<boardName>/locks/<itemId>.lock'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "LIB-2",
@@ -93,7 +120,11 @@
         "defaultConfig has agent_command='claude', default_iterations=10, feedback_loops=[], serve_port=3333",
         "All 3 config tests pass: 'npm test --workspace=cli -- --run config'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "LIB-3",
@@ -109,7 +140,11 @@
         "All PRD mutations use file locking via O_EXCL to prevent concurrent clobber",
         "All 8 PRD tests pass: 'npm test --workspace=cli -- --run prd'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "LIB-4",
@@ -123,7 +158,11 @@
         "appendProgress appends text to progress.md",
         "All 4 board tests pass: 'npm test --workspace=cli -- --run board'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "LIB-5",
@@ -137,7 +176,11 @@
         "clearStaleLocks removes all .lock files in the board's locks directory and returns count",
         "All 5 lock tests pass: 'npm test --workspace=cli -- --run lock'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "LIB-6",
@@ -148,7 +191,11 @@
         "spawnPrintMode spawns agent with '-p' flag, captures stdout, and sets result.complete=true when output contains '<ralfie>COMPLETE</ralfie>'",
         "generateSessionId returns a string matching pattern 'ralfie-<timestamp>-<random>'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "LIB-7",
@@ -160,7 +207,11 @@
         "cli/src/skills/ralfie-run.md exists with workflow: Pick Task, Claim Item, Implement, Run Feedback Loops, Update Progress, Update PRD, Commit, Check Completion, Failure Protocol",
         "installSkills copies all 3 skill files from bundled source to .claude/skills/ directory"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-1",
@@ -172,7 +223,11 @@
         "Running 'ralf init' twice does not overwrite modified config.json",
         "Both init tests pass: 'npm test --workspace=cli -- --run init'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-2",
@@ -183,7 +238,11 @@
         "Running 'node cli/dist/index.js --help' shows available commands",
         "Running 'node cli/dist/index.js init' executes the init command"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-3",
@@ -193,7 +252,11 @@
         "Running 'ralf plan' without prior 'ralf init' exits with error about missing skills",
         "Command spawns Claude Code in interactive mode (stdio inherited) with initial prompt referencing /ralfie-plan skill"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-4",
@@ -203,7 +266,11 @@
         "Running 'ralf edit nonexistent-board' exits with error about board not found",
         "Command spawns Claude Code in interactive mode with prompt referencing the board path and /ralfie-edit skill"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-5",
@@ -216,7 +283,11 @@
         "Loop exits early when agent output contains '<ralfie>COMPLETE</ralfie>'",
         "Loop prints iteration counter (e.g., 'Iteration 3/10') for each iteration"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-6",
@@ -227,7 +298,11 @@
         "Empty state shows 'No boards found' message",
         "List test passes: 'npm test --workspace=cli -- --run list'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-7",
@@ -239,7 +314,11 @@
         "Invalid status value shows error with valid options listed",
         "Status test passes: 'npm test --workspace=cli -- --run status'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-8",
@@ -251,7 +330,11 @@
         "Verifying on a nonexistent board exits with error",
         "Verify test passes: 'npm test --workspace=cli -- --run verify'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CMD-9",
@@ -262,7 +345,11 @@
         "Output shows count of cleared locks",
         "Unlock test passes: 'npm test --workspace=cli -- --run unlock'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SERVER-1",
@@ -274,7 +361,11 @@
         "Watches locks/ subdirectory for lock file creation/deletion",
         "Returns array of FSWatcher instances for cleanup"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SERVER-2",
@@ -285,7 +376,11 @@
         "broadcast sends JSON-serialized WsEvent to all clients with readyState OPEN",
         "WsEvent includes type, board, data, and timestamp fields"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SERVER-3",
@@ -300,7 +395,11 @@
         "GET /api/config returns current RalfieConfig",
         "PUT /api/config accepts new config JSON and persists it"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SERVER-4",
@@ -312,7 +411,11 @@
         "Non-file routes fall back to index.html for SPA client-side routing",
         "Returns 404 with helpful message if UI build is missing"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "SERVER-5",
@@ -323,7 +426,11 @@
         "File changes in .ralfie/ trigger appropriate WebSocket event types (prd:updated, progress:updated, board:updated, lock:acquired/released)",
         "Console output shows URLs for HTTP and WebSocket endpoints"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-1",
@@ -335,7 +442,11 @@
         "ui/src/index.css imports Tailwind and defines CSS variables: --bg, --bg-card, --border, --text, --text-muted, --accent, --success, --warning, --danger",
         "App.tsx defines routes: / (Dashboard), /boards (BoardList), /boards/:name (BoardDetail), /settings (Settings)"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-2",
@@ -348,7 +459,11 @@
         "triggerRun(board, iterations) calls POST /api/boards/:board/run with JSON body",
         "fetchConfig and updateConfig call GET/PUT /api/config respectively"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-3",
@@ -360,7 +475,11 @@
         "Hook returns { connected: boolean } state",
         "Uses ref for callback to avoid reconnection on callback changes"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-4",
@@ -372,7 +491,11 @@
         "Main content area is scrollable and has padding",
         "'ralfie' title appears at top of sidebar"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-5",
@@ -385,7 +508,11 @@
         "Board cards link to /boards/:name detail page",
         "Data refreshes automatically when WebSocket events are received"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-6",
@@ -397,7 +524,11 @@
         "Empty state shows message directing user to run 'ralf plan'",
         "Data refreshes on WebSocket events"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-7",
@@ -413,7 +544,11 @@
         "Progress tab renders progress.md as formatted markdown",
         "Only refreshes when WebSocket events match the current board name"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-8",
@@ -425,7 +560,11 @@
         "Feedback loops shown as textarea with one command per line",
         "Save button calls PUT /api/config and shows 'Saved!' confirmation for 2 seconds"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-9",
@@ -436,7 +575,11 @@
         "Each card shows label and value with appropriate color (success for completed/verified, accent for in-progress, danger for failed)",
         "Cards have dark bg-card background with border styling"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-10",
@@ -448,7 +591,11 @@
         "Y-axis shows integer counts (no decimals)",
         "Bars use accent color (#6366f1) with rounded top corners"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-11",
@@ -460,7 +607,11 @@
         "Item cards display ID (monospace bold), category, description, assigned agent (if any), and comment count",
         "Done items have a verify button that calls onVerify callback with item ID"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-12",
@@ -471,7 +622,11 @@
         "ProgressTimeline renders markdown or shows 'No progress logged yet' when empty",
         "Both components wrap content in bg-card styled container"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "UI-13",
@@ -483,7 +638,11 @@
         "Start Run button calls triggerRun API with board name and iteration count",
         "After starting, shows success message and Close button (replacing the form)"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "BUILD-1",
@@ -496,7 +655,11 @@
         "cli/dist/index.js starts with '#!/usr/bin/env node'",
         "cli/dist/index.js is executable (chmod +x)"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "BUILD-2",
@@ -507,7 +670,11 @@
         "Root test script builds shared first before running CLI tests",
         "Running 'npm run build' from root produces dist/ in all three workspaces"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "E2E-1",
@@ -519,7 +686,11 @@
         "'ralf serve' starts and responds to HTTP requests with React app HTML",
         "'npm test' passes all test suites (config, prd, board, lock, init, list, status, verify, unlock)"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DOCS-1",
@@ -531,7 +702,11 @@
         "CLAUDE.md describes monorepo structure: cli/, ui/, shared/ workspaces",
         "CLAUDE.md lists available CLI commands: init, plan, edit, run, list, status, verify, unlock, serve"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CONFIG-1",
@@ -545,7 +720,11 @@
         "'npm run build' succeeds with no type errors",
         "Existing tests pass: 'npm test'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CONFIG-2",
@@ -558,7 +737,11 @@
         "If .claude/settings.json does not exist, it is created",
         "syncClaudeSettings test passes: 'npm test --workspace=cli -- --run claude-settings'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CONFIG-3",
@@ -569,7 +752,11 @@
         "cli/src/server/api.ts runInBackground calls syncClaudeSettings() before spawning agents",
         ".claude/settings.json is updated with current effort and model before the first agent is spawned"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "CONFIG-4",
@@ -582,7 +769,11 @@
         "Saving triggers PUT /api/config with the updated effort and model values",
         "PUT /api/config handler calls syncClaudeSettings() after writing config"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "STOP-1",
@@ -597,7 +788,11 @@
         "countActiveRuns returns the count from getActiveRuns",
         "run-tracker tests pass: 'npm test --workspace=cli -- --run run-tracker'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "STOP-2",
@@ -610,7 +805,11 @@
         "runInBackground in the server also creates and cleans up PID files",
         "Multiple concurrent runs on the same board each create their own PID file keyed by sessionId"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "STOP-3",
@@ -622,7 +821,11 @@
         "resetSessionItems does direct read-modify-write without per-item locking (safe because owning processes are already dead)",
         "Tests pass for both functions"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "STOP-4",
@@ -639,7 +842,11 @@
         "If no runs are active, prints 'No active runs for board {name}'",
         "ralf stop registered in cli/src/index.ts"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "STOP-5",
@@ -652,7 +859,11 @@
         "run:stopped added to WsEventType union in shared/src/types.ts",
         "Reuses the same stop logic as the CLI command (shared function, not duplicated)"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "STOP-6",
@@ -664,7 +875,11 @@
         "GET /api/boards/:name returns BoardWithStatus with activeRuns count",
         "activeRuns reflects actual live process count (stale PIDs for dead processes are not counted)"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "STOP-7",
@@ -677,7 +892,11 @@
         "Clicking the button calls stopBoard API and the page refreshes via WebSocket run:stopped event",
         "stopBoard function in api.ts calls POST /api/boards/:name/stop and returns response"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "STOP-8",
@@ -689,7 +908,11 @@
         "Boards with no active runs do not show the badge",
         "Badge updates in real-time via WebSocket events"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "INIT-1",
@@ -703,7 +926,11 @@
         "Init output lists .claude/settings.json in the created/updated files",
         "Running ralf init twice produces the same result (idempotent)"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "E2E-2",
@@ -717,7 +944,11 @@
         "After ralf init, .claude/settings.json contains permissions.allow with Bash, Edit, Write, Read",
         "After ralf init, .ralfie/config.json contains effort='medium' and model='opus'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "BUG-1",
@@ -729,7 +960,11 @@
         "Phase 4 specifies that progress.md should be created as an empty file",
         "After running ralf plan and completing board creation, all 4 files exist in .ralfie/boards/<board-name>/"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "BUG-2",
@@ -743,7 +978,11 @@
         "listBoards lists boards that have a directory even if meta.json is missing",
         "All existing board tests still pass: 'npm test --workspace=cli -- --run board'"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "BUG-3",
@@ -755,7 +994,11 @@
         "Phase 3 specifies item fields: id, category, description (not 'title'), steps_to_verify, status, assigned_to, comments",
         "Phase 3 includes a concrete example JSON snippet showing the correct structure"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-1",
@@ -769,7 +1012,11 @@
         "npm run build succeeds with no type errors",
         "npm test passes"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-2",
@@ -780,7 +1027,11 @@
         "ralfie-run.md workflow references setting completed_at via completeItem",
         "The skill instructs the agent to use the updated prd.ts functions that handle timestamps automatically"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-3",
@@ -793,7 +1044,11 @@
         "Bar chart still uses recharts with accent color and dark theme styling",
         "npm run build succeeds for ui workspace"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-4",
@@ -805,7 +1060,11 @@
         "Short descriptions (under 3 lines) display normally without ellipsis",
         "Tailwind line-clamp-3 class or equivalent CSS is applied to the description div"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-5",
@@ -822,7 +1081,11 @@
         "Drawer closes on Escape key press",
         "Drawer width is approximately 40-50% of viewport on desktop"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-6",
@@ -837,7 +1100,11 @@
         "Clicking Move to Pending calls the reset endpoint and refreshes the board data",
         "Clicking Verify calls the existing verify endpoint and refreshes the board data"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-7",
@@ -853,7 +1120,11 @@
         "After submitting, the comment appears in the thread without full page refresh",
         "addCommentApi function exists in ui/src/lib/api.ts"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-8",
@@ -866,7 +1137,11 @@
         "Only one drawer is open at a time — clicking a different item replaces the current drawer content",
         "Drawer can be closed and reopened for the same item"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-9",
@@ -880,7 +1155,11 @@
         "Plan and Progress tabs still scroll normally (they are markdown content, not columns)",
         "Layout works correctly when the browser window is resized"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-10",
@@ -895,7 +1174,11 @@
         "ItemDrawer Verify and Move to Pending buttons are hidden during active runs",
         "All interactive elements reappear when the run completes (activeRuns returns to 0)"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-11",
@@ -911,7 +1194,11 @@
         "npm run build succeeds with no type errors",
         "npm test passes"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     },
     {
       "id": "DASH-12",
@@ -930,7 +1217,11 @@
         "Kanban columns scroll independently with fixed header and tabs",
         "Read-only banner appears during active runs"
       ],
-      "passes": true
+      "status": "done",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
     }
   ]
 }

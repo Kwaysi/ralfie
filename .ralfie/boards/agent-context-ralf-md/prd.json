@@ -20,7 +20,7 @@
       "assigned_to": null,
       "started_at": "2026-03-19T11:00:43.378Z",
       "completed_at": "2026-03-19T11:02:58.231Z",
-      "comments": []
+      "comments": ["Bug: boardEntry used markdown links instead of @ references — fixed in RALF-5"]
     },
     {
       "id": "RALF-2",
@@ -75,6 +75,23 @@
       "assigned_to": null,
       "started_at": "2026-03-19T11:04:32.029Z",
       "completed_at": "2026-03-19T11:06:19.668Z",
+      "comments": []
+    },
+    {
+      "id": "RALF-5",
+      "category": "RALF.md Generation",
+      "user_story": "As a ralfie agent, board progress files in RALF.md use @ references so Claude Code auto-loads them into context",
+      "description": "Fix boardEntry() in ralf-md.ts to use @.ralfie/boards/<name>/progress.md instead of markdown links, so Claude Code loads progress files automatically.",
+      "end_state": "boardEntry() outputs @ references instead of [progress](...) links. Existing RALF.md updated. All tests pass.",
+      "steps_to_verify": [
+        "npm test --workspace=cli -- --run ralf-md",
+        "npm test --workspace=cli -- --run board",
+        "Board entries in generated RALF.md use @ prefix, not markdown link syntax"
+      ],
+      "status": "done",
+      "assigned_to": null,
+      "started_at": "2026-03-20T00:00:00.000Z",
+      "completed_at": "2026-03-20T00:00:00.000Z",
       "comments": []
     }
   ]

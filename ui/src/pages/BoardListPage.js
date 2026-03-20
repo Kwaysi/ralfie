@@ -17,7 +17,13 @@ export default function BoardListPage() {
     const [boards, setBoards] = useState([]);
     const [error, setError] = useState(null);
     const load = useCallback(() => {
-        fetchBoards().then(setBoards).catch((e) => setError(e.message));
+        fetchBoards()
+            .then((b) => {
+            b.sort((a, z) => (z.meta.created_at ?? '').localeCompare(a.meta.created_at ?? ''));
+            return b;
+        })
+            .then(setBoards)
+            .catch((e) => setError(e.message));
     }, []);
     useEffect(load, [load]);
     useWs(useCallback(() => load(), [load]));
