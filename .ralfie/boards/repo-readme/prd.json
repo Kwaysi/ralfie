@@ -1,0 +1,104 @@
+{
+  "project": "repo-readme",
+  "description": "Comprehensive, marketing-friendly README.md for the Ralfie repository",
+  "items": [
+    {
+      "id": "README-1",
+      "category": "Image Cleanup",
+      "user_story": "As a README reader, I see clean image URLs so the page looks professional and images load reliably",
+      "description": "Rename the three screenshot files from timestamped names to clean, descriptive names: dashboard.png, boards.png, kanban.png",
+      "end_state": "docs/images/ contains exactly dashboard.png, boards.png, and kanban.png. The old timestamped files no longer exist.",
+      "steps_to_verify": [
+        "ls docs/images/ shows dashboard.png, boards.png, kanban.png",
+        "No files with 'Screenshot' in the name exist in docs/images/",
+        "All three images open correctly and match the original screenshots"
+      ],
+      "status": "done",
+      "assigned_to": null,
+      "started_at": "2026-03-20T00:35:12.368Z",
+      "completed_at": "2026-03-20T00:36:31.869Z",
+      "comments": []
+    },
+    {
+      "id": "README-2",
+      "category": "README Content",
+      "user_story": "As a new visitor, I immediately understand what Ralfie does and why I should care, so I keep reading",
+      "description": "Create README.md with hero section (name, tagline, one-liner pitch), a dashboard screenshot, a plain-language 'What is Ralfie?' explainer that avoids jargon, and a features list highlighting key capabilities",
+      "end_state": "README.md exists at repo root with: h1 title, tagline, pitch sentence, embedded dashboard screenshot, 'What is Ralfie?' section explaining the concept in simple terms, and a bullet-point features list",
+      "steps_to_verify": [
+        "README.md exists at repo root",
+        "Contains the pitch: 'Ralfie turns a product spec into working code — one task at a time, fully automated.'",
+        "Contains an embedded image reference to docs/images/dashboard.png",
+        "Contains a 'What is Ralfie?' or equivalent section",
+        "Contains a features list with at least 4 items",
+        "Language is approachable — no unexplained jargon like 'agentic loops' without context"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "README-3",
+      "category": "README Content",
+      "user_story": "As a developer, I can go from zero to running my first Ralfie board by following the README",
+      "description": "Add Quick Start section with prerequisites (Node.js, Claude Code), installation instructions (clone and build for now, with note about upcoming npm package), and step-by-step walkthrough of init → plan → run → serve",
+      "end_state": "README.md contains a Quick Start section with numbered steps covering: prerequisites, installation, ralf init, ralf plan, ralf run, and ralf serve. Includes a note that npm install -g is coming soon.",
+      "steps_to_verify": [
+        "README.md contains a 'Quick Start' or 'Getting Started' section",
+        "Prerequisites mention Node.js and Claude Code",
+        "Installation steps show git clone and npm run build",
+        "Mentions that npm install -g ralfie is coming",
+        "Shows the full workflow: init → plan → run → serve",
+        "Each step has a code block with the actual command"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "README-4",
+      "category": "README Content",
+      "user_story": "As a user, I can see all available CLI commands and what the dashboard looks like so I know the full scope of the tool",
+      "description": "Add CLI Reference section with a table of all commands and their descriptions, plus a Dashboard section showcasing all three screenshots (dashboard overview, boards list, kanban detail) with captions",
+      "end_state": "README.md contains a CLI Reference table listing all 9 commands (init, plan, edit, run, list, status, verify, unlock, serve) and a Dashboard section with all 3 screenshots embedded with descriptive captions",
+      "steps_to_verify": [
+        "README.md contains a 'CLI Reference' or 'Commands' section",
+        "Command table includes all 9 commands: init, plan, edit, run, list, status, verify, unlock, serve",
+        "Each command has a description",
+        "README.md contains a 'Dashboard' section",
+        "All three images are embedded: dashboard.png, boards.png, kanban.png",
+        "Each image has a caption or description"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "README-5",
+      "category": "README Content",
+      "user_story": "As a potential contributor, I understand the codebase structure and feel invited to participate in an early-stage project",
+      "description": "Add Architecture section (monorepo overview, workspace descriptions, data flow), Contributing section with early-stage callout encouraging forks/stars/participation, and License section",
+      "end_state": "README.md contains: Architecture section with monorepo structure and data flow, Contributing section with enthusiastic early-stage messaging encouraging users to star, fork, and contribute, and a License section",
+      "steps_to_verify": [
+        "README.md contains an 'Architecture' section",
+        "Architecture mentions the three workspaces: shared, cli, ui",
+        "Data flow is described (init → plan → run → serve)",
+        "README.md contains a 'Contributing' section",
+        "Contributing section mentions early-stage/alpha status",
+        "Contributing section encourages starring and forking",
+        "README.md contains a 'License' section"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    }
+  ]
+}
