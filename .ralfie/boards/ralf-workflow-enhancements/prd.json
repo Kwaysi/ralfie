@@ -1,0 +1,126 @@
+{
+  "project": "ralf-workflow-enhancements",
+  "description": "Conventional commits, auto-branch/PR on run completion, commit-msg hook enforcement, and dashboard item drawer cycling",
+  "items": [
+    {
+      "id": "SKILL-1",
+      "category": "Skill Updates",
+      "user_story": "As an agent running ralf run, I follow conventional commit format so that the git history is structured and readable",
+      "description": "Update ralf-run SKILL.md Step 7 with conventional commit format guidance — type from agent judgment, scope is board name, item ID in body",
+      "end_state": "SKILL.md Step 7 contains conventional commit format instructions with examples for common types (feat, fix, test, docs, refactor, chore) and shows item ID placement in the commit body",
+      "steps_to_verify": [
+        "Read cli/src/skills/ralf-run/SKILL.md and confirm Step 7 describes conventional commit format",
+        "Confirm the format shows scope as board name and item ID in the body",
+        "Confirm examples cover at least feat, fix, test, docs types"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "GIT-1",
+      "category": "Git Utilities",
+      "user_story": "As the CLI, I can perform git operations reliably so that branch/PR automation and hook management work correctly",
+      "description": "Create cli/src/lib/git.ts with utilities: isDirty, getDefaultBranch, listBranches (local+remote), nextBranchName, createAndCheckoutBranch, push, createPr, installCommitMsgHook",
+      "end_state": "cli/src/lib/git.ts exports all listed functions, each using execFileAsync for git/gh commands with proper error handling. Unit tests pass.",
+      "steps_to_verify": [
+        "File cli/src/lib/git.ts exists and exports isDirty, getDefaultBranch, listBranches, nextBranchName, createAndCheckoutBranch, push, createPr, installCommitMsgHook",
+        "isDirty returns true when there are staged or unstaged changes to tracked files",
+        "getDefaultBranch reads from git config or falls back to 'main'",
+        "listBranches returns both local and remote branches matching a prefix",
+        "nextBranchName returns <board>-1 when no prior branches exist, increments otherwise",
+        "installCommitMsgHook writes a commit-msg hook that validates conventional commit format",
+        "npm test passes with tests covering the git module"
+      ],
+      "status": "done",
+      "assigned_to": null,
+      "started_at": "2026-03-20T14:57:34.706Z",
+      "completed_at": "2026-03-20T15:01:44.508Z",
+      "comments": []
+    },
+    {
+      "id": "HOOK-1",
+      "category": "Git Hooks",
+      "user_story": "As a developer, my commits are validated against conventional commit format so the repo stays consistent",
+      "description": "Wire installCommitMsgHook into ralf init — installs a commit-msg hook that rejects non-conventional commits with a helpful error message",
+      "end_state": "Running ralf init installs a commit-msg hook in .git/hooks/commit-msg. The hook validates the subject line matches conventional commit format (type(scope): description). Invalid commits are rejected with an error showing the expected format. Existing ralfie-owned hooks are overwritten; non-ralfie hooks are preserved with a warning.",
+      "steps_to_verify": [
+        "Run ralf init and confirm .git/hooks/commit-msg exists and is executable",
+        "The hook file contains a ralfie marker comment for identification",
+        "A commit with message 'bad commit' is rejected with a helpful error",
+        "A commit with message 'feat(my-board): add feature' is accepted",
+        "A commit with message 'fix(my-board): resolve bug\\n\\nMY-1' is accepted",
+        "Running ralf init when a non-ralfie commit-msg hook exists prints a warning and does not overwrite it"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "RUN-1",
+      "category": "Run Command",
+      "user_story": "As a user running ralf run, my work is automatically isolated on a new branch so I don't pollute the default branch",
+      "description": "At the start of ralf run, check for dirty working tree (abort if dirty), compute next branch number by checking local+remote branches, create and checkout the new branch",
+      "end_state": "ralf run my-board creates branch my-board-1 (or next increment) and checks it out. If the working tree has uncommitted changes, it aborts with a message telling the user to clean up before running.",
+      "steps_to_verify": [
+        "Running ralf run with a dirty working tree prints an error and exits without starting",
+        "Running ralf run with a clean tree creates a new branch named <board>-N and checks it out",
+        "If my-board-1 exists locally, it creates my-board-2",
+        "If my-board-2 exists on remote but not locally, it creates my-board-3",
+        "git branch --show-current returns the new branch name after ralf run starts"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "RUN-2",
+      "category": "Run Command",
+      "user_story": "As a user, when a board's work is complete I get a ready-for-review PR automatically so I can go straight to code review",
+      "description": "When ralf run detects all items are done/verified, push the branch and create a PR via gh pr create with title from board description and body containing a checklist of completed item IDs and descriptions",
+      "end_state": "On completion, the branch is pushed to origin and a PR is created. PR title is the board description. PR body contains a markdown checklist of all items (- [x] ITEM-1: description). Base branch is the default branch from git config. The PR URL is printed to the console.",
+      "steps_to_verify": [
+        "When all items are done, ralf run pushes the current branch to origin",
+        "A PR is created via gh pr create targeting the default branch",
+        "PR title matches the board description",
+        "PR body contains a checklist with all item IDs and descriptions",
+        "The PR URL is printed to stdout",
+        "If gh is not installed, a clear error message is shown before the run starts"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "UI-1",
+      "category": "Dashboard",
+      "user_story": "As a dashboard user, I can cycle through items of the same status without closing the drawer so I can review items faster",
+      "description": "Add prev/next navigation to the item drawer — chevron up/down buttons in the drawer header and keyboard arrow up/down support, cycling within the same status column with wrap-around",
+      "end_state": "Item drawer shows chevron-up and chevron-down buttons. Clicking them or pressing arrow up/down navigates to the prev/next item within the same status. Cycling wraps around (first item up goes to last, last item down goes to first). The drawer updates in place without closing.",
+      "steps_to_verify": [
+        "Open an item drawer from the kanban board",
+        "Chevron up and chevron down icons are visible in the drawer header",
+        "Clicking chevron down navigates to the next item in the same status column",
+        "Clicking chevron up navigates to the previous item in the same status column",
+        "Pressing arrow down key navigates to the next item",
+        "Pressing arrow up key navigates to the previous item",
+        "At the last item, pressing down wraps to the first item in that status",
+        "At the first item, pressing up wraps to the last item in that status",
+        "The drawer content updates without closing and reopening"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    }
+  ]
+}
