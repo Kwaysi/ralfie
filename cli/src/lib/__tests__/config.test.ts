@@ -39,6 +39,8 @@ describe('config', () => {
       model: 'opus',
       user: '',
       serve_pid: null,
+      review_rounds: 3,
+      review_enabled: true,
     });
   });
 });

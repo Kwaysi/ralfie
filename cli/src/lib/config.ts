@@ -12,6 +12,8 @@ export const defaultConfig: RalfieConfig = {
   model: 'opus',
   user: '',
   serve_pid: null,
+  review_rounds: 3,
+  review_enabled: true,
 };
 
 export async function readConfig(cwd?: string): Promise<RalfieConfig> {

@@ -62,10 +62,11 @@
         "skills.ts installs ralf-review alongside other skills",
         "npm run build succeeds"
       ],
-      "status": "in_progress",
+      "status": "done",
       "assigned_to": "ralfie-1776097501987-2a92519a",
       "started_at": "2026-04-13T18:00:00.000Z",
-      "completed_at": null,
+      "completed_at": "2026-04-13T18:30:00.000Z",
+      "passes": true,
       "comments": []
     },
     {
@@ -85,9 +86,9 @@
         "npm run typecheck passes",
         "npm run test passes"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
+      "status": "in_progress",
+      "assigned_to": "ralfie-1776101544857-35784e72",
+      "started_at": "2026-04-13T19:00:00.000Z",
       "completed_at": null,
       "comments": []
     },
@@ -106,10 +107,11 @@
         "npm run typecheck passes",
         "npm run test passes"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
-      "completed_at": null,
+      "status": "done",
+      "assigned_to": "ralfie-1776101544857-35784e72",
+      "started_at": "2026-04-13T18:12:00.000Z",
+      "completed_at": "2026-04-13T18:30:00.000Z",
+      "passes": true,
       "comments": []
     }
   ]

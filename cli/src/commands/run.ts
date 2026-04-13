@@ -1,7 +1,7 @@
 import { boardExists } from '../lib/board.js';
 import { readConfig } from '../lib/config.js';
 import { syncClaudeSettings } from '../lib/claude-settings.js';
-import { generateSessionId, spawnPrintMode } from '../lib/agent.js';
+import { generateSessionId, spawnPrintMode, spawnResume } from '../lib/agent.js';
 import { prdPath, progressPath, planPath } from '../lib/paths.js';
 import { saveRunPid, removeRunPid } from '../lib/run-tracker.js';
 import {
@@ -68,22 +68,107 @@ export async function runCommand(
     for (let i = 1; i <= maxIterations; i++) {
       console.log(`\nIteration ${i}/${maxIterations}`);
 
-      const prompt = [
+      // Step 1: Spawn implementor with ralf-run
+      const implementPrompt = [
         `You are session ${sessionId}.`,
         `Use the /ralf-run skill to execute one iteration.`,
         `Board files: @${prd} @${progress} @${plan}`,
       ].join(' ');
 
-      const result = await spawnPrintMode(prompt, cwd);
+      const implResult = await spawnPrintMode(implementPrompt, cwd);
 
-      if (result.complete) {
+      if (implResult.exitCode !== 0) {
+        console.error(`\nAgent exited with code ${implResult.exitCode}. Stopping run.`);
+        process.exitCode = 1;
+        return;
+      }
+
+      if (implResult.complete) {
         console.log('\nAll items complete. Creating PR...');
         await pushAndCreatePr(boardName, cwd);
         return;
       }
 
-      if (result.exitCode !== 0) {
-        console.error(`\nAgent exited with code ${result.exitCode}. Stopping run.`);
+      const implSessionId = implResult.sessionId;
+
+      // Step 2: Review loop (if enabled)
+      let reviewPassed = !config.review_enabled;
+
+      if (config.review_enabled && implSessionId) {
+        for (let round = 1; round <= config.review_rounds; round++) {
+          console.log(`\nReview round ${round}/${config.review_rounds}`);
+
+          // Spawn independent reviewer
+          const reviewPrompt = [
+            `Use the /ralf-review skill to review uncommitted changes.`,
+            `PRD item context: @${prd}`,
+          ].join(' ');
+
+          const reviewResult = await spawnPrintMode(reviewPrompt, cwd);
+
+          if (reviewResult.exitCode !== 0) {
+            console.error(`\nReviewer exited with code ${reviewResult.exitCode}. Skipping review.`);
+            reviewPassed = true;
+            break;
+          }
+
+          // Check for LGTM
+          const resultText = reviewResult.stdout;
+          if (resultText.includes('<ralfie>LGTM</ralfie>')) {
+            console.log('\nReview passed: LGTM');
+            reviewPassed = true;
+            break;
+          }
+
+          // Not LGTM — resume implementor with findings
+          if (round < config.review_rounds) {
+            console.log('\nReview found issues. Resuming implementor with findings...');
+            const fixPrompt = [
+              `The code reviewer found issues with your implementation. Please fix them:`,
+              resultText,
+              `After fixing, re-run all feedback loops (typecheck, test, lint) to verify.`,
+            ].join('\n\n');
+
+            const fixResult = await spawnResume(implSessionId, fixPrompt, cwd);
+
+            if (fixResult.exitCode !== 0) {
+              console.error(`\nImplementor fix round exited with code ${fixResult.exitCode}. Proceeding to finalize.`);
+              reviewPassed = true;
+              break;
+            }
+          } else {
+            console.log(`\nMax review rounds (${config.review_rounds}) reached. Proceeding to finalize.`);
+            reviewPassed = true;
+          }
+        }
+      }
+
+      if (!reviewPassed) {
+        reviewPassed = true; // Fallback: always proceed to finalize
+      }
+
+      // Step 3: Finalize — resume implementor with ralf-finalize
+      const finalizePrompt = [
+        `Use the /ralf-finalize skill to finalize the completed item.`,
+        `Board files: @${prd} @${progress} @${plan}`,
+      ].join(' ');
+
+      let finalizeResult;
+      if (implSessionId) {
+        finalizeResult = await spawnResume(implSessionId, finalizePrompt, cwd);
+      } else {
+        // No session ID available (e.g. review disabled and no JSON output) — spawn fresh
+        finalizeResult = await spawnPrintMode(finalizePrompt, cwd);
+      }
+
+      if (finalizeResult.complete) {
+        console.log('\nAll items complete. Creating PR...');
+        await pushAndCreatePr(boardName, cwd);
+        return;
+      }
+
+      if (finalizeResult.exitCode !== 0) {
+        console.error(`\nFinalize exited with code ${finalizeResult.exitCode}. Stopping run.`);
         process.exitCode = 1;
         return;
       }

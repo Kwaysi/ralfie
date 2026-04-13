@@ -61,6 +61,8 @@ export interface RalfieConfig {
   model: AgentModel;
   user: string;
   serve_pid: number | null;
+  review_rounds: number;
+  review_enabled: boolean;
 }
 
 // -- WebSocket events --
