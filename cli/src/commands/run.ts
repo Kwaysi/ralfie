@@ -113,7 +113,7 @@ export async function runCommand(
           }
 
           // Check for LGTM
-          const resultText = reviewResult.stdout;
+          const resultText = reviewResult.result;
           if (resultText.includes('<ralfie>LGTM</ralfie>')) {
             console.log('\nReview passed: LGTM');
             reviewPassed = true;

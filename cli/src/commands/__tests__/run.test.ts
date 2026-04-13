@@ -12,8 +12,8 @@ vi.mock('../../lib/agent.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/agent.js')>();
   return {
     ...actual,
-    spawnPrintMode: vi.fn().mockResolvedValue({ exitCode: 0, stdout: '', complete: false, sessionId: null }),
-    spawnResume: vi.fn().mockResolvedValue({ exitCode: 0, stdout: '', complete: false, sessionId: null }),
+    spawnPrintMode: vi.fn().mockResolvedValue({ exitCode: 0, stdout: '', result: '', complete: false, sessionId: null }),
+    spawnResume: vi.fn().mockResolvedValue({ exitCode: 0, stdout: '', result: '', complete: false, sessionId: null }),
   };
 });
 
@@ -57,8 +57,8 @@ beforeEach(async () => {
   vi.clearAllMocks();
   const { spawnPrintMode, spawnResume } = await import('../../lib/agent.js');
   // Default: implementor succeeds, reviewer returns LGTM — review passes on first round
-  (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({ exitCode: 0, stdout: '<ralfie>LGTM</ralfie>', complete: false, sessionId: 'test-session-1' });
-  (spawnResume as ReturnType<typeof vi.fn>).mockResolvedValue({ exitCode: 0, stdout: '', complete: false, sessionId: 'test-session-1' });
+  (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({ exitCode: 0, stdout: '', result: '<ralfie>LGTM</ralfie>', complete: false, sessionId: 'test-session-1' });
+  (spawnResume as ReturnType<typeof vi.fn>).mockResolvedValue({ exitCode: 0, stdout: '', result: '', complete: false, sessionId: 'test-session-1' });
   const { isDirty, isGhInstalled, nextBranchName, createAndCheckoutBranch, push, createPr, getDefaultBranch } = await import('../../lib/git.js');
   (isDirty as ReturnType<typeof vi.fn>).mockResolvedValue(false);
   (isGhInstalled as ReturnType<typeof vi.fn>).mockResolvedValue(true);
@@ -136,7 +136,8 @@ describe('run', () => {
     const { spawnPrintMode } = await import('../../lib/agent.js');
     (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({
       exitCode: 0,
-      stdout: '<ralfie>COMPLETE</ralfie>',
+      stdout: '',
+      result: '<ralfie>COMPLETE</ralfie>',
       complete: true,
       sessionId: null,
     });
@@ -192,6 +193,7 @@ describe('run', () => {
     (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({
       exitCode: 1,
       stdout: '',
+      result: '',
       complete: false,
       sessionId: null,
     });
@@ -324,7 +326,8 @@ describe('run', () => {
     const { spawnPrintMode } = await import('../../lib/agent.js');
     (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({
       exitCode: 0,
-      stdout: '<ralfie>COMPLETE</ralfie>',
+      stdout: '',
+      result: '<ralfie>COMPLETE</ralfie>',
       complete: true,
       sessionId: null,
     });
@@ -355,7 +358,8 @@ describe('run', () => {
     const { spawnPrintMode } = await import('../../lib/agent.js');
     (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({
       exitCode: 0,
-      stdout: '<ralfie>COMPLETE</ralfie>',
+      stdout: '',
+      result: '<ralfie>COMPLETE</ralfie>',
       complete: true,
       sessionId: null,
     });
@@ -398,14 +402,15 @@ describe('run', () => {
       callCount++;
       if (callCount === 1) {
         // Implementor
-        return Promise.resolve({ exitCode: 0, stdout: '', complete: false, sessionId: 'impl-123' });
+        return Promise.resolve({ exitCode: 0, stdout: '', result: '', complete: false, sessionId: 'impl-123' });
       }
       if (callCount === 2) {
         // Reviewer round 1 — findings
-        return Promise.resolve({ exitCode: 0, stdout: '## Review Findings\n### [CRITICAL] — Bug', complete: false, sessionId: 'rev-1' });
+        const findings = '## Review Findings\n### [CRITICAL] — Bug';
+        return Promise.resolve({ exitCode: 0, stdout: '', result: findings, complete: false, sessionId: 'rev-1' });
       }
       // Reviewer round 2 — LGTM
-      return Promise.resolve({ exitCode: 0, stdout: '<ralfie>LGTM</ralfie>', complete: false, sessionId: 'rev-2' });
+      return Promise.resolve({ exitCode: 0, stdout: '', result: '<ralfie>LGTM</ralfie>', complete: false, sessionId: 'rev-2' });
     });
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -441,10 +446,10 @@ describe('run', () => {
       callCount++;
       if (callCount === 1) {
         // Implementor
-        return Promise.resolve({ exitCode: 0, stdout: '', complete: false, sessionId: 'impl-123' });
+        return Promise.resolve({ exitCode: 0, stdout: '', result: '', complete: false, sessionId: 'impl-123' });
       }
       // All reviewer rounds return findings (never LGTM)
-      return Promise.resolve({ exitCode: 0, stdout: '## Findings', complete: false, sessionId: `rev-${callCount}` });
+      return Promise.resolve({ exitCode: 0, stdout: '', result: '## Findings', complete: false, sessionId: `rev-${callCount}` });
     });
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -508,7 +513,8 @@ describe('run', () => {
     const { spawnResume } = await import('../../lib/agent.js');
     (spawnResume as ReturnType<typeof vi.fn>).mockResolvedValue({
       exitCode: 0,
-      stdout: '<ralfie>COMPLETE</ralfie>',
+      stdout: '',
+      result: '<ralfie>COMPLETE</ralfie>',
       complete: true,
       sessionId: 'test-session-1',
     });

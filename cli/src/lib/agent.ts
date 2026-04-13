@@ -5,6 +5,7 @@ import { readConfig } from './config.js';
 export interface SpawnResult {
   exitCode: number;
   stdout: string;
+  result: string;
   complete: boolean;
   sessionId: string | null;
 }
@@ -104,6 +105,7 @@ function spawnWithJsonOutput(cmd: string, args: string[], cwd: string): Promise<
       resolve({
         exitCode: code,
         stdout,
+        result,
         complete: result.includes('<ralfie>COMPLETE</ralfie>'),
         sessionId,
       });
