@@ -12,7 +12,7 @@ vi.mock('../../lib/agent.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../lib/agent.js')>();
   return {
     ...actual,
-    spawnPrintMode: vi.fn().mockResolvedValue({ exitCode: 0, stdout: '', complete: false }),
+    spawnPrintMode: vi.fn().mockResolvedValue({ exitCode: 0, stdout: '', complete: false, sessionId: null }),
   };
 });
 
@@ -55,7 +55,7 @@ beforeEach(async () => {
   process.exitCode = 0;
   vi.clearAllMocks();
   const { spawnPrintMode } = await import('../../lib/agent.js');
-  (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({ exitCode: 0, stdout: '', complete: false });
+  (spawnPrintMode as ReturnType<typeof vi.fn>).mockResolvedValue({ exitCode: 0, stdout: '', complete: false, sessionId: null });
   const { isDirty, isGhInstalled, nextBranchName, createAndCheckoutBranch, push, createPr, getDefaultBranch } = await import('../../lib/git.js');
   (isDirty as ReturnType<typeof vi.fn>).mockResolvedValue(false);
   (isGhInstalled as ReturnType<typeof vi.fn>).mockResolvedValue(true);
@@ -137,6 +137,7 @@ describe('run', () => {
       exitCode: 0,
       stdout: '<ralfie>COMPLETE</ralfie>',
       complete: true,
+      sessionId: null,
     });
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -191,6 +192,7 @@ describe('run', () => {
       exitCode: 1,
       stdout: '',
       complete: false,
+      sessionId: null,
     });
 
     const err = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -323,6 +325,7 @@ describe('run', () => {
       exitCode: 0,
       stdout: '<ralfie>COMPLETE</ralfie>',
       complete: true,
+      sessionId: null,
     });
 
     const { push, createPr, getDefaultBranch } = await import('../../lib/git.js');
@@ -353,6 +356,7 @@ describe('run', () => {
       exitCode: 0,
       stdout: '<ralfie>COMPLETE</ralfie>',
       complete: true,
+      sessionId: null,
     });
 
     const { createPr } = await import('../../lib/git.js');

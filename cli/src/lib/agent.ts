@@ -6,6 +6,26 @@ export interface SpawnResult {
   exitCode: number;
   stdout: string;
   complete: boolean;
+  sessionId: string | null;
+}
+
+export interface JsonOutput {
+  type: string;
+  session_id?: string;
+  result?: string;
+  stop_reason?: string;
+}
+
+export function parseJsonOutput(raw: string): { sessionId: string | null; result: string } {
+  try {
+    const parsed = JSON.parse(raw) as JsonOutput;
+    return {
+      sessionId: parsed.session_id ?? null,
+      result: parsed.result ?? raw,
+    };
+  } catch {
+    return { sessionId: null, result: raw };
+  }
 }
 
 export function generateSessionId(): string {
@@ -56,18 +76,11 @@ export async function spawnInteractive(
   });
 }
 
-export async function spawnPrintMode(
-  prompt: string,
-  cwd?: string,
-): Promise<SpawnResult> {
-  const config = await readConfig(cwd);
-  const [cmd, ...baseArgs] = config.agent_command.split(/\s+/);
-  const args = [...baseArgs, '-p', prompt];
-
+function spawnWithJsonOutput(cmd: string, args: string[], cwd: string): Promise<SpawnResult> {
   return new Promise((resolve) => {
     const child = spawn(cmd, args, {
       stdio: ['inherit', 'pipe', 'inherit'],
-      cwd: cwd ?? process.cwd(),
+      cwd,
       detached: true,
     });
 
@@ -78,7 +91,6 @@ export async function spawnPrintMode(
       if (resolved) return;
       resolved = true;
 
-      // Kill the entire process group to clean up any orphaned children
       if (child.pid) {
         try {
           process.kill(-child.pid, 'SIGTERM');
@@ -87,10 +99,13 @@ export async function spawnPrintMode(
         }
       }
 
+      const { sessionId, result } = parseJsonOutput(stdout);
+
       resolve({
         exitCode: code,
         stdout,
-        complete: stdout.includes('<ralfie>COMPLETE</ralfie>'),
+        complete: result.includes('<ralfie>COMPLETE</ralfie>'),
+        sessionId,
       });
     };
 
@@ -108,4 +123,25 @@ export async function spawnPrintMode(
       finish(1);
     });
   });
+}
+
+export async function spawnPrintMode(
+  prompt: string,
+  cwd?: string,
+): Promise<SpawnResult> {
+  const config = await readConfig(cwd);
+  const [cmd, ...baseArgs] = config.agent_command.split(/\s+/);
+  const args = [...baseArgs, '-p', prompt, '--output-format', 'json'];
+  return spawnWithJsonOutput(cmd, args, cwd ?? process.cwd());
+}
+
+export async function spawnResume(
+  sessionId: string,
+  prompt: string,
+  cwd?: string,
+): Promise<SpawnResult> {
+  const config = await readConfig(cwd);
+  const [cmd, ...baseArgs] = config.agent_command.split(/\s+/);
+  const args = [...baseArgs, '--resume', sessionId, '-p', prompt, '--output-format', 'json'];
+  return spawnWithJsonOutput(cmd, args, cwd ?? process.cwd());
 }
