@@ -113,3 +113,9 @@ All 4 files must exist for the board to work correctly with `ralf` commands.
    - **<board-name>** — <description> → [progress](.ralfie/boards/<board-name>/progress.md)
    ```
    If `.ralfie/RALF.md` doesn't exist, create it first with `ensureRalfMd()` or by writing the full template.
+
+6. **Commit the board** — Create a git commit with all board files:
+   ```
+   docs(<board-name>): create board plan and PRD
+   ```
+   Stage only the board files (meta.json, plan.md, prd.json, progress.md) and the updated RALF.md.
