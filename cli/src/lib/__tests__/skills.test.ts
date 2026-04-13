@@ -15,7 +15,7 @@ afterEach(async () => {
 });
 
 describe('skills', () => {
-  it('installSkills copies all 4 skills to .claude/skills/<name>/SKILL.md', async () => {
+  it('installSkills copies all 5 skills to .claude/skills/<name>/SKILL.md', async () => {
     await installSkills(tmp);
     for (const name of SKILL_NAMES) {
       const content = await readFile(join(tmp, '.claude', 'skills', name, 'SKILL.md'), 'utf-8');
@@ -75,6 +75,18 @@ describe('skills', () => {
     expect(content).toContain('Update PRD');
     expect(content).toContain('Commit');
     expect(content).toContain('Check Completion');
+  });
+
+  it('ralf-review contains review criteria and output format', async () => {
+    await installSkills(tmp);
+    const content = await readFile(join(tmp, '.claude', 'skills', 'ralf-review', 'SKILL.md'), 'utf-8');
+    expect(content).toContain('name: ralf-review');
+    expect(content).toContain('Security');
+    expect(content).toContain('Code Quality');
+    expect(content).toContain('Completeness');
+    expect(content).toContain('<ralfie>LGTM</ralfie>');
+    expect(content).toContain('CRITICAL');
+    expect(content).toContain('WARNING');
   });
 
   it('skillsInstalled returns false when skills not installed', async () => {

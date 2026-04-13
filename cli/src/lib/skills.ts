@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SKILL_NAMES = ['ralf-plan', 'ralf-edit', 'ralf-run', 'ralf-finalize'] as const;
+const SKILL_NAMES = ['ralf-plan', 'ralf-edit', 'ralf-run', 'ralf-finalize', 'ralf-review'] as const;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

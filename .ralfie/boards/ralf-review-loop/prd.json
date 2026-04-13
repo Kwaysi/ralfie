@@ -62,9 +62,9 @@
         "skills.ts installs ralf-review alongside other skills",
         "npm run build succeeds"
       ],
-      "status": "pending",
-      "assigned_to": null,
-      "started_at": null,
+      "status": "in_progress",
+      "assigned_to": "ralfie-1776097501987-2a92519a",
+      "started_at": "2026-04-13T18:00:00.000Z",
       "completed_at": null,
       "comments": []
     },

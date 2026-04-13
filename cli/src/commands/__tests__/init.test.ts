@@ -36,7 +36,7 @@ describe('init', () => {
 
     // .claude/skills/ folders exist with SKILL.md
     const skillsDir = join(tmp, '.claude', 'skills');
-    for (const name of ['ralf-plan', 'ralf-edit', 'ralf-run', 'ralf-finalize']) {
+    for (const name of ['ralf-plan', 'ralf-edit', 'ralf-run', 'ralf-finalize', 'ralf-review']) {
       const content = await readFile(join(skillsDir, name, 'SKILL.md'), 'utf-8');
       expect(content.length).toBeGreaterThan(0);
     }
