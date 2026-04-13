@@ -33,6 +33,10 @@ Review the diff against each criterion below. For each, note any findings.
 - Error handling is present where needed (at system boundaries)
 - No dead code, unused imports, or commented-out blocks introduced
 - Functions and variables have clear, descriptive names
+- Cyclomatic complexity of any single function stays below 10 — if a function has deeply nested conditionals, long switch statements, or many branching paths, flag it
+- DRY: no significant logic duplicated across functions or files — shared behavior should be extracted into a common helper
+- Prefer deep modules: modules should have simple interfaces that hide internal complexity, not shallow wrappers that just forward calls
+- File length: individual files should not grow excessively long — if a file has grown beyond ~500 lines or mixes unrelated concerns, flag it for splitting into focused, cohesive modules
 
 ### Completeness
 - The changes satisfy the PRD item's description and end_state
