@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ItemDrawer from "./ItemDrawer";
 const columns = [
     { status: "pending", label: "Pending", color: "var(--text-muted)" },
@@ -29,11 +29,22 @@ function sortColumnItems(items, status) {
 export default function PrdKanban({ items, onVerify, onRefresh, boardName, activeRuns, progressContent }) {
     const [selectedId, setSelectedId] = useState(null);
     const selectedItem = selectedId ? items.find((i) => i.id === selectedId) ?? null : null;
+    // Build sorted column maps so ItemDrawer can cycle within the same status
+    const columnItemIds = useMemo(() => {
+        const map = {};
+        for (const col of columns) {
+            const colItems = items.filter((i) => i.status === col.status);
+            sortColumnItems(colItems, col.status);
+            map[col.status] = colItems.map((i) => i.id);
+        }
+        return map;
+    }, [items]);
+    const siblingIds = selectedItem ? columnItemIds[selectedItem.status] ?? [] : [];
     return (_jsxs(_Fragment, { children: [_jsx("div", { className: "grid grid-cols-5 gap-3 h-full", children: columns.map((col) => {
                     const colItems = items.filter((i) => i.status === col.status);
                     sortColumnItems(colItems, col.status);
                     return (_jsxs("div", { className: "min-w-0 flex flex-col min-h-0", children: [_jsxs("div", { className: "text-xs font-bold uppercase tracking-wide mb-3 flex items-center justify-between shrink-0", style: { color: col.color }, children: [_jsx("span", { children: col.label }), _jsx("span", { className: "text-[var(--text-muted)] font-normal", children: colItems.length })] }), _jsx("div", { className: "flex flex-col gap-2 overflow-y-auto min-h-0 flex-1", children: colItems.map((item) => (_jsx(ItemCard, { item: item, onClick: () => setSelectedId(item.id), onVerify: item.status === "done" && activeRuns === 0 ? () => onVerify(item.id) : undefined }, item.id))) })] }, col.status));
-                }) }), _jsx(ItemDrawer, { item: selectedItem, onClose: () => setSelectedId(null), boardName: boardName, activeRuns: activeRuns, onRefresh: onRefresh, progressContent: progressContent })] }));
+                }) }), _jsx(ItemDrawer, { item: selectedItem, onClose: () => setSelectedId(null), onNavigate: setSelectedId, siblingIds: siblingIds, boardName: boardName, activeRuns: activeRuns, onRefresh: onRefresh, progressContent: progressContent })] }));
 }
 function ItemCard({ item, onClick, onVerify, }) {
     return (_jsxs("div", { className: "bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 text-xs cursor-pointer hover:border-[var(--accent)] transition-colors", onClick: onClick, children: [_jsx("div", { className: "font-bold font-mono mb-1", children: item.id }), _jsx("div", { className: "text-[var(--text-muted)] mb-1", children: item.category }), _jsx("div", { className: "mb-2 leading-relaxed line-clamp-3", children: item.description }), item.assigned_to && (_jsxs("div", { className: "text-[var(--accent)] mb-1 truncate", children: ["\u26A1 ", item.assigned_to] })), _jsxs("div", { className: "flex items-center justify-between", children: [item.comments.length > 0 && (_jsxs("span", { className: "text-[var(--text-muted)]", children: ["\uD83D\uDCAC ", item.comments.length] })), onVerify && (_jsx("button", { onClick: (e) => { e.stopPropagation(); onVerify(); }, className: "ml-auto px-2 py-1 rounded text-xs bg-[var(--success)] text-black font-bold hover:opacity-80 cursor-pointer", children: "Verify" }))] })] }));

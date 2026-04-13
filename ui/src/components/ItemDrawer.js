@@ -1,5 +1,5 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useEffect, useMemo, useState } from "react";
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { verifyItem, resetItemApi, addCommentApi } from "../lib/api";
@@ -29,7 +29,7 @@ function formatTimestamp(ts) {
         minute: "2-digit",
     });
 }
-export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, onRefresh, progressContent }) {
+export default function ItemDrawer({ item, onClose, onNavigate, siblingIds = [], boardName, activeRuns = 0, onRefresh, progressContent }) {
     const [commentText, setCommentText] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const progressEntry = useMemo(() => {
@@ -40,16 +40,38 @@ export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, o
             return null;
         return entries.find((e) => e.heading.startsWith(item.id)) ?? null;
     }, [item, progressContent]);
+    const currentIndex = item ? siblingIds.indexOf(item.id) : -1;
+    const hasSiblings = siblingIds.length > 1 && currentIndex !== -1;
+    const navigatePrev = useCallback(() => {
+        if (!hasSiblings || !onNavigate)
+            return;
+        const prevIndex = currentIndex === 0 ? siblingIds.length - 1 : currentIndex - 1;
+        onNavigate(siblingIds[prevIndex]);
+    }, [hasSiblings, onNavigate, currentIndex, siblingIds]);
+    const navigateNext = useCallback(() => {
+        if (!hasSiblings || !onNavigate)
+            return;
+        const nextIndex = currentIndex === siblingIds.length - 1 ? 0 : currentIndex + 1;
+        onNavigate(siblingIds[nextIndex]);
+    }, [hasSiblings, onNavigate, currentIndex, siblingIds]);
     useEffect(() => {
         if (!item)
             return;
         function handleKeyDown(e) {
             if (e.key === "Escape")
                 onClose();
+            if (e.key === "ArrowUp") {
+                e.preventDefault();
+                navigatePrev();
+            }
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                navigateNext();
+            }
         }
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [item, onClose]);
+    }, [item, onClose, navigatePrev, navigateNext]);
     if (!item)
         return null;
     const color = statusColors[item.status];
@@ -83,7 +105,7 @@ export default function ItemDrawer({ item, onClose, boardName, activeRuns = 0, o
         }
     }
     return (_jsx("div", { className: "fixed inset-0 bg-black/40 z-50 flex justify-end", onClick: (e) => { if (e.target === e.currentTarget)
-            onClose(); }, children: _jsxs("div", { className: "w-[45vw] max-w-[720px] min-w-[360px] h-full bg-[var(--bg)] border-l border-[var(--border)] overflow-y-auto", children: [_jsxs("div", { className: "sticky top-0 bg-[var(--bg)] border-b border-[var(--border)] p-5 flex items-center gap-3", children: [_jsx("span", { className: "font-mono font-bold text-base", children: item.id }), _jsx("span", { className: "px-2 py-0.5 rounded text-xs font-bold", style: { backgroundColor: color, color: "#000" }, children: statusLabels[item.status] }), _jsx("span", { className: "px-2 py-0.5 rounded text-xs bg-[var(--border)] text-[var(--text-muted)]", children: item.category }), _jsx("button", { onClick: onClose, className: "ml-auto text-[var(--text-muted)] hover:text-[var(--text)] text-lg cursor-pointer", children: "\u2715" })] }), _jsxs("div", { className: "p-5 space-y-5", children: [(showVerify || showReset) && (_jsxs("div", { className: "flex gap-2", children: [showVerify && (_jsx("button", { onClick: handleVerify, className: "px-3 py-1.5 rounded text-sm font-bold cursor-pointer", style: { backgroundColor: "var(--success)", color: "#000" }, children: "Verify" })), showReset && (_jsx("button", { onClick: handleReset, className: "px-3 py-1.5 rounded text-sm font-bold cursor-pointer", style: { backgroundColor: "var(--text-muted)", color: "#000" }, children: "Move to Pending" }))] })), _jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "Description" }), _jsx("p", { className: "text-sm leading-relaxed", children: item.description })] }), item.user_story && (_jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "User Story" }), _jsx("p", { className: "text-sm leading-relaxed italic text-[var(--text-muted)]", children: item.user_story })] })), item.end_state && (_jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "End State" }), _jsx("p", { className: "text-sm leading-relaxed", children: item.end_state })] })), item.assigned_to && (_jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "Assigned To" }), _jsx("span", { className: "text-sm text-[var(--accent)]", children: item.assigned_to })] })), (item.started_at || item.completed_at) && (_jsxs("section", { className: "flex gap-6 text-xs text-[var(--text-muted)]", children: [item.started_at && (_jsxs("div", { children: [_jsx("span", { className: "uppercase tracking-wide font-bold", children: "Started " }), formatTimestamp(item.started_at)] })), item.completed_at && (_jsxs("div", { children: [_jsx("span", { className: "uppercase tracking-wide font-bold", children: "Completed " }), formatTimestamp(item.completed_at)] }))] })), _jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "Steps to Verify" }), _jsx("ul", { className: "space-y-1.5", children: item.steps_to_verify.map((step, i) => (_jsxs("li", { className: "flex items-start gap-2 text-sm", children: [_jsx("span", { className: "mt-0.5 text-xs select-none", children: item.status === "verified" ? (_jsx("span", { className: "text-[var(--success)]", children: "\u2713" })) : (_jsx("span", { className: "text-[var(--border)]", children: "\u25CB" })) }), _jsx("span", { className: "leading-relaxed", children: step })] }, i))) })] }), _jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "Progress" }), progressEntry ? (_jsx("div", { className: "rounded-lg border p-4 prose prose-invert max-w-none text-sm", style: {
+            onClose(); }, children: _jsxs("div", { className: "w-[45vw] max-w-[720px] min-w-[360px] h-full bg-[var(--bg)] border-l border-[var(--border)] overflow-y-auto", children: [_jsxs("div", { className: "sticky top-0 bg-[var(--bg)] border-b border-[var(--border)] p-5 flex items-center gap-3", children: [_jsx("span", { className: "font-mono font-bold text-base", children: item.id }), _jsx("span", { className: "px-2 py-0.5 rounded text-xs font-bold", style: { backgroundColor: color, color: "#000" }, children: statusLabels[item.status] }), _jsx("span", { className: "px-2 py-0.5 rounded text-xs bg-[var(--border)] text-[var(--text-muted)]", children: item.category }), _jsxs("div", { className: "ml-auto flex items-center gap-1", children: [hasSiblings && (_jsxs(_Fragment, { children: [_jsx("button", { onClick: navigatePrev, className: "p-1 text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer rounded hover:bg-[var(--border)]", title: "Previous item (\u2191)", children: _jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("polyline", { points: "4,10 8,6 12,10" }) }) }), _jsx("button", { onClick: navigateNext, className: "p-1 text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer rounded hover:bg-[var(--border)]", title: "Next item (\u2193)", children: _jsx("svg", { width: "16", height: "16", viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: _jsx("polyline", { points: "4,6 8,10 12,6" }) }) }), _jsxs("span", { className: "text-xs text-[var(--text-muted)] tabular-nums ml-1", children: [currentIndex + 1, "/", siblingIds.length] })] })), _jsx("button", { onClick: onClose, className: "ml-1 p-1 text-[var(--text-muted)] hover:text-[var(--text)] text-lg cursor-pointer", children: "\u2715" })] })] }), _jsxs("div", { className: "p-5 space-y-5", children: [(showVerify || showReset) && (_jsxs("div", { className: "flex gap-2", children: [showVerify && (_jsx("button", { onClick: handleVerify, className: "px-3 py-1.5 rounded text-sm font-bold cursor-pointer", style: { backgroundColor: "var(--success)", color: "#000" }, children: "Verify" })), showReset && (_jsx("button", { onClick: handleReset, className: "px-3 py-1.5 rounded text-sm font-bold cursor-pointer", style: { backgroundColor: "var(--text-muted)", color: "#000" }, children: "Move to Pending" }))] })), _jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "Description" }), _jsx("p", { className: "text-sm leading-relaxed", children: item.description })] }), item.user_story && (_jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "User Story" }), _jsx("p", { className: "text-sm leading-relaxed italic text-[var(--text-muted)]", children: item.user_story })] })), item.end_state && (_jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "End State" }), _jsx("p", { className: "text-sm leading-relaxed", children: item.end_state })] })), item.assigned_to && (_jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "Assigned To" }), _jsx("span", { className: "text-sm text-[var(--accent)]", children: item.assigned_to })] })), (item.started_at || item.completed_at) && (_jsxs("section", { className: "flex gap-6 text-xs text-[var(--text-muted)]", children: [item.started_at && (_jsxs("div", { children: [_jsx("span", { className: "uppercase tracking-wide font-bold", children: "Started " }), formatTimestamp(item.started_at)] })), item.completed_at && (_jsxs("div", { children: [_jsx("span", { className: "uppercase tracking-wide font-bold", children: "Completed " }), formatTimestamp(item.completed_at)] }))] })), _jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "Steps to Verify" }), _jsx("ul", { className: "space-y-1.5", children: item.steps_to_verify.map((step, i) => (_jsxs("li", { className: "flex items-start gap-2 text-sm", children: [_jsx("span", { className: "mt-0.5 text-xs select-none", children: item.status === "verified" ? (_jsx("span", { className: "text-[var(--success)]", children: "\u2713" })) : (_jsx("span", { className: "text-[var(--border)]", children: "\u25CB" })) }), _jsx("span", { className: "leading-relaxed", children: step })] }, i))) })] }), _jsxs("section", { children: [_jsx("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: "Progress" }), progressEntry ? (_jsx("div", { className: "rounded-lg border p-4 prose prose-invert max-w-none text-sm", style: {
                                         backgroundColor: "var(--bg-card)",
                                         borderColor: "var(--border)",
                                     }, children: _jsx(ReactMarkdown, { remarkPlugins: [remarkGfm], children: progressEntry.body }) })) : (_jsx("p", { className: "text-sm text-[var(--text-muted)]", children: "No progress entry yet" }))] }), _jsxs("section", { children: [_jsxs("h3", { className: "text-xs font-bold uppercase tracking-wide text-[var(--text-muted)] mb-2", children: ["Comments (", item.comments.length, ")"] }), item.comments.length === 0 ? (_jsx("p", { className: "text-sm text-[var(--text-muted)]", children: "No comments yet" })) : (_jsx("div", { className: "space-y-3", children: item.comments.map((comment, i) => {

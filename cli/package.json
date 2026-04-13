@@ -1,6 +1,6 @@
 {
   "name": "ralfie-cli",
-  "version": "0.0.10",
+  "version": "1.0.0",
   "type": "module",
   "bin": {
     "ralf": "dist/index.js"

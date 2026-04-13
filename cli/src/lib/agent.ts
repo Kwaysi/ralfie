@@ -26,14 +26,32 @@ export async function spawnInteractive(
     const child = spawn(cmd, args, {
       stdio: 'inherit',
       cwd: cwd ?? process.cwd(),
+      detached: true,
     });
 
+    let resolved = false;
+
+    const finish = (code: number) => {
+      if (resolved) return;
+      resolved = true;
+
+      if (child.pid) {
+        try {
+          process.kill(-child.pid, 'SIGTERM');
+        } catch {
+          // Process group already gone — ignore
+        }
+      }
+
+      resolve(code);
+    };
+
     child.on('close', (code) => {
-      resolve(code ?? 1);
+      finish(code ?? 1);
     });
 
     child.on('error', () => {
-      resolve(1);
+      finish(1);
     });
   });
 }
@@ -50,9 +68,31 @@ export async function spawnPrintMode(
     const child = spawn(cmd, args, {
       stdio: ['inherit', 'pipe', 'inherit'],
       cwd: cwd ?? process.cwd(),
+      detached: true,
     });
 
     let stdout = '';
+    let resolved = false;
+
+    const finish = (code: number) => {
+      if (resolved) return;
+      resolved = true;
+
+      // Kill the entire process group to clean up any orphaned children
+      if (child.pid) {
+        try {
+          process.kill(-child.pid, 'SIGTERM');
+        } catch {
+          // Process group already gone — ignore
+        }
+      }
+
+      resolve({
+        exitCode: code,
+        stdout,
+        complete: stdout.includes('<ralfie>COMPLETE</ralfie>'),
+      });
+    };
 
     child.stdout!.on('data', (chunk: Buffer) => {
       const text = chunk.toString();
@@ -61,19 +101,11 @@ export async function spawnPrintMode(
     });
 
     child.on('close', (code) => {
-      resolve({
-        exitCode: code ?? 1,
-        stdout,
-        complete: stdout.includes('<ralfie>COMPLETE</ralfie>'),
-      });
+      finish(code ?? 1);
     });
 
     child.on('error', () => {
-      resolve({
-        exitCode: 1,
-        stdout,
-        complete: false,
-      });
+      finish(1);
     });
   });
 }

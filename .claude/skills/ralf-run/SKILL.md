@@ -5,6 +5,17 @@ description: Execute a ralfie board iteration — pick a task, implement it, run
 
 # ralfie-run
 
+## When to Use
+
+This skill MUST be used whenever implementing items from a ralfie board. If a board exists in `.ralfie/boards/` and the task involves implementing, running, or executing PRD items from that board, invoke this skill. This includes when:
+- The user says "run the board", "implement the board", or "spin up an agent to implement"
+- A sub-agent is dispatched to implement ralfie board items
+- Any PRD items need to be picked up, implemented, and tracked
+
+Do NOT implement ralfie board items without following this workflow — it ensures proper task claiming, feedback loops, code review, progress tracking, and commit conventions.
+
+## Workflow
+
 You are an autonomous coding agent executing work from a ralfie board. Follow this workflow exactly.
 
 ## Step 1: Pick Task
@@ -57,7 +68,46 @@ If any feedback loop fails:
 - Re-run ALL feedback loops (not just the failing one)
 - Do not proceed until all loops pass
 
-## Step 5: Update Progress
+## Step 5: Code Review
+
+After all feedback loops pass, dispatch a **code-reviewer** agent (subagent_type: `superpowers:code-reviewer`) to perform a thorough review of all changes made during implementation. The review is scoped strictly to files changed for the current PRD item.
+
+### Review Criteria
+
+The reviewer MUST evaluate against all three pillars:
+
+**1. Security**
+- No command injection, XSS, SQL injection, or other OWASP Top 10 vulnerabilities
+- Secrets are not hardcoded; user input is validated at system boundaries
+- Auth/authz checks are present where required
+
+**2. Code Quality**
+- **DRY** — no duplicated logic; if near-identical functions exist, the reviewer flags them for consolidation rather than accepting parallel variants
+- **Cyclomatic complexity** — no function exceeds a complexity of 10; deeply nested branches must be refactored
+- **File size** — files should not exceed ~300 lines; files with more than 8 exported members should be split
+- **One component per file** — each React component MUST live in its own file. No file should export multiple components. Nested or child components go in a subfolder under the general components directory (e.g., `components/TransactionList/TransactionItem.tsx`)
+- **Collocation** — utility functions belong next to the code that uses them, not in a distant `utils/` grab bag
+- **Expand, don't duplicate** — when an existing function can be extended to cover a new case, the reviewer rejects a second near-identical function and requires the original to be expanded
+
+**3. Completeness**
+- Walk through every design branch in the PRD item's description and `steps_to_verify`
+- Confirm the implementation covers all branches, edge cases, and error paths described
+- Flag any unhandled branches or missing behavior
+
+### Review Loop
+
+1. Dispatch the reviewer agent with the list of changed files and the PRD item context (ID, description, steps_to_verify)
+2. The reviewer returns findings as a structured list: `{ file, line, severity (critical|warning|nit), pillar (security|quality|completeness), finding, suggestion }`
+3. If there are **critical** or **warning** findings:
+   - Fix all critical and warning findings immediately
+   - Re-run ALL feedback loops (Step 4) to ensure fixes don't break anything
+   - Re-dispatch the reviewer agent for a focused re-review of only the fixed files
+4. Repeat until the reviewer returns **zero critical or warning findings**
+5. Nits are logged in the progress entry but do not block completion
+
+The review loop MUST converge — limit to **3 rounds maximum**. If critical/warning findings persist after 3 rounds, log the remaining findings in progress.md and proceed (do not get stuck).
+
+## Step 6: Update Progress
 
 Append to `progress.md` using this exact format:
 
@@ -83,7 +133,7 @@ Each progress entry MUST:
 
 This structure allows the UI to parse entries into individual collapsible cards.
 
-## Step 6: Update PRD
+## Step 7: Update PRD
 
 Mark the item as `done` in `prd.json`:
 - Set `status` to `done`
@@ -91,13 +141,51 @@ Mark the item as `done` in `prd.json`:
 
 The `completeItem` function in `prd.ts` automatically sets `completed_at` to the current ISO timestamp when marking done.
 
-## Step 7: Commit
+## Step 8: Commit
 
-Create a git commit with:
-- A descriptive message referencing the item ID
-- Only the files relevant to this item
+Create a git commit using **conventional commit format**:
 
-## Step 8: Check Completion
+```
+type(board-name): short description
+
+ITEM-ID
+```
+
+- **type** — choose based on the nature of the change:
+  - `feat` — new feature or capability
+  - `fix` — bug fix
+  - `test` — adding or updating tests
+  - `docs` — documentation changes
+  - `refactor` — code restructuring without behavior change
+  - `chore` — maintenance, config, or tooling changes
+- **scope** — always use the board name (e.g., `feat(my-board): ...`)
+- **body** — include the item ID on its own line in the commit body
+
+Examples:
+```
+feat(my-board): add user authentication endpoint
+
+AUTH-3
+```
+```
+fix(my-board): handle null response from API
+
+API-7
+```
+```
+test(my-board): add integration tests for payment flow
+
+PAY-2
+```
+```
+docs(my-board): update API reference with new endpoints
+
+DOC-1
+```
+
+Only commit files relevant to the current item.
+
+## Step 9: Check Completion
 
 Read the updated `prd.json`. If ALL items have status `done` or `verified`, output:
 
