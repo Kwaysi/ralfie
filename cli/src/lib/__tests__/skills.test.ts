@@ -15,7 +15,7 @@ afterEach(async () => {
 });
 
 describe('skills', () => {
-  it('installSkills copies all 3 skills to .claude/skills/<name>/SKILL.md', async () => {
+  it('installSkills copies all 4 skills to .claude/skills/<name>/SKILL.md', async () => {
     await installSkills(tmp);
     for (const name of SKILL_NAMES) {
       const content = await readFile(join(tmp, '.claude', 'skills', name, 'SKILL.md'), 'utf-8');
@@ -54,18 +54,27 @@ describe('skills', () => {
     expect(content).toContain('Drift Log');
   });
 
-  it('ralf-run contains required workflow steps', async () => {
+  it('ralf-run contains required workflow steps (implement only)', async () => {
     await installSkills(tmp);
     const content = await readFile(join(tmp, '.claude', 'skills', 'ralf-run', 'SKILL.md'), 'utf-8');
     expect(content).toContain('Pick Task');
     expect(content).toContain('Claim Item');
     expect(content).toContain('Implement');
     expect(content).toContain('Run Feedback Loops');
+    expect(content).toContain('Failure Protocol');
+    // ralf-run should NOT contain finalization steps
+    expect(content).not.toContain('## Step 5:');
+    expect(content).not.toContain('Commit');
+  });
+
+  it('ralf-finalize contains required finalization steps', async () => {
+    await installSkills(tmp);
+    const content = await readFile(join(tmp, '.claude', 'skills', 'ralf-finalize', 'SKILL.md'), 'utf-8');
+    expect(content).toContain('name: ralf-finalize');
     expect(content).toContain('Update Progress');
     expect(content).toContain('Update PRD');
     expect(content).toContain('Commit');
     expect(content).toContain('Check Completion');
-    expect(content).toContain('Failure Protocol');
   });
 
   it('skillsInstalled returns false when skills not installed', async () => {

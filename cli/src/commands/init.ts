@@ -48,6 +48,7 @@ export async function initCommand(cwd?: string): Promise<void> {
   console.log('  .claude/skills/ralf-plan/SKILL.md');
   console.log('  .claude/skills/ralf-edit/SKILL.md');
   console.log('  .claude/skills/ralf-run/SKILL.md');
+  console.log('  .claude/skills/ralf-finalize/SKILL.md');
   console.log('  .claude/settings.json');
   console.log('  CLAUDE.md');
   console.log('  .ralfie/RALF.md');

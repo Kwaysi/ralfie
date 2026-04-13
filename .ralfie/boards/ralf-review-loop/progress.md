@@ -17,3 +17,28 @@
 - `parseJsonOutput` gracefully falls back to raw text for non-JSON output, so non-JSON agent commands won't break
 
 ---
+
+## SKILL-1 — Split ralf-run into ralf-run + ralf-finalize
+
+**Key decisions:**
+- Trimmed ralf-run SKILL.md to Steps 1-4 only (pick, claim, implement, feedback loops) with explicit stop instruction
+- Created ralf-finalize SKILL.md with Steps 1-4 (renumbered from original Steps 6-9: progress, PRD, commit, completion)
+- ralf-finalize relies on conversation resumption for context — the preamble states "You will be resumed in the same conversation that implemented the item"
+- Added ralf-finalize to SKILL_NAMES array in skills.ts — installSkills and skillsInstalled automatically pick it up
+- Updated init.ts output log and init test to include ralf-finalize
+
+**Files changed:**
+- `cli/src/skills/ralf-run/SKILL.md` — trimmed to Steps 1-4 only, removed progress/PRD/commit/completion steps
+- `cli/src/skills/ralf-finalize/SKILL.md` — new skill covering update progress, update PRD, commit, check completion
+- `cli/src/lib/skills.ts` — added 'ralf-finalize' to SKILL_NAMES
+- `cli/src/lib/__tests__/skills.test.ts` — updated ralf-run test to assert no Step 5 or Commit; added ralf-finalize test
+- `cli/src/commands/init.ts` — added ralf-finalize to console output
+- `cli/src/commands/__tests__/init.test.ts` — added ralf-finalize to skills verification loop
+- `.claude/skills/ralf-run/SKILL.md` — installed copy updated
+- `.claude/skills/ralf-finalize/SKILL.md` — installed copy created
+
+**Notes:**
+- ralf-finalize does not include a Failure Protocol section — finalization steps are simpler and failure is less likely
+- The installed copies under `.claude/skills/` are synced from source; they get overwritten on every `ralf init`
+
+---

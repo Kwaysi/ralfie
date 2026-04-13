@@ -1,6 +1,6 @@
 ---
 name: ralf-run
-description: Execute a ralfie board iteration — pick a task, implement it, run feedback loops, update progress, and commit
+description: Execute a ralfie board iteration — pick a task, implement it, and run feedback loops
 ---
 
 # ralfie-run
@@ -57,93 +57,7 @@ If any feedback loop fails:
 - Re-run ALL feedback loops (not just the failing one)
 - Do not proceed until all loops pass
 
-## Step 5: Update Progress
-
-Append to `progress.md` using this exact format:
-
-```markdown
-## ITEM-ID — Short Description
-
-**Key decisions:**
-- Decision or rationale
-
-**Files changed:**
-- `path/to/file` — what changed
-
-**Notes:**
-- Any notes for future iterations
-
----
-```
-
-Each progress entry MUST:
-1. Start with a `## ITEM-ID — Description` heading (using the item's ID from `prd.json`)
-2. Include key decisions, files changed, and notes sections
-3. End with a `---` horizontal rule separator
-
-This structure allows the UI to parse entries into individual collapsible cards.
-
-## Step 6: Update PRD
-
-Mark the item as `done` in `prd.json`:
-- Set `status` to `done`
-- Set `passes` to `true`
-
-The `completeItem` function in `prd.ts` automatically sets `completed_at` to the current ISO timestamp when marking done.
-
-## Step 7: Commit
-
-Create a git commit using **conventional commit format**:
-
-```
-type(board-name): short description
-
-ITEM-ID
-```
-
-- **type** — choose based on the nature of the change:
-  - `feat` — new feature or capability
-  - `fix` — bug fix
-  - `test` — adding or updating tests
-  - `docs` — documentation changes
-  - `refactor` — code restructuring without behavior change
-  - `chore` — maintenance, config, or tooling changes
-- **scope** — always use the board name (e.g., `feat(my-board): ...`)
-- **body** — include the item ID on its own line in the commit body
-
-Examples:
-```
-feat(my-board): add user authentication endpoint
-
-AUTH-3
-```
-```
-fix(my-board): handle null response from API
-
-API-7
-```
-```
-test(my-board): add integration tests for payment flow
-
-PAY-2
-```
-```
-docs(my-board): update API reference with new endpoints
-
-DOC-1
-```
-
-Only commit files relevant to the current item.
-
-## Step 8: Check Completion
-
-Read the updated `prd.json`. If ALL items have status `done` or `verified`, output:
-
-```
-<ralfie>COMPLETE</ralfie>
-```
-
-This signals the runner to stop the iteration loop.
+Once all feedback loops pass, **stop**. Do not update progress, PRD, or commit. The orchestrator will handle the review step and finalization.
 
 ## Failure Protocol
 
