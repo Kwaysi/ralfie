@@ -11,3 +11,4 @@ This project uses Ralfie for agentic task orchestration. Each board below repres
 - **repo-readme** — Comprehensive, marketing-friendly README.md for the Ralfie repository → [progress](.ralfie/boards/repo-readme/progress.md)
 - **ui-sorting** — Sort boards newest-first and PRD kanban items by relevant timestamps across the Ralfie dashboard UI → [progress](.ralfie/boards/ui-sorting/progress.md)
 - **ralf-workflow-enhancements** — Conventional commits, auto-branch/PR on run completion, commit-msg hook enforcement, and dashboard item drawer cycling → [progress](.ralfie/boards/ralf-workflow-enhancements/progress.md)
+- **ralf-review-loop** — Orchestrator-level code review loop with conversation resumption for ralf run → [progress](.ralfie/boards/ralf-review-loop/progress.md)

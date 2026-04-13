@@ -1,0 +1,114 @@
+{
+  "project": "ralf-review-loop",
+  "description": "Orchestrator-level code review loop with conversation resumption for ralf run",
+  "items": [
+    {
+      "id": "AGENT-1",
+      "category": "Agent Infrastructure",
+      "user_story": "As the orchestrator, I can capture the session ID from a Claude print-mode session so I can resume it later",
+      "description": "Add --output-format json to spawnPrintMode, parse the JSON response to extract session_id and result text, and add a spawnResume function that uses --resume <id> -p <prompt> --output-format json",
+      "end_state": "spawnPrintMode returns sessionId parsed from JSON output. spawnResume(sessionId, prompt) spawns claude --resume <id> -p <prompt> --output-format json and returns a SpawnResult with sessionId. Both functions use the same process group cleanup pattern.",
+      "steps_to_verify": [
+        "spawnPrintMode return type includes sessionId: string | null",
+        "spawnPrintMode adds --output-format json to spawn args",
+        "spawnPrintMode parses JSON response to extract session_id and result fields",
+        "spawnResume function exists and uses --resume flag with session ID",
+        "spawnResume returns SpawnResult with sessionId",
+        "Both functions use detached process groups with SIGTERM cleanup",
+        "Unit tests verify session ID parsing from sample JSON output",
+        "npm run typecheck passes",
+        "npm run test passes"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "SKILL-1",
+      "category": "Skills",
+      "user_story": "As a run agent, I implement and verify but don't commit, so the orchestrator can insert a review step before finalization",
+      "description": "Split ralf-run into two skills: ralf-run (Steps 1-4: pick, claim, implement, feedback loops) and ralf-finalize (Steps 6-9: update progress, update PRD, commit, check completion). Remove the code review step from ralf-run entirely.",
+      "end_state": "ralf-run SKILL.md ends after feedback loops pass — no code review step, no commit. ralf-finalize SKILL.md covers progress update, PRD update, commit, and completion check. Both are installed by ralf init.",
+      "steps_to_verify": [
+        "ralf-run SKILL.md contains Steps 1-4 only (pick, claim, implement, feedback loops)",
+        "ralf-run SKILL.md does NOT mention committing or code review",
+        "ralf-finalize SKILL.md exists at .claude/skills/ralf-finalize/SKILL.md",
+        "ralf-finalize SKILL.md covers Steps 6-9 (progress, PRD, commit, completion)",
+        "ralf-finalize SKILL.md references the PRD item context so the agent knows what to finalize",
+        "skills.ts installs both ralf-run and ralf-finalize",
+        "npm run build succeeds"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "SKILL-2",
+      "category": "Skills",
+      "user_story": "As a reviewer agent, I receive a git diff and PRD item context and output structured findings or LGTM",
+      "description": "Create ralf-review skill that instructs the agent to run git diff, evaluate uncommitted changes against security/quality/completeness criteria, and output either <ralfie>LGTM</ralfie> or structured findings",
+      "end_state": "ralf-review SKILL.md exists at .claude/skills/ralf-review/SKILL.md. It instructs the agent to evaluate the diff against review criteria and output <ralfie>LGTM</ralfie> when clean or structured findings when issues exist. Installed by ralf init.",
+      "steps_to_verify": [
+        "ralf-review SKILL.md exists in .claude/skills/ralf-review/",
+        "Skill includes review criteria for security, code quality, and completeness",
+        "Skill instructs agent to output <ralfie>LGTM</ralfie> when no critical/warning findings",
+        "Skill instructs agent to output findings with file, line, severity, and suggestion when issues exist",
+        "skills.ts installs ralf-review alongside other skills",
+        "npm run build succeeds"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "ORCH-1",
+      "category": "Orchestrator",
+      "user_story": "As a user running ralf run, each PRD item is automatically reviewed by an independent agent before being committed, with up to 3 fix rounds",
+      "description": "Wire the implement → review → fix → finalize loop into run.ts. After implementor exits, spawn reviewer with git diff context. If not LGTM, resume implementor with findings. Loop up to review_rounds times. Then resume implementor with ralf-finalize prompt.",
+      "end_state": "run.ts per-iteration flow: (1) spawn implementor with ralf-run and capture sessionId, (2) spawn reviewer with ralf-review and git diff, (3) if not LGTM, resume implementor with findings via --resume, loop to step 2 (max config.review_rounds), (4) resume implementor with ralf-finalize to commit. All orchestrated in run.ts.",
+      "steps_to_verify": [
+        "run.ts spawns implementor with spawnPrintMode and captures sessionId",
+        "run.ts spawns reviewer as a separate process after implementor exits",
+        "run.ts checks reviewer output for <ralfie>LGTM</ralfie>",
+        "If not LGTM, run.ts resumes implementor with review findings via spawnResume",
+        "Review loop is capped at config.review_rounds (default 3)",
+        "After review passes or max rounds, run.ts resumes implementor with ralf-finalize prompt",
+        "When review_enabled is false, run.ts skips review and goes straight to finalize",
+        "npm run typecheck passes",
+        "npm run test passes"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    },
+    {
+      "id": "CFG-1",
+      "category": "Config",
+      "user_story": "As a user, I can configure the max review rounds and disable review entirely if needed",
+      "description": "Add review_rounds (default 3) and review_enabled (default true) to RalfieConfig type and config defaults",
+      "end_state": "RalfieConfig in shared/src/types.ts has review_rounds: number and review_enabled: boolean. defaultConfig in config.ts sets review_rounds: 3 and review_enabled: true. run.ts reads these values. Tests cover defaults.",
+      "steps_to_verify": [
+        "RalfieConfig type includes review_rounds: number and review_enabled: boolean",
+        "defaultConfig sets review_rounds: 3, review_enabled: true",
+        "run.ts uses config.review_rounds for the loop cap",
+        "run.ts skips the review loop entirely when review_enabled is false",
+        "Existing config files without these fields get defaults via spread",
+        "npm run typecheck passes",
+        "npm run test passes"
+      ],
+      "status": "pending",
+      "assigned_to": null,
+      "started_at": null,
+      "completed_at": null,
+      "comments": []
+    }
+  ]
+}
