@@ -22,6 +22,7 @@ You stay in control: every task has clear verification steps, progress is tracke
 - **Autonomous execution** — Each task is claimed, implemented, verified against feedback loops (tests, typecheck, lint), and committed — no manual intervention needed.
 - **Live dashboard** — A real-time web UI shows board progress, task status, and detailed logs. Updates instantly via WebSocket as work happens.
 - **File-based tracking** — All state lives in your repo under `.ralfie/`. Plans, task lists, and progress logs are plain Markdown and JSON — easy to review in PRs.
+- **Automatic code review** — After each task, an independent reviewer checks the diff for security issues, bugs, and code quality. Findings are sent back to the implementor for fixes before committing. Configurable review rounds and can be toggled off.
 - **Built-in guardrails** — File locking prevents conflicts when multiple agents run. Failed tasks are logged and skipped, not retried in an infinite loop.
 - **Edit and iterate** — Change your plan mid-stream. `ralf edit` lets you restructure the board, add items, or adjust scope without starting over.
 
@@ -136,7 +137,7 @@ ralfie/
 
 1. **`ralf init`** — creates a `.ralfie/` directory in your project with config and skills
 2. **`ralf plan`** — spawns an interactive Claude Code session that generates a plan (`plan.md`) and task list (`prd.json`)
-3. **`ralf run`** — picks up tasks one by one, claims each via file lock, implements it, runs feedback loops, commits the result
+3. **`ralf run`** — picks up tasks one by one, claims each via file lock, implements it, runs feedback loops, then sends the diff to an independent code reviewer. If the reviewer finds issues, the implementor fixes them before committing
 4. **`ralf serve`** — watches `.ralfie/boards/` for file changes and broadcasts updates over WebSocket to the React dashboard
 
 ## Contributing

@@ -51,7 +51,7 @@ Review the diff against each criterion below. For each, note any findings.
 
 ## Step 3: Produce Output
 
-### If no critical or warning findings
+### Only if there are ZERO findings of any severity
 
 Output exactly:
 
@@ -59,9 +59,9 @@ Output exactly:
 <ralfie>LGTM</ralfie>
 ```
 
-No other commentary is needed.
+No other commentary is needed. Do NOT emit LGTM if you have any CRITICAL or WARNING findings — both block the review and must be reported so the implementor can fix them.
 
-### If findings exist
+### If any findings exist (critical OR warning)
 
 Output each finding in this format:
 
@@ -83,9 +83,9 @@ Output each finding in this format:
 - **Suggestion:** How to fix it
 ```
 
-Severity levels:
+Severity levels (both block LGTM and must be fixed):
 - **CRITICAL** — Must fix before merge (security issues, bugs, missing functionality)
-- **WARNING** — Should fix (code quality, consistency, missing tests)
+- **WARNING** — Must fix before merge (code quality, consistency, missing tests)
 
 Do NOT include:
 - **INFO** or **NITPICK** findings — only report issues that actually matter
