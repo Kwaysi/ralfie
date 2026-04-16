@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtemp, rm, writeFile, chmod } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { generateSessionId, spawnPrintMode, spawnInteractive, spawnResume, parseJsonOutput } from '../agent.js';
+import { generateSessionId, spawnPrintMode, spawnInteractive, spawnResume } from '../agent.js';
 import { writeConfig, defaultConfig } from '../config.js';
 
 async function writeScript(dir: string, name: string, output: string): Promise<string> {
@@ -31,51 +31,6 @@ describe('generateSessionId', () => {
   it('generates unique IDs', () => {
     const ids = new Set(Array.from({ length: 10 }, () => generateSessionId()));
     expect(ids.size).toBe(10);
-  });
-});
-
-describe('parseJsonOutput', () => {
-  it('extracts session_id and result from valid JSON output', () => {
-    const json = JSON.stringify({
-      type: 'result',
-      session_id: 'adb6ad10-b603-412c-9c53-fd41260be4fc',
-      result: 'Hello world',
-      stop_reason: 'end_turn',
-    });
-    const { sessionId, result } = parseJsonOutput(json);
-    expect(sessionId).toBe('adb6ad10-b603-412c-9c53-fd41260be4fc');
-    expect(result).toBe('Hello world');
-  });
-
-  it('returns null sessionId and raw text for non-JSON output', () => {
-    const raw = 'just some plain text';
-    const { sessionId, result } = parseJsonOutput(raw);
-    expect(sessionId).toBeNull();
-    expect(result).toBe(raw);
-  });
-
-  it('returns null sessionId when session_id field is missing', () => {
-    const json = JSON.stringify({ type: 'result', result: 'no session' });
-    const { sessionId, result } = parseJsonOutput(json);
-    expect(sessionId).toBeNull();
-    expect(result).toBe('no session');
-  });
-
-  it('returns raw text as result when result field is missing', () => {
-    const raw = JSON.stringify({ type: 'result', session_id: 'abc123' });
-    const { sessionId, result } = parseJsonOutput(raw);
-    expect(sessionId).toBe('abc123');
-    expect(result).toBe(raw);
-  });
-
-  it('detects COMPLETE signal in parsed result', () => {
-    const json = JSON.stringify({
-      type: 'result',
-      session_id: 'test-session',
-      result: 'All done <ralfie>COMPLETE</ralfie>',
-    });
-    const { result } = parseJsonOutput(json);
-    expect(result).toContain('<ralfie>COMPLETE</ralfie>');
   });
 });
 
@@ -123,11 +78,12 @@ describe('spawnPrintMode', () => {
     expect(result.sessionId).toBeNull();
   });
 
-  it('passes --output-format json flag to agent command', async () => {
+  it('passes --output-format stream-json --verbose flags to agent command', async () => {
     await writeConfig({ ...defaultConfig, agent_command: 'echo' }, tmp);
     const result = await spawnPrintMode('test', tmp);
     expect(result.stdout).toContain('--output-format');
-    expect(result.stdout).toContain('json');
+    expect(result.stdout).toContain('stream-json');
+    expect(result.stdout).toContain('--verbose');
   });
 });
 

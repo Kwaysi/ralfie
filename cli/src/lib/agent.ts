@@ -10,23 +10,19 @@ export interface SpawnResult {
   sessionId: string | null;
 }
 
-export interface JsonOutput {
+interface StreamEvent {
   type: string;
+  subtype?: string;
   session_id?: string;
   result?: string;
-  stop_reason?: string;
-}
-
-export function parseJsonOutput(raw: string): { sessionId: string | null; result: string } {
-  try {
-    const parsed = JSON.parse(raw) as JsonOutput;
-    return {
-      sessionId: parsed.session_id ?? null,
-      result: parsed.result ?? raw,
-    };
-  } catch {
-    return { sessionId: null, result: raw };
-  }
+  message?: {
+    content?: Array<{
+      type: string;
+      text?: string;
+      name?: string;
+      input?: unknown;
+    }>;
+  };
 }
 
 export function generateSessionId(): string {
@@ -86,11 +82,56 @@ function spawnWithJsonOutput(cmd: string, args: string[], cwd: string): Promise<
     });
 
     let stdout = '';
+    let buffer = '';
+    let sessionId: string | null = null;
+    let result = '';
     let resolved = false;
+
+    const handleLine = (line: string): void => {
+      if (!line.trim()) return;
+      let evt: StreamEvent;
+      try {
+        evt = JSON.parse(line) as StreamEvent;
+      } catch {
+        // Not a JSON event line — pass through verbatim so the user still sees it.
+        process.stdout.write(line + '\n');
+        return;
+      }
+
+      if (evt.type === 'system' && evt.subtype === 'init' && evt.session_id) {
+        sessionId = evt.session_id;
+        process.stdout.write(`[session ${evt.session_id}]\n`);
+        return;
+      }
+
+      if (evt.type === 'assistant' && evt.message?.content) {
+        for (const block of evt.message.content) {
+          if (block.type === 'text' && block.text) {
+            process.stdout.write(block.text);
+            if (!block.text.endsWith('\n')) process.stdout.write('\n');
+          } else if (block.type === 'tool_use' && block.name) {
+            process.stdout.write(`[tool: ${block.name}]\n`);
+          }
+        }
+        return;
+      }
+
+      if (evt.type === 'result') {
+        if (evt.session_id) sessionId = evt.session_id;
+        if (typeof evt.result === 'string') {
+          result = evt.result;
+          process.stdout.write(evt.result);
+          if (!evt.result.endsWith('\n')) process.stdout.write('\n');
+        }
+        return;
+      }
+    };
 
     const finish = (code: number) => {
       if (resolved) return;
       resolved = true;
+
+      if (buffer.trim()) handleLine(buffer);
 
       if (child.pid) {
         try {
@@ -99,8 +140,6 @@ function spawnWithJsonOutput(cmd: string, args: string[], cwd: string): Promise<
           // Process group already gone — ignore
         }
       }
-
-      const { sessionId, result } = parseJsonOutput(stdout);
 
       resolve({
         exitCode: code,
@@ -114,7 +153,13 @@ function spawnWithJsonOutput(cmd: string, args: string[], cwd: string): Promise<
     child.stdout!.on('data', (chunk: Buffer) => {
       const text = chunk.toString();
       stdout += text;
-      process.stdout.write(text);
+      buffer += text;
+      let idx: number;
+      while ((idx = buffer.indexOf('\n')) !== -1) {
+        const line = buffer.slice(0, idx);
+        buffer = buffer.slice(idx + 1);
+        handleLine(line);
+      }
     });
 
     child.on('close', (code) => {
@@ -133,7 +178,7 @@ export async function spawnPrintMode(
 ): Promise<SpawnResult> {
   const config = await readConfig(cwd);
   const [cmd, ...baseArgs] = config.agent_command.split(/\s+/);
-  const args = [...baseArgs, '-p', prompt, '--output-format', 'json'];
+  const args = [...baseArgs, '-p', prompt, '--output-format', 'stream-json', '--verbose'];
   return spawnWithJsonOutput(cmd, args, cwd ?? process.cwd());
 }
 
@@ -144,6 +189,6 @@ export async function spawnResume(
 ): Promise<SpawnResult> {
   const config = await readConfig(cwd);
   const [cmd, ...baseArgs] = config.agent_command.split(/\s+/);
-  const args = [...baseArgs, '--resume', sessionId, '-p', prompt, '--output-format', 'json'];
+  const args = [...baseArgs, '--resume', sessionId, '-p', prompt, '--output-format', 'stream-json', '--verbose'];
   return spawnWithJsonOutput(cmd, args, cwd ?? process.cwd());
 }
