@@ -41,6 +41,10 @@ describe('config', () => {
       serve_pid: null,
       review_rounds: 3,
       review_enabled: true,
+      review_model: 'sonnet',
+      review_effort: 'high',
+      finalize_model: 'haiku',
+      finalize_effort: 'medium',
     });
   });
 });

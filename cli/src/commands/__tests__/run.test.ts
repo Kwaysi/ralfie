@@ -397,36 +397,48 @@ describe('run', () => {
     await createBoard('my-board', '# Plan', makePrd(), 'test board', tmp);
 
     const { spawnPrintMode, spawnResume } = await import('../../lib/agent.js');
-    let callCount = 0;
+    let printCount = 0;
     (spawnPrintMode as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      callCount++;
-      if (callCount === 1) {
+      printCount++;
+      if (printCount === 1) {
         // Implementor
         return Promise.resolve({ exitCode: 0, stdout: '', result: '', complete: false, sessionId: 'impl-123' });
       }
-      if (callCount === 2) {
-        // Reviewer round 1 — findings
-        const findings = '## Review Findings\n### [CRITICAL] — Bug';
-        return Promise.resolve({ exitCode: 0, stdout: '', result: findings, complete: false, sessionId: 'rev-1' });
+      // Reviewer round 1 — findings
+      const findings = '## Review Findings\n### [CRITICAL] — Bug';
+      return Promise.resolve({ exitCode: 0, stdout: '', result: findings, complete: false, sessionId: 'rev-1' });
+    });
+
+    (spawnResume as ReturnType<typeof vi.fn>).mockImplementation((_sid: string, prompt: string) => {
+      // Reviewer round 2 (resumed) — LGTM
+      if (prompt.includes('/ralf-review')) {
+        return Promise.resolve({ exitCode: 0, stdout: '', result: '<ralfie>LGTM</ralfie>', complete: false, sessionId: 'rev-1' });
       }
-      // Reviewer round 2 — LGTM
-      return Promise.resolve({ exitCode: 0, stdout: '', result: '<ralfie>LGTM</ralfie>', complete: false, sessionId: 'rev-2' });
+      // Fix or finalize
+      return Promise.resolve({ exitCode: 0, stdout: '', result: '', complete: false, sessionId: 'impl-123' });
     });
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
     await runCommand('my-board', 1, tmp);
 
-    // spawnResume should be called twice: once for fix, once for finalize
-    expect(spawnResume).toHaveBeenCalledTimes(2);
+    // spawnPrintMode: implementor(1) + reviewer-round-1(1) = 2
+    expect(spawnPrintMode).toHaveBeenCalledTimes(2);
 
-    // First resume: fix with findings
-    const fixPrompt = (spawnResume as ReturnType<typeof vi.fn>).mock.calls[0][1] as string;
-    expect(fixPrompt).toContain('reviewer found issues');
-    expect(fixPrompt).toContain('CRITICAL');
+    // spawnResume: fix(1) + reviewer-round-2(1) + finalize(1) = 3
+    expect(spawnResume).toHaveBeenCalledTimes(3);
 
-    // Second resume: finalize
-    const finalizePrompt = (spawnResume as ReturnType<typeof vi.fn>).mock.calls[1][1] as string;
-    expect(finalizePrompt).toContain('/ralf-finalize');
+    // Fix resume contains findings
+    const fixCall = (spawnResume as ReturnType<typeof vi.fn>).mock.calls.find(
+      (c: string[]) => (c[1] as string).includes('reviewer found issues'),
+    );
+    expect(fixCall).toBeDefined();
+    expect(fixCall![1]).toContain('CRITICAL');
+
+    // Finalize resume
+    const finalizeCall = (spawnResume as ReturnType<typeof vi.fn>).mock.calls.find(
+      (c: string[]) => (c[1] as string).includes('/ralf-finalize'),
+    );
+    expect(finalizeCall).toBeDefined();
 
     const allOutput = log.mock.calls.map((c) => c[0]).join('\n');
     expect(allOutput).toContain('Review round 1/3');
@@ -441,25 +453,24 @@ describe('run', () => {
     await createBoard('my-board', '# Plan', makePrd(), 'test board', tmp);
 
     const { spawnPrintMode, spawnResume } = await import('../../lib/agent.js');
-    let callCount = 0;
     (spawnPrintMode as ReturnType<typeof vi.fn>).mockImplementation(() => {
-      callCount++;
-      if (callCount === 1) {
-        // Implementor
-        return Promise.resolve({ exitCode: 0, stdout: '', result: '', complete: false, sessionId: 'impl-123' });
-      }
-      // All reviewer rounds return findings (never LGTM)
-      return Promise.resolve({ exitCode: 0, stdout: '', result: '## Findings', complete: false, sessionId: `rev-${callCount}` });
+      // Implementor (first call) or reviewer round 1 (second call)
+      return Promise.resolve({ exitCode: 0, stdout: '', result: '## Findings', complete: false, sessionId: 'impl-123' });
+    });
+
+    (spawnResume as ReturnType<typeof vi.fn>).mockImplementation(() => {
+      // Reviewer rounds 2-3 (resumed) and fix rounds all return findings
+      return Promise.resolve({ exitCode: 0, stdout: '', result: '## Findings', complete: false, sessionId: 'impl-123' });
     });
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
     await runCommand('my-board', 1, tmp);
 
-    // 3 review rounds (default) — implementor(1) + reviewer(3) = 4 spawnPrintMode calls
-    expect(spawnPrintMode).toHaveBeenCalledTimes(4);
+    // spawnPrintMode: implementor(1) + reviewer-round-1(1) = 2
+    expect(spawnPrintMode).toHaveBeenCalledTimes(2);
 
-    // 2 fix resumes (rounds 1 and 2) + 1 finalize resume = 3 spawnResume calls
-    expect(spawnResume).toHaveBeenCalledTimes(3);
+    // spawnResume: reviewer-round-2(1) + reviewer-round-3(1) + fix-round-1(1) + fix-round-2(1) + finalize(1) = 5
+    expect(spawnResume).toHaveBeenCalledTimes(5);
 
     const allOutput = log.mock.calls.map((c) => c[0]).join('\n');
     expect(allOutput).toContain('Max review rounds (3) reached');

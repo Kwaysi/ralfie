@@ -63,6 +63,10 @@ export interface RalfieConfig {
   serve_pid: number | null;
   review_rounds: number;
   review_enabled: boolean;
+  review_model: AgentModel;
+  review_effort: EffortLevel;
+  finalize_model: AgentModel;
+  finalize_effort: EffortLevel;
 }
 
 // -- WebSocket events --

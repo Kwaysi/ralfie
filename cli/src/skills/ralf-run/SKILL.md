@@ -36,9 +36,14 @@ The `claimItem` function in `prd.ts` handles all three automatically. You MUST c
 
 ## Step 3: Implement
 
-Implement the item according to its description and `steps_to_verify`:
+Before writing any code:
 
-- Read existing code before making changes
+- Read the data model and schema files relevant to the item
+- Read ui design or design system files related to the item when applicable
+- Review existing implementations of similar patterns in the codebase
+
+Then implement the item according to its description and `steps_to_verify`:
+
 - Follow the patterns established in the codebase
 - Write tests alongside implementation (not after)
 - Keep changes minimal and focused on the single item
