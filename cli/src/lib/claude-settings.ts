@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { readConfig } from './config.js';
-import type { AgentModel } from '@ralfie/shared';
+import type { AgentModel, EffortLevel } from '@ralfie/shared';
 
 const MODEL_MAP: Record<AgentModel, string> = {
   opus: 'claude-opus-4-6',
@@ -13,7 +13,10 @@ export function claudeSettingsPath(cwd = process.cwd()): string {
   return join(cwd, '.claude', 'settings.json');
 }
 
-export async function syncClaudeSettings(cwd?: string): Promise<void> {
+export async function syncClaudeSettings(
+  cwd?: string,
+  overrides?: { model?: AgentModel; effort?: EffortLevel },
+): Promise<void> {
   const config = await readConfig(cwd);
   const settingsPath = claudeSettingsPath(cwd);
 
@@ -27,8 +30,8 @@ export async function syncClaudeSettings(cwd?: string): Promise<void> {
 
   const merged = {
     ...existing,
-    effortLevel: config.effort,
-    model: MODEL_MAP[config.model],
+    effortLevel: overrides?.effort ?? config.effort,
+    model: MODEL_MAP[overrides?.model ?? config.model],
   };
 
   await mkdir(dirname(settingsPath), { recursive: true });
