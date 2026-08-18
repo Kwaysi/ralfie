@@ -38,7 +38,7 @@ You stay in control: every task has clear verification steps, progress is tracke
 > `npm install -g ralfie` is coming soon. For now, build from source:
 
 ```bash
-git clone https://github.com/anthropics/ralfie.git
+git clone https://github.com/kwaysi/ralfie.git
 cd ralfie
 npm install
 npm run build
